@@ -6,14 +6,14 @@ import { Plus } from 'lucide-react';
 import { AppUserRow } from '@/components/app-users/app-user-row';
 import { AppUsersCreate } from '@/components/app-users/app-users-create';
 import { AppUserRowSkeleton } from '@/components/app-users/app-user-row-skeleton';
+import { InView } from 'react-intersection-observer';
+import { Spinner } from '@/components/ui/spinner';
 
 export function AppUsers() {
   const app = useApp();
   const [openCreate, setOpenCreate] = React.useState(false);
-  const { data, isPending, hasNextPage, fetchNextPage } = useGetAppUsersQuery(
-    app.id,
-    20,
-  );
+  const { data, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    useGetAppUsersQuery(app.id, 20);
 
   return (
     <div className="flex flex-col gap-4">
@@ -32,13 +32,13 @@ export function AppUsers() {
       </div>
       <div className="flex flex-col gap-4">
         {isPending ? (
-          <>
+          <React.Fragment>
             {Array.from({ length: 5 }).map((_, index) => (
               <AppUserRowSkeleton key={index} />
             ))}
-          </>
+          </React.Fragment>
         ) : (
-          <>
+          <React.Fragment>
             {data?.pages.map((page) => (
               <React.Fragment key={page.nextCursor}>
                 {page.items.map((appUser) => (
@@ -46,7 +46,19 @@ export function AppUsers() {
                 ))}
               </React.Fragment>
             ))}
-          </>
+            <InView
+              rootMargin="200px"
+              onChange={async (inView) => {
+                if (inView && hasNextPage && !isFetchingNextPage) {
+                  await fetchNextPage();
+                }
+              }}
+            >
+              <div className="flex w-full items-center justify-center py-4">
+                {isFetchingNextPage && <Spinner />}
+              </div>
+            </InView>
+          </React.Fragment>
         )}
       </div>
       <AppUsersCreate
