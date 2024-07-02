@@ -22,7 +22,7 @@ const formSchema = z.object({
   description: z.string(),
 });
 
-export function CreateApp() {
+export function AppCreate() {
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateAppMutation();
   const form = useForm<z.infer<typeof formSchema>>({

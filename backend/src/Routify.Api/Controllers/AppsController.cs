@@ -17,18 +17,27 @@ public class AppsController(
         [FromRoute] string appId,
         CancellationToken cancellationToken = default)
     {
-        var app = await databaseContext
-            .Apps
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == appId, cancellationToken);
+        if (!IsAuthenticated)
+            return Unauthorized();
         
+        var appUser = await databaseContext
+            .AppUsers
+            .Include(x => x.App)
+            .AsNoTracking()
+            .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
+        
+        if (appUser is null)
+            return Forbid();
+        
+        var app = appUser.App;
         if (app is null)
             return NotFound();
-
+        
         var payload = new AppPayload
         {
             Id = app.Id,
-            Name = app.Name
+            Name = app.Name,
+            Role = appUser.Role
         };
         
         return Ok(payload);
@@ -70,13 +79,15 @@ public class AppsController(
         var payload = new AppPayload
         {
             Id = app.Id,
-            Name = app.Name
+            Name = app.Name,
+            Description = app.Description,
+            Role = appUser.Role
         };
         
         return Ok(payload);
     }
     
-    [HttpPut(Name = "UpdateApp")]
+    [HttpPut("{appId}", Name = "UpdateApp")]
     public async Task<ActionResult<AppPayload>> UpdateAppAsync(
         [FromRoute] string appId,
         [FromBody] AppInput input,
@@ -108,7 +119,9 @@ public class AppsController(
         return Ok(new AppPayload
         {
             Id = app.Id,
-            Name = app.Name
+            Name = app.Name,
+            Description = app.Description,
+            Role = appUser.Role
         });
     }
     

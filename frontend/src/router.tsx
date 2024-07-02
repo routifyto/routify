@@ -1,12 +1,13 @@
 import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
-import { NotFound } from '@/pages/not-found';
-import { Login } from '@/pages/login';
+import { NotFound } from '@/components/not-found';
+import { Login } from '@/components/login';
 import { WorkspaceLayout } from '@/components/workspaces/workspace-layout';
-import { CreateApp } from '@/pages/create-app';
+import { AppCreate } from '@/components/apps/app-create';
 import { WorkspaceRedirect } from '@/components/workspaces/workspace-redirect';
-import { AppLayout } from '@/pages/app-layout';
+import { AppLayout } from '@/components/apps/app-layout';
+import { AppSettings } from '@/components/apps/app-settings';
 
 export const router = createBrowserRouter([
   {
@@ -19,11 +20,17 @@ export const router = createBrowserRouter([
       },
       {
         path: '/create',
-        element: <CreateApp />,
+        element: <AppCreate />,
       },
       {
         path: '/:appId',
         element: <AppLayout />,
+        children: [
+          {
+            path: 'settings',
+            element: <AppSettings />,
+          },
+        ],
       },
     ],
   },

@@ -1,3 +1,5 @@
+import { AppUserRole } from '@/types/app-users';
+
 export type Workspace = {
   user: WorkspaceUser;
   apps: WorkspaceApp[];
@@ -12,5 +14,6 @@ export type WorkspaceUser = {
 export type WorkspaceApp = {
   id: string;
   name: string;
-  role: 'OWNER' | 'ADMIN' | 'USER';
+  role: AppUserRole;
+  description?: string;
 };

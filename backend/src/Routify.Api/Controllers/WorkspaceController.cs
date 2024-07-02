@@ -51,7 +51,8 @@ public class WorkspaceController(
             {
                 Id = app.Id,
                 Name = app.Name,
-                Role = userApp.Role
+                Role = userApp.Role,
+                Description = app.Description
             };
             
             payload.Apps.Add(appPayload);
