@@ -18,8 +18,4 @@
       <ProjectReference Include="..\Routify.Data\Routify.Data.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\Users\" />
-    </ItemGroup>
-
 </Project>

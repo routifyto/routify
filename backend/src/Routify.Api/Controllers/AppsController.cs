@@ -20,16 +20,16 @@ public class AppsController(
         if (!IsAuthenticated)
             return Unauthorized();
         
-        var appUser = await databaseContext
+        var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (appUser is null)
+        if (currentAppUser is null)
             return Forbid();
         
-        var app = appUser.App;
+        var app = currentAppUser.App;
         if (app is null)
             return NotFound();
         
@@ -37,7 +37,7 @@ public class AppsController(
         {
             Id = app.Id,
             Name = app.Name,
-            Role = appUser.Role
+            Role = currentAppUser.Role
         };
         
         return Ok(payload);
@@ -96,15 +96,15 @@ public class AppsController(
         if (!IsAuthenticated)
             return Unauthorized();
         
-        var appUser = await databaseContext
+        var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (appUser is null || appUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
             return Forbid();
         
-        var app = appUser.App;
+        var app = currentAppUser.App;
         if (app is null)
             return NotFound();
         
@@ -121,7 +121,7 @@ public class AppsController(
             Id = app.Id,
             Name = app.Name,
             Description = app.Description,
-            Role = appUser.Role
+            Role = currentAppUser.Role
         });
     }
     
@@ -133,15 +133,15 @@ public class AppsController(
         if (!IsAuthenticated)
             return Unauthorized();
         
-        var appUser = await databaseContext
+        var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (appUser is null || appUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
             return Forbid();
         
-        var app = appUser.App;
+        var app = currentAppUser.App;
         if (app is null)
             return NotFound();
         

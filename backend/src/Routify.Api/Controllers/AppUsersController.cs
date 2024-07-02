@@ -14,6 +14,74 @@ public class AppUsersController(
     DatabaseContext databaseContext) 
     : BaseController
 {
+    [HttpGet(Name = "GetAppUsers")]
+    public async Task<ActionResult<PaginatedPayload<AppUserPayload>>> GetAppUsersAsync(
+        [FromRoute] string appId,
+        [FromQuery] string? after,
+        [FromQuery] int limit = 20,
+        CancellationToken cancellationToken = default)
+    {
+        if (!IsAuthenticated)
+            return Unauthorized();
+
+        var currentAppUser = await databaseContext
+            .AppUsers
+            .Include(x => x.App)
+            .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
+        
+        if (currentAppUser is null)
+            return NotFound();
+        
+        var app = currentAppUser.App;
+        if (app is null)
+            return NotFound();
+
+        var query = databaseContext
+            .AppUsers
+            .Include(x => x.User)
+            .Where(x => x.AppId == appId);
+        
+        if (!string.IsNullOrWhiteSpace(after))
+            query = query.Where(x => x.Id.CompareTo(after) > 0);
+        
+        // Limit the number of items to fetch
+        limit = Math.Max(1, Math.Min(limit, 100));
+        var appUsers = await query
+            .OrderBy(x => x.Id)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
+
+        var appUserPayloads = new List<AppUserPayload>();
+        foreach (var appUser in appUsers)
+        {
+            if (appUser.User is null)
+                continue;
+            
+            appUserPayloads.Add(new AppUserPayload
+            {
+                Id = appUser.Id,
+                Role = appUser.Role,
+                UserId = appUser.UserId,
+                Name = appUser.User.Name,
+                Email = appUser.User.Email,
+                Avatar = appUser.User.Avatar,
+                CreatedAt = appUser.CreatedAt,
+            });
+        }
+
+        var hasNext = appUsers.Count == limit;
+        var nextCursor = hasNext ? appUsers.Last().Id : null;
+        var payload = new PaginatedPayload<AppUserPayload>
+        {
+            Items = appUserPayloads,
+            HasNext = hasNext,
+            NextCursor = nextCursor,
+        };
+        
+        return Ok(payload);
+    }
+    
     [HttpPost(Name = "CreateAppUser")]
     public async Task<ActionResult<AppUsersPayload>> CreateAppUserAsync(
         [FromRoute] string appId,
@@ -23,15 +91,15 @@ public class AppUsersController(
         if (!IsAuthenticated)
             return Unauthorized();
 
-        var appUser = await databaseContext
+        var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (appUser is null || appUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
             return Forbid();
         
-        var app = appUser.App;
+        var app = currentAppUser.App;
         if (app is null)
             return NotFound();
         
@@ -123,15 +191,15 @@ public class AppUsersController(
         if (!IsAuthenticated)
             return Unauthorized();
 
-        var appUser = await databaseContext
+        var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (appUser is null || appUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
             return Forbid();
         
-        var app = appUser.App;
+        var app = currentAppUser.App;
         if (app is null)
             return NotFound();
         
@@ -176,15 +244,15 @@ public class AppUsersController(
         if (!IsAuthenticated)
             return Unauthorized();
 
-        var appUser = await databaseContext
+        var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (appUser is null || appUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
             return Forbid();
         
-        var app = appUser.App;
+        var app = currentAppUser.App;
         if (app is null)
             return NotFound();
         

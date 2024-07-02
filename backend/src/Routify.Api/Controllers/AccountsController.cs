@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Routify.Api.Models.Accounts;
-using Routify.Api.Models.Errors;
+using Routify.Api.Models.Common;
 using Routify.Core.Utils;
 using Routify.Data;
 using Routify.Data.Models;

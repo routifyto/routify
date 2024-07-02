@@ -1,4 +1,4 @@
-namespace Routify.Api.Models.Errors;
+namespace Routify.Api.Models.Common;
 
 public enum ApiError
 {
