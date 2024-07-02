@@ -36,7 +36,7 @@ export function EmailLogin({ onLogin }: EmailLoginProps) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function handleSubmit(values: z.infer<typeof formSchema>) {
     mutate(values, {
       onSuccess: (data) => {
         onLogin(data);
@@ -46,7 +46,7 @@ export function EmailLogin({ onLogin }: EmailLoginProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
         <FormField
           control={form.control}
           name="email"

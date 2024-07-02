@@ -8,10 +8,14 @@ public class DatabaseContext(
     : DbContext(options)
 {
     public DbSet<User> Users { get; init; }
+    public DbSet<App> Apps { get; init; }
+    public DbSet<AppUser> AppUsers { get; init; }
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
     {
         User.OnModelCreating(modelBuilder);
+        App.OnModelCreating(modelBuilder);
+        AppUser.OnModelCreating(modelBuilder);
     }
 }

@@ -56,11 +56,9 @@ public class AccountsController(
         
         user.Password = passwordHasher.HashPassword(user, input.Password);
         
-        await databaseContext
-            .Users
-            .AddAsync(user, cancellationToken);
-        
+        await databaseContext.Users.AddAsync(user, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
+        
         return Ok(BuildLoginPayload(user));
     }
     
@@ -187,7 +185,7 @@ public class AccountsController(
             .AddAsync(user, cancellationToken);
         
         await databaseContext.SaveChangesAsync(cancellationToken);
-        return BuildLoginPayload(user);
+        return Ok(BuildLoginPayload(user));
     }
 
     private LoginPayload BuildLoginPayload(

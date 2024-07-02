@@ -44,6 +44,8 @@ public static class RoutifyId
 public static class IdType
 {
     public const string App = "ap";
+    public const string AppUser = "au";
     public const string Route = "rt";
     public const string User = "us";
+    public const string Version = "ve";
 }

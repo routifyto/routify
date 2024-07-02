@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { readToken } from '@/lib/storage';
 import { useGetWorkspaceQuery } from '@/api/workspaces';
 import { WorkspaceSkeleton } from '@/components/workspaces/workspace-skeleton';
+import { WorkspaceContext } from '@/contexts/workspace';
+import { Outlet } from 'react-router-dom';
 
-export function Workspace() {
+export function WorkspaceLayout() {
   const { data, isPending } = useGetWorkspaceQuery();
 
   useEffect(() => {
@@ -17,11 +19,16 @@ export function Workspace() {
     return <WorkspaceSkeleton />;
   }
 
+  // to do: handle error state
+  if (!data) {
+    return null;
+  }
+
   return (
-    <div className="min-w-screen flex h-full min-h-screen w-full items-center justify-center">
-      <div className="flex flex-col items-center gap-8 text-center">
-        <p>Welcome to Routify, {data?.user.name}!</p>
+    <WorkspaceContext.Provider value={data}>
+      <div className="max-h-screen min-h-screen font-sans">
+        <Outlet />
       </div>
-    </div>
+    </WorkspaceContext.Provider>
   );
 }
