@@ -62,8 +62,8 @@ export function AppProviders() {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              {data?.pages.map((page) => (
-                <React.Fragment key={page.nextCursor}>
+              {data?.pages.map((page, index) => (
+                <React.Fragment key={index}>
                   {page.items.map((appProvider) => {
                     const provider = providers.find(
                       (provider) => provider.id === appProvider.provider,
@@ -97,23 +97,24 @@ export function AppProviders() {
                   })}
                 </React.Fragment>
               ))}
-              <InView
-                rootMargin="200px"
-                onChange={async (inView) => {
-                  if (inView && hasNextPage && !isFetchingNextPage) {
-                    await fetchNextPage();
-                  }
-                }}
-              >
-                <div className="flex w-full items-center justify-center py-4">
-                  {isFetchingNextPage && <Spinner />}
-                </div>
-              </InView>
             </React.Fragment>
           )}
         </TableBody>
       </Table>
-      <div className="flex flex-col gap-4"></div>
+      {!isPending && !isFetchingNextPage && hasNextPage && (
+        <InView
+          rootMargin="200px"
+          onChange={async (inView) => {
+            if (inView && hasNextPage && !isFetchingNextPage) {
+              await fetchNextPage();
+            }
+          }}
+        >
+          <div className="flex w-full items-center justify-center py-4">
+            {isFetchingNextPage && <Spinner />}
+          </div>
+        </InView>
+      )}
     </div>
   );
 }

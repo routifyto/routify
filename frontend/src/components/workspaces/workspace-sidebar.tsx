@@ -1,5 +1,5 @@
 import { AlignLeft, Boxes, Home, Route, Settings, Users } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import React, { ReactNode } from 'react';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -66,6 +66,9 @@ const linkGroups: LinkItemGroup[] = [
 
 export function WorkspaceSidebar() {
   const app = useApp();
+  const { pathname } = useLocation();
+  console.log('pathname', pathname);
+
   return (
     <aside className="flex h-full w-full flex-col border-r">
       <WorkspaceSidebarApps />
@@ -77,17 +80,16 @@ export function WorkspaceSidebar() {
               let link = `/${app.id}`;
               if (linkItem.to.length > 0) link += `/${linkItem.to}`;
 
+              const isActive = pathname === link;
               return (
                 <NavLink
                   key={linkItem.to}
                   to={link}
                   target={linkItem.external ? '_blank' : undefined}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex cursor-pointer items-center gap-1 rounded-md p-1.5 px-2 text-sm text-foreground/70 hover:bg-gray-50',
-                      isActive && 'bg-gray-50 font-semibold text-primary',
-                    )
-                  }
+                  className={cn(
+                    'flex cursor-pointer items-center gap-1 rounded-md p-1.5 px-2 text-sm text-foreground/70 hover:bg-gray-50',
+                    isActive && 'bg-gray-50 font-semibold text-primary',
+                  )}
                 >
                   {linkItem.icon}
                   <span className="line-clamp-1 w-full flex-grow pl-2 text-left">

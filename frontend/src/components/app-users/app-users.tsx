@@ -39,8 +39,8 @@ export function AppUsers() {
           </React.Fragment>
         ) : (
           <React.Fragment>
-            {data?.pages.map((page) => (
-              <React.Fragment key={page.nextCursor}>
+            {data?.pages.map((page, index) => (
+              <React.Fragment key={index}>
                 {page.items.map((appUser) => (
                   <AppUserRow key={appUser.id} appUser={appUser} />
                 ))}
