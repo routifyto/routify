@@ -10,6 +10,7 @@ public class DatabaseContext(
     public DbSet<User> Users { get; init; }
     public DbSet<App> Apps { get; init; }
     public DbSet<AppUser> AppUsers { get; init; }
+    public DbSet<AppProvider> AppProviders { get; init; }
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
@@ -17,5 +18,6 @@ public class DatabaseContext(
         User.OnModelCreating(modelBuilder);
         App.OnModelCreating(modelBuilder);
         AppUser.OnModelCreating(modelBuilder);
+        AppProvider.OnModelCreating(modelBuilder);
     }
 }

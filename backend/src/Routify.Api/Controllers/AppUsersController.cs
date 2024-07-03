@@ -58,16 +58,7 @@ public class AppUsersController(
             if (appUser.User is null)
                 continue;
             
-            appUserPayloads.Add(new AppUserPayload
-            {
-                Id = appUser.Id,
-                Role = appUser.Role,
-                UserId = appUser.UserId,
-                Name = appUser.User.Name,
-                Email = appUser.User.Email,
-                Avatar = appUser.User.Avatar,
-                CreatedAt = appUser.CreatedAt,
-            });
+            appUserPayloads.Add(MapToPayload(appUser, appUser.User));
         }
 
         var hasNext = appUsers.Count == limit;
@@ -162,15 +153,7 @@ public class AppUsersController(
             if (!usersIdDict.TryGetValue(item.UserId, out var user))
                 continue;
             
-            appUserPayloads.Add(new AppUserPayload
-            {
-                Id = item.Id,
-                Role = item.Role,
-                UserId = item.UserId,
-                Name = user.Name,
-                Email = user.Email,
-                Avatar = user.Avatar,
-            });
+            appUserPayloads.Add(MapToPayload(item, user));
         }
         
         var payload = new AppUsersPayload
@@ -221,17 +204,7 @@ public class AppUsersController(
         appUserToUpdate.Role = input.Role;
         await databaseContext.SaveChangesAsync(cancellationToken);
         
-        var payload = new AppUserPayload
-        {
-            Id = appUserToUpdate.Id,
-            Role = appUserToUpdate.Role,
-            UserId = appUserToUpdate.UserId,
-            Name = user.Name,
-            Email = user.Email,
-            Avatar = user.Avatar,
-            CreatedAt = appUserToUpdate.CreatedAt,
-        };
-        
+        var payload = MapToPayload(appUserToUpdate, user);
         return Ok(payload);
     }
     
@@ -302,5 +275,21 @@ public class AppUsersController(
         databaseContext.Users.AddRange(users);
         await databaseContext.SaveChangesAsync();
         return users;
+    }
+    
+    private static AppUserPayload MapToPayload(
+        AppUser appUser,
+        User user)
+    {
+        return new AppUserPayload
+        {
+            Id = appUser.Id,
+            Role = appUser.Role,
+            UserId = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Avatar = user.Avatar,
+            CreatedAt = appUser.CreatedAt,
+        };
     }
 }

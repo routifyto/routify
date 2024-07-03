@@ -1,4 +1,4 @@
-import { AlignLeft, Home, Route, Settings, Users } from 'lucide-react';
+import { AlignLeft, Boxes, Home, Route, Settings, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import React, { ReactNode } from 'react';
 
@@ -34,6 +34,11 @@ const linkGroups: LinkItemGroup[] = [
         label: 'Routes',
         to: 'routes',
         icon: <Route className={iconClass} />,
+      },
+      {
+        label: 'Providers',
+        to: 'providers',
+        icon: <Boxes className={iconClass} />,
       },
       {
         label: 'Logs',

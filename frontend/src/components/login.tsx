@@ -38,7 +38,7 @@ export function Login() {
             </p>
           </div>
           {googleClientId && (
-            <>
+            <React.Fragment>
               <GoogleLogin clientId={googleClientId} onLogin={handleLogin} />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -50,7 +50,7 @@ export function Login() {
                   </span>
                 </div>
               </div>
-            </>
+            </React.Fragment>
           )}
           <div className="flex flex-col gap-4">
             {showRegister ? (

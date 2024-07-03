@@ -1,5 +1,3 @@
-'use client';
-
 import { BellDot, ChevronsUpDown, LogOut, UserRoundCog } from 'lucide-react';
 import * as React from 'react';
 

@@ -48,4 +48,5 @@ public static class IdType
     public const string Route = "rt";
     public const string User = "us";
     public const string Version = "ve";
+    public const string AppProvider = "pr";
 }
