@@ -15,6 +15,8 @@ import { AppProvider } from '@/components/app-providers/app-provider';
 import { Routes } from '@/components/routes/routes';
 import { RouteCreate } from '@/components/routes/route-create';
 import { Route } from '@/components/routes/route';
+import { TextLogs } from '@/components/logs/text-logs';
+import { EmbeddingLogs } from '@/components/logs/embedding-logs';
 
 export const router = createBrowserRouter([
   {
@@ -66,6 +68,14 @@ export const router = createBrowserRouter([
                 element: <Route />,
               },
             ],
+          },
+          {
+            path: 'logs/text',
+            element: <TextLogs />,
+          },
+          {
+            path: 'logs/embedding',
+            element: <EmbeddingLogs />,
           },
           {
             path: 'users',

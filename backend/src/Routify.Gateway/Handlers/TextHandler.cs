@@ -84,6 +84,7 @@ internal class TextHandler(
         finally
         {
             log.EndedAt = DateTime.UtcNow;
+            log.Duration = (log.EndedAt - log.StartedAt).TotalMilliseconds;
             logService.Save(log);
         }
     }

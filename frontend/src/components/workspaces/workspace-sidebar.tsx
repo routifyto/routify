@@ -1,4 +1,13 @@
-import { AlignLeft, Boxes, Home, Route, Settings, Users } from 'lucide-react';
+import {
+  Boxes,
+  Contact,
+  Home,
+  Pilcrow,
+  Route,
+  Settings,
+  Users,
+  WholeWord,
+} from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import React, { ReactNode } from 'react';
 
@@ -41,9 +50,24 @@ const linkGroups: LinkItemGroup[] = [
         icon: <Boxes className={iconClass} />,
       },
       {
-        label: 'Logs',
-        to: 'logs',
-        icon: <AlignLeft className={iconClass} />,
+        label: 'Customers',
+        to: 'customers',
+        icon: <Contact className={iconClass} />,
+      },
+    ],
+  },
+  {
+    label: 'Logs',
+    links: [
+      {
+        label: 'Text',
+        to: 'logs/text',
+        icon: <Pilcrow className={iconClass} />,
+      },
+      {
+        label: 'Embedding',
+        to: 'logs/embedding',
+        icon: <WholeWord className={iconClass} />,
       },
     ],
   },
