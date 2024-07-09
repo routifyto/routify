@@ -17,9 +17,9 @@ interface RouteTypeOption {
 
 const routeTypesData: RouteTypeOption[] = [
   {
-    value: 'COMPLETION',
-    label: 'Completion',
-    description: 'Generate text completions.',
+    value: 'TEXT',
+    label: 'Text',
+    description: 'Generate text.',
   },
   {
     value: 'EMBEDDING',

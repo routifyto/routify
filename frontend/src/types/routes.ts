@@ -1,4 +1,4 @@
-export type RouteType = 'COMPLETION' | 'EMBEDDING';
+export type RouteType = 'TEXT' | 'EMBEDDING';
 
 export type RoutePayload = {
   id: string;

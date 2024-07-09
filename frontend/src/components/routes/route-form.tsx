@@ -26,7 +26,7 @@ const formSchema = z.object({
   }),
   description: z.string().optional(),
   attrs: z.record(z.string(), z.string()),
-  type: z.enum(['COMPLETION', 'EMBEDDING']),
+  type: z.enum(['TEXT', 'EMBEDDING']),
   providers: z.array(
     z.object({
       id: z.string().nullable().optional(),
@@ -57,12 +57,10 @@ export function RouteForm({
       description: '',
       path: '',
       attrs: {},
-      type: 'COMPLETION',
+      type: 'TEXT',
       providers: [{ appProviderId: '' }],
     },
   });
-
-  console.log('form', form.formState);
 
   return (
     <Form {...form}>
