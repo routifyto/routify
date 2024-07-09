@@ -1,5 +1,4 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Routify.Core.Utils;
 using Routify.Gateway.Models.Api;
 
 namespace Routify.Gateway.Services;
@@ -10,22 +9,10 @@ internal class Synchronizer(
     Repository repository)
     : BackgroundService
 {
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters =
-        {
-            new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)
-        }
-    };
-
     protected override Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        var delaySeconds = configuration.GetValue("Api:SyncPeriod", 5);
+        var syncPeriodSeconds = configuration.GetValue("Api:SyncPeriod", 5);
         return Task.Run(async () =>
         {
             while (true)
@@ -40,7 +27,7 @@ internal class Synchronizer(
                     if (string.IsNullOrWhiteSpace(payloadResponse))
                         continue;
 
-                    var data = JsonSerializer.Deserialize<ApiDataPayload>(payloadResponse, Options);
+                    var data = RoutifyJsonSerializer.Deserialize<ApiDataPayload>(payloadResponse);
                     if (data == null)
                         continue;
 
@@ -51,7 +38,7 @@ internal class Synchronizer(
                     Console.WriteLine(e);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(delaySeconds), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(syncPeriodSeconds), stoppingToken);
             }
         }, stoppingToken);
     }

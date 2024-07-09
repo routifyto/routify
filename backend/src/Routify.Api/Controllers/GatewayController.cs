@@ -76,4 +76,15 @@ public class GatewayController(
             Apps = apps
         };
     }
+
+    [HttpPost("logs", Name = "CreateGatewayLogs")]
+    public async Task<ActionResult> CreateGatewayLogs(
+        [FromBody] GatewayLogsInput input,
+        CancellationToken cancellationToken = default)
+    {
+        await databaseContext.TextLogs.AddRangeAsync(input.TextLogs, cancellationToken);
+        await databaseContext.SaveChangesAsync(cancellationToken);
+        
+        return Ok();
+    }
 }

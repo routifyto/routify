@@ -141,7 +141,7 @@ public record Route
 
 public enum RouteType
 {
-    Completion = 1,
+    Text = 1,
     Embedding = 2,
 }
 

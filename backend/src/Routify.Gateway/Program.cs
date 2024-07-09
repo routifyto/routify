@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Handlers;
@@ -10,10 +9,16 @@ builder.Services.AddHttpContextAccessor();
 
 //inject services
 builder.Services.AddSingleton<Repository>();
+builder.Services.AddSingleton<LogService>();
 builder.Services.AddHostedService<Synchronizer>();
+builder.Services.AddHostedService(sp =>
+{
+    var logService = sp.GetRequiredService<LogService>();
+    return logService ?? throw new Exception("LogService is not registered");
+});
 
 //inject handlers
-builder.Services.AddScoped<OpenAiCompletionHandler>();
+builder.Services.AddKeyedScoped<IRequestHandler, TextHandler>(RouteType.Text);
 
 //inject http clients
 builder.Services.AddHttpClient("api",client =>
@@ -40,41 +45,29 @@ builder.Services.AddHttpClient("openai", client =>
 var app = builder.Build();
 
 app.MapPost("/{appId}/{*path}", async (
-    [FromServices] Repository repository,
-    [FromServices] OpenAiCompletionHandler openAiCompletionHandler,
-    [FromRoute] string appId,
-    [FromRoute] string path,
+    IServiceProvider serviceProvider,
+    Repository repository,
+    string appId,
+    string path,
     HttpContext httpContext) =>
 {
     var appData = repository.GetApp(appId);
-    if (appData == null)
+    var routeData = appData?.GetRoute(path);
+    if (appData == null || routeData == null)
     {
         httpContext.Response.StatusCode = 404;
-        httpContext.Response.ContentType = "application/json";
-        await httpContext.Response.WriteAsJsonAsync(new { message = "App not found" });
         return;
     }
     
-    var routeData = appData.GetRoute(path);
-    if (routeData == null)
-    {
-        httpContext.Response.StatusCode = 404;
-        httpContext.Response.ContentType = "application/json";
-        await httpContext.Response.WriteAsJsonAsync(new { message = "Route not found" });
-        return;
-    }
-
-    var context = new RoutifyRequestContext
+    var context = new RequestContext
     {
         HttpContext = httpContext,
         App = appData,
         Route = routeData
     };
 
-    if (routeData.Type == RouteType.Completion)
-    {
-        await openAiCompletionHandler.Handle(context);
-    }
+    var handler = serviceProvider.GetRequiredKeyedService<IRequestHandler>(routeData.Type);
+    await handler.HandleAsync(context);
 });
 
 app.Run();

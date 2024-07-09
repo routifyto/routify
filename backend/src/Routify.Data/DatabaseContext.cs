@@ -13,6 +13,7 @@ public class DatabaseContext(
     public DbSet<AppProvider> AppProviders { get; init; }
     public DbSet<Route> Routes { get; init; }
     public DbSet<RouteProvider> RouteProviders { get; init; }
+    public DbSet<TextLog> TextLogs { get; init; }
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
@@ -23,5 +24,6 @@ public class DatabaseContext(
         AppProvider.OnModelCreating(modelBuilder);
         Route.OnModelCreating(modelBuilder);
         RouteProvider.OnModelCreating(modelBuilder);
+        TextLog.OnModelCreating(modelBuilder);
     }
 }

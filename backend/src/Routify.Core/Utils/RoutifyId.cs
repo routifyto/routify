@@ -50,4 +50,5 @@ public static class IdType
     public const string User = "us";
     public const string Version = "ve";
     public const string AppProvider = "pr";
+    public const string TextLog = "tl";
 }

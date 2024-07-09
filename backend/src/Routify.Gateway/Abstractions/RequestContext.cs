@@ -3,7 +3,7 @@ using RouteData = Routify.Gateway.Models.Data.RouteData;
 
 namespace Routify.Gateway.Abstractions;
 
-internal record RoutifyRequestContext
+internal record RequestContext
 {
     public HttpContext HttpContext { get; set; } = null!;
     public AppData App { get; set; } = null!;
