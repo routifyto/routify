@@ -12,6 +12,9 @@ import { AppUsers } from '@/components/app-users/app-users';
 import { AppProviders } from '@/components/app-providers/app-providers';
 import { AppProviderCreate } from '@/components/app-providers/app-provider-create';
 import { AppProvider } from '@/components/app-providers/app-provider';
+import { Routes } from '@/components/routes/routes';
+import { RouteCreate } from '@/components/routes/route-create';
+import { Route } from '@/components/routes/route';
 
 export const router = createBrowserRouter([
   {
@@ -32,15 +35,37 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'providers',
-            element: <AppProviders />,
+            children: [
+              {
+                path: '',
+                element: <AppProviders />,
+              },
+              {
+                path: 'create',
+                element: <AppProviderCreate />,
+              },
+              {
+                path: ':appProviderId',
+                element: <AppProvider />,
+              },
+            ],
           },
           {
-            path: 'providers/create',
-            element: <AppProviderCreate />,
-          },
-          {
-            path: 'providers/:appProviderId',
-            element: <AppProvider />,
+            path: 'routes',
+            children: [
+              {
+                path: '',
+                element: <Routes />,
+              },
+              {
+                path: 'create',
+                element: <RouteCreate />,
+              },
+              {
+                path: ':routeId',
+                element: <Route />,
+              },
+            ],
           },
           {
             path: 'users',

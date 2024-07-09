@@ -11,6 +11,8 @@ public class DatabaseContext(
     public DbSet<App> Apps { get; init; }
     public DbSet<AppUser> AppUsers { get; init; }
     public DbSet<AppProvider> AppProviders { get; init; }
+    public DbSet<Route> Routes { get; init; }
+    public DbSet<RouteProvider> RouteProviders { get; init; }
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
@@ -19,5 +21,7 @@ public class DatabaseContext(
         App.OnModelCreating(modelBuilder);
         AppUser.OnModelCreating(modelBuilder);
         AppProvider.OnModelCreating(modelBuilder);
+        Route.OnModelCreating(modelBuilder);
+        RouteProvider.OnModelCreating(modelBuilder);
     }
 }

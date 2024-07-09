@@ -3,16 +3,16 @@ import { NavLink } from 'react-router-dom';
 
 import { buttonVariants } from '@/components/ui/button';
 
-export function AppProviderNotFound() {
+export function RouteNotFound() {
   return (
     <div className="flex flex-grow items-center justify-center bg-background text-foreground">
       <div className="space-y-4">
         <h2 className="mb-4 text-8xl">404</h2>
         <h1 className="text-3xl font-semibold">
-          Oops! Provider not found or you {"don't"} have access to it
+          Oops! Route not found or you {"don't"} have access to it
         </h1>
         <p className="text-sm text-muted-foreground">
-          We are sorry, but the provider you requested was not found
+          We are sorry, but the route you requested was not found
         </p>
         <NavLink to="/" className={buttonVariants()}>
           Back to Home

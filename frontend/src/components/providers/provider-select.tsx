@@ -64,7 +64,7 @@ export function ProviderSelect({
       <PopoverContent className="w-128 p-0" align="start">
         <Command>
           <CommandInput placeholder="Search provider..." />
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandEmpty>No provider found.</CommandEmpty>
           <CommandList>
             <CommandGroup>
               {providers.map((provider) => (

@@ -23,7 +23,7 @@ export function AppProviderUpdate({ appProviderId }: AppProviderUpdateProps) {
 
   const { data, isPending: isPendingQuery } = useGetAppProviderQuery(
     app.id,
-    appProviderId!,
+    appProviderId,
   );
 
   function handleSubmit(input: AppProviderInput) {

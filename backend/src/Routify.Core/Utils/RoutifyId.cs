@@ -46,6 +46,7 @@ public static class IdType
     public const string App = "ap";
     public const string AppUser = "au";
     public const string Route = "rt";
+    public const string RouteModel = "rm";
     public const string User = "us";
     public const string Version = "ve";
     public const string AppProvider = "pr";

@@ -67,7 +67,6 @@ const linkGroups: LinkItemGroup[] = [
 export function WorkspaceSidebar() {
   const app = useApp();
   const { pathname } = useLocation();
-  console.log('pathname', pathname);
 
   return (
     <aside className="flex h-full w-full flex-col border-r">

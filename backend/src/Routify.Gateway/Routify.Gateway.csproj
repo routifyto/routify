@@ -13,8 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Middlewares\" />
-      <Folder Include="Services\" />
+      <ProjectReference Include="..\Routify.Data\Routify.Data.csproj" />
     </ItemGroup>
 
 </Project>

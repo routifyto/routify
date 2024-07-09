@@ -30,7 +30,7 @@ export function useGetAppProvidersQuery(appId: string, limit?: number) {
 
 export function useGetAppProviderQuery(appId: string, appProviderId: string) {
   return useQuery({
-    queryKey: ['app-provider', appId, appProviderId],
+    queryKey: ['app-provider', appProviderId],
     queryFn: async () => {
       const { data } = await axios.get<AppProviderPayload>(
         `v1/apps/${appId}/providers/${appProviderId}`,
@@ -98,7 +98,7 @@ export function useDeleteAppProviderMutation(
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['app-provider', appId, appProviderId],
+        queryKey: ['app-provider', appProviderId],
       });
     },
   });
