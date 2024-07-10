@@ -11,42 +11,42 @@ internal class OpenAiCompletionProvider(
     IHttpClientFactory httpClientFactory) 
     : ICompletionProvider
 {
-    private static readonly Dictionary<string, double> ModelInputCosts = new()
+    private static readonly Dictionary<string, decimal> ModelInputCosts = new()
     {
-        { "gpt-4o", 0.000005 },
-        { "gpt-4o-2024-05-13", 0.000005 },
+        { "gpt-4o", 0.000005m },
+        { "gpt-4o-2024-05-13", 0.000005m },
         
-        { "gpt-4-turbo", 0.00001 },
-        { "gpt-4-turbo-2024-04-09", 0.00001 },
-        { "gpt-4-turbo-preview", 0.00001 },
-        { "gpt-4-0125-preview", 0.00001 },
-        { "gpt-4", 0.00003 },
-        { "gpt-4-0613", 0.00003 },
-        { "gpt-4-0314", 0.00003 },
+        { "gpt-4-turbo", 0.00001m },
+        { "gpt-4-turbo-2024-04-09", 0.00001m },
+        { "gpt-4-turbo-preview", 0.00001m },
+        { "gpt-4-0125-preview", 0.00001m },
+        { "gpt-4", 0.00003m },
+        { "gpt-4-0613", 0.00003m },
+        { "gpt-4-0314", 0.00003m },
         
-        { "gpt-3.5-turbo-0125", 0.0000005 },
-        { "gpt-3.5-turbo", 0.0000005 },
-        { "gpt-3.5-turbo-1106", 0.000001 },
-        { "gpt-3.5-turbo-instruct", 0.0000015 },
+        { "gpt-3.5-turbo-0125", 0.0000005m },
+        { "gpt-3.5-turbo", 0.0000005m },
+        { "gpt-3.5-turbo-1106", 0.000001m },
+        { "gpt-3.5-turbo-instruct", 0.0000015m },
     };
     
-    private static readonly Dictionary<string, double> ModelOutputCosts = new()
+    private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
     {
-        { "gpt-4o", 0.000015 },
-        { "gpt-4o-2024-05-13", 0.000015 },
+        { "gpt-4o", 0.000015m },
+        { "gpt-4o-2024-05-13", 0.000015m },
         
-        { "gpt-4-turbo", 0.00003 },
-        { "gpt-4-turbo-2024-04-09", 0.00003 },
-        { "gpt-4-turbo-preview", 0.00003 },
-        { "gpt-4-0125-preview", 0.00003 },
-        { "gpt-4", 0.00006 },
-        { "gpt-4-0613", 0.00006 },
-        { "gpt-4-0314", 0.00006 },
+        { "gpt-4-turbo", 0.00003m },
+        { "gpt-4-turbo-2024-04-09", 0.00003m },
+        { "gpt-4-turbo-preview", 0.00003m },
+        { "gpt-4-0125-preview", 0.00003m },
+        { "gpt-4", 0.00006m },
+        { "gpt-4-0613", 0.00006m },
+        { "gpt-4-0314", 0.00006m },
         
-        { "gpt-3.5-turbo-0125", 0.0000015 },
-        { "gpt-3.5-turbo", 0.0000015 },
-        { "gpt-3.5-turbo-1106", 0.000002 },
-        { "gpt-3.5-turbo-instruct", 0.000002 },
+        { "gpt-3.5-turbo-0125", 0.0000015m },
+        { "gpt-3.5-turbo", 0.0000015m },
+        { "gpt-3.5-turbo-1106", 0.000002m },
+        { "gpt-3.5-turbo-instruct", 0.000002m },
     };
     
     public async Task<CompletionResponse> CompleteAsync(
@@ -168,7 +168,7 @@ internal class OpenAiCompletionProvider(
         };
     }
 
-    private static double CalculateInputCost(
+    private static decimal  CalculateInputCost(
         string model,
         int tokens)
     {
@@ -180,7 +180,7 @@ internal class OpenAiCompletionProvider(
         return 0;
     }
     
-    private static double CalculateOutputCost(
+    private static decimal CalculateOutputCost(
         string model,
         int tokens)
     {

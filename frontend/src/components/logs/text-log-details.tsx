@@ -109,15 +109,21 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
                 </p>
               </div>
               <div className={rowClass}>
-                <p className={firstColumnClass}>Prompt tokens const</p>
+                <p className={firstColumnClass}>Prompt tokens cost</p>
                 <p className={secondColumnClass}>
-                  {textLog.inputCost.toLocaleString()}$
+                  {textLog.inputCost.toLocaleString('en-US', {
+                    maximumFractionDigits: 20,
+                  })}
+                  $
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Generated tokens cost</p>
                 <p className={secondColumnClass}>
-                  {textLog.outputCost.toLocaleString()}$
+                  {textLog.outputCost.toLocaleString('en-US', {
+                    maximumFractionDigits: 20,
+                  })}
+                  $
                 </p>
               </div>
               <div className={rowClass}>

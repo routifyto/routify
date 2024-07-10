@@ -30,8 +30,8 @@ namespace Routify.Migrations.Migrations
                     response_body = table.Column<string>(type: "text", nullable: false),
                     input_tokens = table.Column<int>(type: "integer", nullable: false),
                     output_tokens = table.Column<int>(type: "integer", nullable: false),
-                    input_cost = table.Column<double>(type: "double precision", nullable: false),
-                    output_cost = table.Column<double>(type: "double precision", nullable: false),
+                    input_cost = table.Column<decimal>(type: "numeric", nullable: false),
+                    output_cost = table.Column<decimal>(type: "numeric", nullable: false),
                     started_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ended_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     duration = table.Column<double>(type: "double precision", nullable: false)

@@ -20,8 +20,8 @@ public class TextLogPayload
     public int InputTokens { get; set; }
     public int OutputTokens { get; set; }
     
-    public double InputCost { get; set; }
-    public double OutputCost { get; set; }
+    public decimal InputCost { get; set; }
+    public decimal OutputCost { get; set; }
     public DateTime StartedAt { get; set; }
     public DateTime EndedAt { get; set; }
     public double Duration { get; set; }

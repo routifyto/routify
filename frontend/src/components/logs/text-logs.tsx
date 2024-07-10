@@ -92,7 +92,9 @@ export function TextLogs() {
                         <TableCell className="w-20 text-right">
                           {(
                             textLog.inputCost + textLog.outputCost
-                          ).toLocaleString()}
+                          ).toLocaleString('en-US', {
+                            maximumFractionDigits: 20,
+                          })}
                           $
                         </TableCell>
                         <TableCell className="w-20 text-right">

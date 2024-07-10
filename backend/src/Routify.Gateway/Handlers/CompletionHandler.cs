@@ -92,6 +92,8 @@ internal class CompletionHandler(
             log.ResponseStatusCode = completionResponse.StatusCode;
             log.InputTokens = completionResponse.InputTokens;
             log.OutputTokens = completionResponse.OutputTokens;
+            log.InputCost = completionResponse.InputCost;
+            log.OutputCost = completionResponse.OutputCost;
             
             context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
             if (completionResponse.Payload != null)

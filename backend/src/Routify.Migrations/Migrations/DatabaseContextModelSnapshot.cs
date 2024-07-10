@@ -394,8 +394,8 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ended_at");
 
-                    b.Property<double>("InputCost")
-                        .HasColumnType("double precision")
+                    b.Property<decimal>("InputCost")
+                        .HasColumnType("numeric")
                         .HasColumnName("input_cost");
 
                     b.Property<int>("InputTokens")
@@ -407,8 +407,8 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("model");
 
-                    b.Property<double>("OutputCost")
-                        .HasColumnType("double precision")
+                    b.Property<decimal>("OutputCost")
+                        .HasColumnType("numeric")
                         .HasColumnName("output_cost");
 
                     b.Property<int>("OutputTokens")
