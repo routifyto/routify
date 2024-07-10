@@ -2,5 +2,5 @@ namespace Routify.Gateway.Abstractions;
 
 internal interface IRequestHandler
 {
-    Task HandleAsync(RequestContext context);
+    Task HandleAsync(RequestContext context, CancellationToken cancellationToken);
 }

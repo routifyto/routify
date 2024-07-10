@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Models.OpenAi;
+namespace Routify.Provider.OpenAi.Models;
 
-internal class ChatCompletionMessageInput
+internal class OpenAiCompletionMessageInput
 {
     [JsonPropertyName("role")]
     public string Role { get; set; } = null!;

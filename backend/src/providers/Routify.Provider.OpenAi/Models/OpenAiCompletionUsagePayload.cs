@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Models.OpenAi;
+namespace Routify.Provider.OpenAi.Models;
 
-internal record ChatCompletionUsagePayload
+internal record OpenAiCompletionUsagePayload
 {
     [JsonPropertyName("prompt_tokens")]
     public int PromptTokens { get; set; }

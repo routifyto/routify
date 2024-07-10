@@ -1,14 +1,14 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Models.OpenAi;
+namespace Routify.Provider.OpenAi.Models;
 
-internal record ChatCompletionInput
+internal record OpenAiCompletionInput
 {
     [JsonPropertyName("model")]
     public string? Model { get; set; }
     
     [JsonPropertyName("messages")]
-    public List<ChatCompletionMessageInput> Messages { get; set; } = null!;
+    public List<OpenAiCompletionMessageInput> Messages { get; set; } = null!;
     
     [JsonPropertyName("top_p")]
     public float? TopP { get; set; }

@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Models.OpenAi;
+namespace Routify.Provider.OpenAi.Models;
 
-internal record ChatCompletionLogprobsContentPayload
+internal record OpenAiCompletionLogprobsContentPayload
 {
     [JsonPropertyName("token")]
     public string Token { get; set; } = null!;
@@ -14,5 +14,5 @@ internal record ChatCompletionLogprobsContentPayload
     public List<byte>? Bytes { get; set; }
 
     [JsonPropertyName("top_logprobs")] 
-    public List<ChatCompletionLogprobsContentPayload> TopLogprobs { get; set; } = [];
+    public List<OpenAiCompletionLogprobsContentPayload> TopLogprobs { get; set; } = [];
 }

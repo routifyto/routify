@@ -13,6 +13,18 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\providers\Routify.Provider.Anthropic\Routify.Provider.Anthropic.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.Anyscale\Routify.Provider.Anyscale.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.AzureOpenAi\Routify.Provider.AzureOpenAi.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.Bedrock\Routify.Provider.Bedrock.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.Cohere\Routify.Provider.Cohere.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.Core\Routify.Provider.Core.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.Google\Routify.Provider.Google.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.Groq\Routify.Provider.Groq.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.MistralAi\Routify.Provider.MistralAi.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.OpenAi\Routify.Provider.OpenAi.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.PerplexityAi\Routify.Provider.PerplexityAi.csproj" />
+      <ProjectReference Include="..\providers\Routify.Provider.WorkersAi\Routify.Provider.WorkersAi.csproj" />
       <ProjectReference Include="..\Routify.Data\Routify.Data.csproj" />
     </ItemGroup>
 

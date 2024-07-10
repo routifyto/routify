@@ -2,6 +2,17 @@ using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Handlers;
 using Routify.Gateway.Services;
+using Routify.Provider.Anthropic;
+using Routify.Provider.Anyscale;
+using Routify.Provider.AzureOpenAi;
+using Routify.Provider.Bedrock;
+using Routify.Provider.Cohere;
+using Routify.Provider.Google;
+using Routify.Provider.Groq;
+using Routify.Provider.MistralAi;
+using Routify.Provider.OpenAi;
+using Routify.Provider.PerplexityAi;
+using Routify.Provider.WorkersAi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +29,22 @@ builder.Services.AddHostedService(sp =>
 });
 
 //inject handlers
-builder.Services.AddKeyedScoped<IRequestHandler, TextHandler>(RouteType.Text);
+builder.Services.AddKeyedScoped<IRequestHandler, CompletionHandler>(RouteType.Completion);
 
-//inject http clients
+//inject providers
+builder.Services.AddOpenAi();
+builder.Services.AddAnthropic();
+builder.Services.AddMistralAi();
+builder.Services.AddAnyscale();
+builder.Services.AddGoogle();
+builder.Services.AddCohere();
+builder.Services.AddWorkersAi();
+builder.Services.AddAzureOpenAi();
+builder.Services.AddBedrock();
+builder.Services.AddPerplexityAi();
+builder.Services.AddGroq();
+
+//inject api http client
 builder.Services.AddHttpClient("api",client =>
 {
     var apiConfig = builder.Configuration.GetSection("Api");
@@ -37,11 +61,6 @@ builder.Services.AddHttpClient("api",client =>
     client.DefaultRequestHeaders.Add("x-proxy-token", token);
 });
 
-builder.Services.AddHttpClient("openai", client =>
-{
-    client.BaseAddress = new Uri("https://api.openai.com/v1/");
-});
-
 var app = builder.Build();
 
 app.MapPost("/{appId}/{*path}", async (
@@ -49,7 +68,8 @@ app.MapPost("/{appId}/{*path}", async (
     Repository repository,
     string appId,
     string path,
-    HttpContext httpContext) =>
+    HttpContext httpContext,
+    CancellationToken cancellationToken) =>
 {
     var appData = repository.GetApp(appId);
     var routeData = appData?.GetRoute(path);
@@ -67,7 +87,7 @@ app.MapPost("/{appId}/{*path}", async (
     };
 
     var handler = serviceProvider.GetRequiredKeyedService<IRequestHandler>(routeData.Type);
-    await handler.HandleAsync(context);
+    await handler.HandleAsync(context, cancellationToken);
 });
 
 app.Run();

@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Models.OpenAi;
+namespace Routify.Provider.OpenAi.Models;
 
-internal record ChatCompletionPayload
+internal record OpenAiCompletionPayload
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = null!;
@@ -11,7 +11,7 @@ internal record ChatCompletionPayload
     public string Object { get; set; } = null!;
     
     [JsonPropertyName("choices")]
-    public List<ChatCompletionChoicePayload> Choices { get; set; } = null!;
+    public List<OpenAiCompletionChoicePayload> Choices { get; set; } = null!;
     
     [JsonPropertyName("created")]
     public long Created { get; set; }
@@ -26,5 +26,5 @@ internal record ChatCompletionPayload
     public string SystemFingerprint { get; set; } = null!;
     
     [JsonPropertyName("usage")]
-    public ChatCompletionUsagePayload Usage { get; set; } = null!;
+    public OpenAiCompletionUsagePayload Usage { get; set; } = null!;
 }
