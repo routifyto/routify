@@ -10,12 +10,12 @@ internal class LogService(
     IHttpClientFactory httpClientFactory)
     : BackgroundService
 {
-    private readonly ConcurrentQueue<TextLog> _textLogs = new();
+    private readonly ConcurrentQueue<CompletionLog> _completionLogs = new();
     
     public void Save(
-        TextLog log)
+        CompletionLog log)
     {
-        _textLogs.Enqueue(log);
+        _completionLogs.Enqueue(log);
     }
     
     protected override async Task ExecuteAsync(
@@ -28,8 +28,8 @@ internal class LogService(
             {
                 try
                 {
-                    var logs = new List<TextLog>();
-                    while (_textLogs.TryDequeue(out var log))
+                    var logs = new List<CompletionLog>();
+                    while (_completionLogs.TryDequeue(out var log))
                     {
                         logs.Add(log);
                     }
@@ -39,7 +39,7 @@ internal class LogService(
                         var client = httpClientFactory.CreateClient("api");
                         var input = new LogsInput
                         {
-                            TextLogs = logs
+                            CompletionLogs = logs
                         };
                         var inputJson = RoutifyJsonSerializer.Serialize(input);
                         var content = new StringContent(inputJson, Encoding.UTF8, "application/json");
@@ -58,6 +58,6 @@ internal class LogService(
 
     private record LogsInput
     {
-        public List<TextLog> TextLogs { get; set; } = [];
+        public List<CompletionLog> CompletionLogs { get; set; } = [];
     }
 }

@@ -1,13 +1,13 @@
 import React from 'react';
-import { TextLogPayload } from '@/types/logs';
+import { CompletionLogPayload } from '@/types/logs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/app';
 import { providers } from '@/types/providers';
 
-interface TextLogDetailsProps {
-  textLog: TextLogPayload;
+interface CompletionLogDetailsProps {
+  completionLog: CompletionLogPayload;
 }
 
 const rowClass =
@@ -15,10 +15,12 @@ const rowClass =
 const firstColumnClass = 'w-64 min-w-64';
 const secondColumnClass = 'flex-1 min-w-0 overflow-hidden truncate';
 
-export function TextLogDetails({ textLog }: TextLogDetailsProps) {
+export function CompletionLogDetails({
+  completionLog,
+}: CompletionLogDetailsProps) {
   const app = useApp();
   const provider = providers.find(
-    (provider) => provider.id === textLog.provider,
+    (provider) => provider.id === completionLog.provider,
   );
 
   return (
@@ -37,21 +39,23 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
                     secondColumnClass,
                     'hover:cursor-pointer hover:underline',
                   )}
-                  to={`/${app.id}/routes/${textLog.route?.id}`}
+                  to={`/${app.id}/routes/${completionLog.route?.id}`}
                   target="_blank"
                 >
-                  {textLog.route?.name}
+                  {completionLog.route?.name}
                 </NavLink>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Description</p>
                 <p className={secondColumnClass}>
-                  {textLog.route?.description}
+                  {completionLog.route?.description}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Path</p>
-                <p className={secondColumnClass}>/{textLog.route?.path}</p>
+                <p className={secondColumnClass}>
+                  /{completionLog.route?.path}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -67,22 +71,22 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
                     secondColumnClass,
                     'hover:cursor-pointer hover:underline',
                   )}
-                  to={`/${app.id}/providers/${textLog.route?.id}`}
+                  to={`/${app.id}/providers/${completionLog.route?.id}`}
                   target="_blank"
                 >
-                  {textLog.appProvider?.name}
+                  {completionLog.appProvider?.name}
                 </NavLink>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Description</p>
                 <p className={secondColumnClass}>
-                  {textLog.appProvider?.description}
+                  {completionLog.appProvider?.description}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Alias</p>
                 <p className={secondColumnClass}>
-                  {textLog.appProvider?.alias}
+                  {completionLog.appProvider?.alias}
                 </p>
               </div>
               <div className={rowClass}>
@@ -99,19 +103,19 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
               <div className={rowClass}>
                 <p className={firstColumnClass}>Prompt tokens</p>
                 <p className={secondColumnClass}>
-                  {textLog.inputTokens.toLocaleString()}
+                  {completionLog.inputTokens.toLocaleString()}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Generated tokens</p>
                 <p className={secondColumnClass}>
-                  {textLog.outputTokens.toLocaleString()}
+                  {completionLog.outputTokens.toLocaleString()}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Prompt tokens cost</p>
                 <p className={secondColumnClass}>
-                  {textLog.inputCost.toLocaleString('en-US', {
+                  {completionLog.inputCost.toLocaleString('en-US', {
                     maximumFractionDigits: 20,
                   })}
                   $
@@ -120,7 +124,7 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
               <div className={rowClass}>
                 <p className={firstColumnClass}>Generated tokens cost</p>
                 <p className={secondColumnClass}>
-                  {textLog.outputCost.toLocaleString('en-US', {
+                  {completionLog.outputCost.toLocaleString('en-US', {
                     maximumFractionDigits: 20,
                   })}
                   $
@@ -129,19 +133,19 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
               <div className={rowClass}>
                 <p className={firstColumnClass}>Started at</p>
                 <p className={secondColumnClass}>
-                  {new Date(textLog.startedAt).toLocaleString()}
+                  {new Date(completionLog.startedAt).toLocaleString()}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Ended at</p>
                 <p className={secondColumnClass}>
-                  {new Date(textLog.endedAt).toLocaleString()}
+                  {new Date(completionLog.endedAt).toLocaleString()}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Duration</p>
                 <p className={secondColumnClass}>
-                  {Math.floor(textLog.duration).toLocaleString()} ms
+                  {Math.floor(completionLog.duration).toLocaleString()} ms
                 </p>
               </div>
             </CardContent>
@@ -153,7 +157,7 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
             <CardContent>
               <code>
                 <pre className="whitespace-pre-wrap text-sm">
-                  {textLog.requestBody}
+                  {completionLog.requestBody}
                 </pre>
               </code>
             </CardContent>
@@ -165,7 +169,7 @@ export function TextLogDetails({ textLog }: TextLogDetailsProps) {
             <CardContent>
               <code>
                 <pre className="whitespace-pre-wrap text-sm">
-                  {textLog.responseBody}
+                  {completionLog.responseBody}
                 </pre>
               </code>
             </CardContent>

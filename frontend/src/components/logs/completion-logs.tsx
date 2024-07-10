@@ -11,15 +11,15 @@ import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { InView } from 'react-intersection-observer';
 import { Spinner } from '@/components/ui/spinner';
-import { useGetTextLogsQuery } from '@/api/logs';
+import { useGetCompletionLogsQuery } from '@/api/logs';
 import { providers } from '@/types/providers';
-import { TextLogDetailsSheet } from '@/components/logs/text-log-details-sheet';
+import { CompletionLogDetailsSheet } from '@/components/logs/completion-log-details-sheet';
 
-export function TextLogs() {
+export function CompletionLogs() {
   const app = useApp();
 
   const { data, isPending, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useGetTextLogsQuery(app.id, 50);
+    useGetCompletionLogsQuery(app.id, 50);
 
   const [logDetailsId, setLogDetailsId] = React.useState<string | null>(null);
 
@@ -55,9 +55,9 @@ export function TextLogs() {
             <React.Fragment>
               {data?.pages.map((page, index) => (
                 <React.Fragment key={index}>
-                  {page.items.map((textLog) => {
+                  {page.items.map((completionLog) => {
                     const provider = providers.find(
-                      (provider) => provider.id === textLog.provider,
+                      (provider) => provider.id === completionLog.provider,
                     );
 
                     if (provider === undefined) {
@@ -67,9 +67,9 @@ export function TextLogs() {
                     return (
                       <TableRow
                         className="hover:cursor-pointer"
-                        key={textLog.id}
+                        key={completionLog.id}
                         onClick={() => {
-                          setLogDetailsId(textLog.id);
+                          setLogDetailsId(completionLog.id);
                         }}
                       >
                         <TableCell className="w-14">
@@ -79,26 +79,28 @@ export function TextLogs() {
                             alt={provider.name}
                           />
                         </TableCell>
-                        <TableCell>/{textLog.path}</TableCell>
-                        <TableCell>{textLog.model}</TableCell>
+                        <TableCell>/{completionLog.path}</TableCell>
+                        <TableCell>{completionLog.model}</TableCell>
                         <TableCell>
-                          {new Date(textLog.endedAt).toLocaleString()}
+                          {new Date(completionLog.endedAt).toLocaleString()}
                         </TableCell>
                         <TableCell className="w-20 text-right">
                           {(
-                            textLog.inputTokens + textLog.outputTokens
+                            completionLog.inputTokens +
+                            completionLog.outputTokens
                           ).toLocaleString()}
                         </TableCell>
                         <TableCell className="w-20 text-right">
                           {(
-                            textLog.inputCost + textLog.outputCost
+                            completionLog.inputCost + completionLog.outputCost
                           ).toLocaleString('en-US', {
                             maximumFractionDigits: 20,
                           })}
                           $
                         </TableCell>
                         <TableCell className="w-20 text-right">
-                          {Math.floor(textLog.duration).toLocaleString()} ms
+                          {Math.floor(completionLog.duration).toLocaleString()}{' '}
+                          ms
                         </TableCell>
                       </TableRow>
                     );
@@ -124,7 +126,7 @@ export function TextLogs() {
         </InView>
       )}
       {logDetailsId !== null && (
-        <TextLogDetailsSheet
+        <CompletionLogDetailsSheet
           id={logDetailsId}
           open={true}
           onOpenChange={() => {

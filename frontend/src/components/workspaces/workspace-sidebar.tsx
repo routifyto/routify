@@ -60,13 +60,13 @@ const linkGroups: LinkItemGroup[] = [
     label: 'Logs',
     links: [
       {
-        label: 'Text',
-        to: 'logs/text',
+        label: 'Completions',
+        to: 'logs/completions',
         icon: <Pilcrow className={iconClass} />,
       },
       {
-        label: 'Embedding',
-        to: 'logs/embedding',
+        label: 'Embeddings',
+        to: 'logs/embeddings',
         icon: <WholeWord className={iconClass} />,
       },
     ],

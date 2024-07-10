@@ -204,6 +204,110 @@ namespace Routify.Migrations.Migrations
                     b.ToTable("routify_app_users", (string)null);
                 });
 
+            modelBuilder.Entity("Routify.Data.Models.CompletionLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ApiKeyId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("api_key_id");
+
+                    b.Property<string>("AppId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("app_id");
+
+                    b.Property<string>("AppProviderId")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("app_provider_id");
+
+                    b.Property<double>("Duration")
+                        .HasColumnType("double precision")
+                        .HasColumnName("duration");
+
+                    b.Property<DateTime>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<decimal>("InputCost")
+                        .HasColumnType("numeric")
+                        .HasColumnName("input_cost");
+
+                    b.Property<int>("InputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("input_tokens");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("model");
+
+                    b.Property<decimal>("OutputCost")
+                        .HasColumnType("numeric")
+                        .HasColumnName("output_cost");
+
+                    b.Property<int>("OutputTokens")
+                        .HasColumnType("integer")
+                        .HasColumnName("output_tokens");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("path");
+
+                    b.Property<string>("Provider")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("RequestBody")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("request_body");
+
+                    b.Property<string>("ResponseBody")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("response_body");
+
+                    b.Property<int>("ResponseStatusCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_status_code");
+
+                    b.Property<string>("RouteId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("route_id");
+
+                    b.Property<string>("RouteProviderId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("route_provider_id");
+
+                    b.Property<string>("SessionId")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("session_id");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("routify_completion_logs", (string)null);
+                });
+
             modelBuilder.Entity("Routify.Data.Models.Route", b =>
                 {
                     b.Property<string>("Id")
@@ -360,110 +464,6 @@ namespace Routify.Migrations.Migrations
                     b.HasIndex("RouteId");
 
                     b.ToTable("routify_route_providers", (string)null);
-                });
-
-            modelBuilder.Entity("Routify.Data.Models.TextLog", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ApiKeyId")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("api_key_id");
-
-                    b.Property<string>("AppId")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("app_id");
-
-                    b.Property<string>("AppProviderId")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("app_provider_id");
-
-                    b.Property<double>("Duration")
-                        .HasColumnType("double precision")
-                        .HasColumnName("duration");
-
-                    b.Property<DateTime>("EndedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ended_at");
-
-                    b.Property<decimal>("InputCost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("input_cost");
-
-                    b.Property<int>("InputTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("input_tokens");
-
-                    b.Property<string>("Model")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("model");
-
-                    b.Property<decimal>("OutputCost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("output_cost");
-
-                    b.Property<int>("OutputTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("output_tokens");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("path");
-
-                    b.Property<string>("Provider")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("provider");
-
-                    b.Property<string>("RequestBody")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("request_body");
-
-                    b.Property<string>("ResponseBody")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("response_body");
-
-                    b.Property<int>("ResponseStatusCode")
-                        .HasColumnType("integer")
-                        .HasColumnName("response_status_code");
-
-                    b.Property<string>("RouteId")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("route_id");
-
-                    b.Property<string>("RouteProviderId")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("route_provider_id");
-
-                    b.Property<string>("SessionId")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("session_id");
-
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("started_at");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("routify_text_logs", (string)null);
                 });
 
             modelBuilder.Entity("Routify.Data.Models.User", b =>

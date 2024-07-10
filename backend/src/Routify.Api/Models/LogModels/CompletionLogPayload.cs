@@ -1,6 +1,6 @@
 namespace Routify.Api.Models.LogModels;
 
-public class TextLogPayload
+public class CompletionLogPayload
 {
     public string Id { get; set; } = null!;
     public string RouteId { get; set; } = null!;

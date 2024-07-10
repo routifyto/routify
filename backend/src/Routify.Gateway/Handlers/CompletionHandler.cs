@@ -27,9 +27,9 @@ internal class CompletionHandler(
         RequestContext context,
         CancellationToken cancellationToken)
     {
-        var log = new TextLog
+        var log = new CompletionLog
         {
-            Id = RoutifyId.Generate(IdType.TextLog),
+            Id = RoutifyId.Generate(IdType.CompletionLog),
             AppId = context.App.Id,
             RouteId = context.Route.Id,
             Path = context.Route.Path,

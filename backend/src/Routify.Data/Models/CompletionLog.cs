@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Routify.Data.Models;
 
-public class TextLog
+public class CompletionLog
 {
     public string Id { get; set; } = null!;
     public string AppId { get; set; } = null!;
@@ -32,9 +32,9 @@ public class TextLog
     internal static void OnModelCreating(
         ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<TextLog>(entity =>
+        modelBuilder.Entity<CompletionLog>(entity =>
         {
-            entity.ToTable("routify_text_logs");
+            entity.ToTable("routify_completion_logs");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Id)

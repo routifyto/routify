@@ -6,9 +6,9 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { useApp } from '@/contexts/app';
-import { useGetTextLogQuery } from '@/api/logs';
+import { useGetCompletionLogQuery } from '@/api/logs';
 import { Spinner } from '@/components/ui/spinner';
-import { TextLogDetails } from '@/components/logs/text-log-details';
+import { CompletionLogDetails } from '@/components/logs/completion-log-details';
 
 interface TextLogDetailsSheetProps {
   id: string;
@@ -16,13 +16,13 @@ interface TextLogDetailsSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function TextLogDetailsSheet({
+export function CompletionLogDetailsSheet({
   id,
   open,
   onOpenChange,
 }: TextLogDetailsSheetProps) {
   const app = useApp();
-  const { data, isPending } = useGetTextLogQuery(app.id, id);
+  const { data, isPending } = useGetCompletionLogQuery(app.id, id);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -35,7 +35,7 @@ export function TextLogDetailsSheet({
             <Spinner />
           </div>
         ) : data ? (
-          <TextLogDetails textLog={data} />
+          <CompletionLogDetails completionLog={data} />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <p>Text log not found</p>

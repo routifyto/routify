@@ -11,8 +11,8 @@ public class LogsController(
     DatabaseContext databaseContext)
     : BaseController
 {
-    [HttpGet("text", Name = "GetTextLogs")]
-    public async Task<ActionResult<PaginatedPayload<TextLogRowPayload>>> GetTextLogsAsync(
+    [HttpGet("completions", Name = "GetCompletionLogs")]
+    public async Task<ActionResult<PaginatedPayload<CompletionLogRowPayload>>> GetCompletionLogsAsync(
         [FromRoute] string appId,
         [FromQuery] string? after,
         [FromQuery] int limit = 20,
@@ -34,7 +34,7 @@ public class LogsController(
             return NotFound();
 
         var query = databaseContext
-            .TextLogs
+            .CompletionLogs
             .Where(x => x.AppId == appId);
 
         if (!string.IsNullOrWhiteSpace(after))
@@ -42,13 +42,13 @@ public class LogsController(
 
         // Limit the number of items to fetch
         limit = Math.Max(1, Math.Min(limit, 100));
-        var textLogs = await query
+        var completionLogs = await query
             .OrderByDescending(x => x.Id)
             .Take(limit)
             .ToListAsync(cancellationToken);
 
-        var textLogPayloads = textLogs
-            .Select(log => new TextLogRowPayload
+        var completionLogPayloads = completionLogs
+            .Select(log => new CompletionLogRowPayload
             {
                 Id = log.Id,
                 RouteId = log.RouteId,
@@ -64,21 +64,21 @@ public class LogsController(
             })
             .ToList();
 
-        var hasNext = textLogs.Count == limit;
-        var nextCursor = hasNext ? textLogs.Last().Id : null;
+        var hasNext = completionLogs.Count == limit;
+        var nextCursor = hasNext ? completionLogs.Last().Id : null;
 
-        return new PaginatedPayload<TextLogRowPayload>
+        return new PaginatedPayload<CompletionLogRowPayload>
         {
-            Items = textLogPayloads,
+            Items = completionLogPayloads,
             HasNext = hasNext,
             NextCursor = nextCursor
         };
     }
     
-    [HttpGet("text/{textLogId}", Name = "GetTextLog")]
-    public async Task<ActionResult<TextLogPayload>> GetTextLogAsync(
+    [HttpGet("completions/{completionLogId}", Name = "GetCompletionLog")]
+    public async Task<ActionResult<CompletionLogPayload>> GetCompletionLogAsync(
         [FromRoute] string appId,
-        [FromRoute] string textLogId,
+        [FromRoute] string completionLogId,
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
@@ -96,42 +96,42 @@ public class LogsController(
         if (app is null)
             return NotFound();
 
-        var textLog = await databaseContext
-            .TextLogs
-            .SingleOrDefaultAsync(x => x.AppId == appId && x.Id == textLogId, cancellationToken);
+        var completionLog = await databaseContext
+            .CompletionLogs
+            .SingleOrDefaultAsync(x => x.AppId == appId && x.Id == completionLogId, cancellationToken);
 
-        if (textLog is null)
+        if (completionLog is null)
             return NotFound();
         
         var route = await databaseContext
             .Routes
-            .SingleOrDefaultAsync(x => x.Id == textLog.RouteId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == completionLog.RouteId, cancellationToken);
         
         var appProvider = await databaseContext
             .AppProviders
-            .SingleOrDefaultAsync(x => x.Id == textLog.AppProviderId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == completionLog.AppProviderId, cancellationToken);
 
-        return new TextLogPayload
+        return new CompletionLogPayload
         {
-            Id = textLog.Id,
-            RouteId = textLog.RouteId,
-            Path = textLog.Path,
-            Provider = textLog.Provider,
-            Model = textLog.Model,
-            AppProviderId = textLog.AppProviderId,
-            RouteProviderId = textLog.RouteProviderId,
-            ApiKeyId = textLog.ApiKeyId,
-            SessionId = textLog.SessionId,
-            RequestBody = textLog.RequestBody,
-            ResponseStatusCode = textLog.ResponseStatusCode,
-            ResponseBody = textLog.ResponseBody,
-            InputTokens = textLog.InputTokens,
-            OutputTokens = textLog.OutputTokens,
-            InputCost = textLog.InputCost,
-            OutputCost = textLog.OutputCost,
-            StartedAt = textLog.StartedAt,
-            EndedAt = textLog.EndedAt,
-            Duration = textLog.Duration,
+            Id = completionLog.Id,
+            RouteId = completionLog.RouteId,
+            Path = completionLog.Path,
+            Provider = completionLog.Provider,
+            Model = completionLog.Model,
+            AppProviderId = completionLog.AppProviderId,
+            RouteProviderId = completionLog.RouteProviderId,
+            ApiKeyId = completionLog.ApiKeyId,
+            SessionId = completionLog.SessionId,
+            RequestBody = completionLog.RequestBody,
+            ResponseStatusCode = completionLog.ResponseStatusCode,
+            ResponseBody = completionLog.ResponseBody,
+            InputTokens = completionLog.InputTokens,
+            OutputTokens = completionLog.OutputTokens,
+            InputCost = completionLog.InputCost,
+            OutputCost = completionLog.OutputCost,
+            StartedAt = completionLog.StartedAt,
+            EndedAt = completionLog.EndedAt,
+            Duration = completionLog.Duration,
             Route = route is null ? null : new LogRoutePayload
             {
                 Id = route.Id,

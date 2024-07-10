@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Routify.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateTextLogsTable : Migration
+    public partial class CreateCompletionLogsTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "routify_text_logs",
+                name: "routify_completion_logs",
                 columns: table => new
                 {
                     id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
@@ -38,7 +38,7 @@ namespace Routify.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_routify_text_logs", x => x.id);
+                    table.PrimaryKey("PK_routify_completion_logs", x => x.id);
                 });
         }
 
@@ -46,7 +46,7 @@ namespace Routify.Migrations.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "routify_text_logs");
+                name: "routify_completion_logs");
         }
     }
 }

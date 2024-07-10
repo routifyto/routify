@@ -12,7 +12,7 @@ export type LogAppProviderPayload = {
   description?: string | null;
 };
 
-export type TextLogRowPayload = {
+export type CompletionLogRowPayload = {
   id: string;
   routeId: string;
   path: string;
@@ -26,7 +26,7 @@ export type TextLogRowPayload = {
   duration: number;
 };
 
-export type TextLogPayload = {
+export type CompletionLogPayload = {
   id: string;
   routeId: string;
   path: string;

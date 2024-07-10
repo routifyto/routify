@@ -82,7 +82,7 @@ public class GatewayController(
         [FromBody] GatewayLogsInput input,
         CancellationToken cancellationToken = default)
     {
-        await databaseContext.TextLogs.AddRangeAsync(input.TextLogs, cancellationToken);
+        await databaseContext.CompletionLogs.AddRangeAsync(input.CompletionLogs, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
         
         return Ok();
