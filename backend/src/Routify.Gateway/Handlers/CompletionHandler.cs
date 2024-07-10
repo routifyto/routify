@@ -1,4 +1,6 @@
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Data.Models;
@@ -13,6 +15,14 @@ internal class CompletionHandler(
     LogService logService)
     : IRequestHandler
 {
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
+    
     public async Task HandleAsync(
         RequestContext context,
         CancellationToken cancellationToken)
@@ -32,22 +42,15 @@ internal class CompletionHandler(
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
             
-            var completionInputParser = serviceProvider.GetKeyedService<ICompletionInputParser>(ProviderIds.OpenAi);
-            if (completionInputParser == null)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                return;
-            }
-            
-            var completionPayloadSerializer = serviceProvider.GetKeyedService<ICompletionPayloadSerializer>(ProviderIds.OpenAi);
-            if (completionPayloadSerializer == null)
+            var completionSerializer = serviceProvider.GetKeyedService<ICompletionSerializer>(ProviderIds.OpenAi);
+            if (completionSerializer == null)
             {
                 httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                 return;
             }
             
             var requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
-            var input = completionInputParser.Parse(requestBody);
+            var input = completionSerializer.Parse(requestBody);
             if (input == null)
             {
                 httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -98,7 +101,7 @@ internal class CompletionHandler(
             context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
             if (completionResponse.Payload != null)
             {
-                var responseBdy = completionPayloadSerializer.Serialize(completionResponse.Payload);
+                var responseBdy = completionSerializer.Serialize(completionResponse.Payload, Options);
                 log.ResponseBody = responseBdy;
                 context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.WriteAsync(responseBdy, cancellationToken);    
