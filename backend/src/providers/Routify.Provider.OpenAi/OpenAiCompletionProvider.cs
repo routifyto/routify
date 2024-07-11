@@ -115,6 +115,16 @@ internal class OpenAiCompletionProvider(
         if (!string.IsNullOrWhiteSpace(request.Model))
             openAiInput.Model = request.Model;
 
+        if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
+            && !string.IsNullOrWhiteSpace(systemPrompt))
+        {
+            openAiInput.Messages.Insert(0, new OpenAiCompletionMessageInput
+            {
+                Content = systemPrompt,
+                Role = "system"
+            });
+        }
+        
         if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
             && !string.IsNullOrWhiteSpace(temperatureString) 
             && double.TryParse(temperatureString, out var temperature))
