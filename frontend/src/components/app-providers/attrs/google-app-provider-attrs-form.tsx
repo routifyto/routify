@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-export function MistralAiConfigForm() {
+export function GoogleAppProviderAttrsForm() {
   const form = useFormContext<AppProviderInput>();
   return (
     <React.Fragment>

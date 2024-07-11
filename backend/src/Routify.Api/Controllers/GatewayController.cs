@@ -46,14 +46,15 @@ public class GatewayController(
                         Name = route.Name,
                         Path = route.Path,
                         Type = route.Type,
-                        InputType = route.InputType,
+                        Schema = route.Schema,
                         Providers = allRouteProviders
                             .Where(routeProvider => routeProvider.RouteId == route.Id)
                             .Select(routeProvider => new GatewayRouteProviderPayload
                             {
                                 Id = routeProvider.Id,
                                 AppProviderId = routeProvider.AppProviderId,
-                                Model = routeProvider.Model
+                                Model = routeProvider.Model,
+                                Attrs = routeProvider.Attrs
                             })
                             .ToList()
                     })

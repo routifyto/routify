@@ -17,7 +17,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { AppProviderInput, AppProviderPayload } from '@/types/app-providers';
 import { ProviderSelect } from '@/components/providers/provider-select';
-import { AppProviderConfigForm } from '@/components/app-providers/app-provider-config-form';
+import { AppProviderAttrsForm } from '@/components/app-providers/app-provider-attrs-form';
 
 const formSchema = z.object({
   name: z.string(),
@@ -126,7 +126,7 @@ export function AppProviderForm({
               </FormItem>
             )}
           />
-          <AppProviderConfigForm />
+          <AppProviderAttrsForm />
         </div>
         <div className="flex flex-col gap-2 pb-2">
           <div className="flex flex-row items-center justify-end gap-2">

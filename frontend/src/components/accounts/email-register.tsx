@@ -88,7 +88,7 @@ export function EmailRegister({ onRegister }: EmailRegisterProps) {
         <Button
           type="submit"
           variant="outline"
-          className="w-80"
+          className="w-full"
           disabled={isPending}
         >
           {isPending ? (

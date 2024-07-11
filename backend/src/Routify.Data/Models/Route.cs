@@ -14,10 +14,9 @@ public record Route
 
     public string Path { get; set; } = null!;
     public RouteType Type { get; set; }
-    public RouteInputType InputType { get; set; }
+    public string Schema { get; set; } = null!;
     
     public RouteConfig Config { get; set; } = null!;
-    public RetryConfig? RetryConfig { get; set; }
     public RateLimitConfig? RateLimitConfig { get; set; }
     public CacheConfig? CacheConfig { get; set; }
     public Dictionary<string, string> Attrs { get; set; } = [];
@@ -67,37 +66,35 @@ public record Route
                 .HasColumnName("type")
                 .IsRequired();
             
-            entity.Property(e => e.InputType)
-                .HasColumnName("input_type")
+            entity.Property(e => e.Schema)
+                .HasColumnName("schema")
                 .IsRequired();
 
             entity.Property(e => e.Config)
                 .HasColumnName("config")
+                .HasColumnType("jsonb")
                 .IsRequired()
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<RouteConfig>(v) ?? new RouteConfig());
             
-            entity.Property(e => e.RetryConfig)
-                .HasColumnName("retry_config")
-                .HasConversion(
-                    v => RoutifyJsonSerializer.Serialize(v),
-                    v => RoutifyJsonSerializer.Deserialize<RetryConfig>(v) ?? new RetryConfig());
-
             entity.Property(e => e.RateLimitConfig)
                 .HasColumnName("rate_limit_config")
+                .HasColumnType("jsonb")
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<RateLimitConfig>(v) ?? new RateLimitConfig());
 
             entity.Property(e => e.CacheConfig)
                 .HasColumnName("cache_config")
+                .HasColumnType("jsonb")
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<CacheConfig>(v) ?? new CacheConfig());
             
             entity.Property(e => e.Attrs)
                 .HasColumnName("attrs")
+                .HasColumnType("jsonb")
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<Dictionary<string, string>>(v) ?? new Dictionary<string, string>(),
@@ -143,12 +140,6 @@ public enum RouteType
 {
     Completion = 1,
     Embedding = 2,
-}
-
-public enum RouteInputType
-{
-    OpenAi = 1,
-    Routify = 2,
 }
 
 public enum RouteStatus

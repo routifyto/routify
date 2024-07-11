@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Routify.Core.Utils;
+using Routify.Data.Common;
+using Routify.Data.Utils;
 
 namespace Routify.Data.Models;
 
@@ -10,6 +13,8 @@ public record RouteProvider
     public string AppProviderId { get; set; } = null!;
     
     public string? Model { get; set; }
+    public Dictionary<string, string> Attrs { get; set; } = [];
+    public RetryConfig? RetryConfig { get; set; }
     
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
@@ -51,6 +56,22 @@ public record RouteProvider
             entity.Property(e => e.Model)
                 .HasColumnName("model")
                 .HasMaxLength(256);
+            
+            entity.Property(e => e.Attrs)
+                .HasColumnName("attrs")
+                .HasColumnType("jsonb")
+                .IsRequired()
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<Dictionary<string, string>>(v) ?? new Dictionary<string, string>(),
+                    ValueComparers.StringDictionary);
+            
+            entity.Property(e => e.RetryConfig)
+                .HasColumnName("retry_config")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<RetryConfig>(v));
 
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at")

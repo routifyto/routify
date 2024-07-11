@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Routify.Api.Models.Common;
 using Routify.Api.Models.Routes;
+using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Data;
 using Routify.Data.Common;
@@ -130,6 +131,7 @@ public class RoutesController(
             Description = input.Description,
             Path = input.Path,
             Type = input.Type,
+            Schema = ProviderIds.OpenAi,
             Attrs = input.Attrs,
             Config = new RouteConfig(),
             CreatedAt = DateTime.UtcNow,
@@ -146,6 +148,7 @@ public class RoutesController(
                 AppId = route.AppId,
                 AppProviderId = x.AppProviderId,
                 Model = x.Model,
+                Attrs = x.Attrs ?? new Dictionary<string, string>(),
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = CurrentUserId,
                 VersionId = RoutifyId.Generate(IdType.Version)
@@ -216,6 +219,7 @@ public class RoutesController(
                     AppId = route.AppId,
                     AppProviderId = routeProviderInput.AppProviderId,
                     Model = routeProviderInput.Model,
+                    Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>(),
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = CurrentUserId,
                     VersionId = RoutifyId.Generate(IdType.Version)
@@ -231,6 +235,7 @@ public class RoutesController(
 
                 routeProvider.AppProviderId = routeProviderInput.AppProviderId;
                 routeProvider.Model = routeProviderInput.Model;
+                routeProvider.Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>();
                 routeProvider.UpdatedAt = DateTime.UtcNow;
                 routeProvider.UpdatedBy = CurrentUserId;
                 routeProvider.VersionId = RoutifyId.Generate(IdType.Version);
@@ -293,7 +298,8 @@ public class RoutesController(
                 {
                     Id = x.Id,
                     AppProviderId = x.AppProviderId,
-                    Model = x.Model
+                    Model = x.Model,
+                    Attrs = x.Attrs
                 })
                 .ToList(),
         };        

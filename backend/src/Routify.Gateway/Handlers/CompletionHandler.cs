@@ -82,7 +82,9 @@ internal class CompletionHandler(
             {
                 Timeout = 10,
                 Input = input,
-                ProviderAttrs = appProvider.Attrs,
+                AppProviderAttrs = appProvider.Attrs,
+                RouteProviderAttrs = routeProvider.Attrs,
+                Model = routeProvider.Model
             };
             
             var completionResponse = await completionProvider.CompleteAsync(completionRequest, cancellationToken);

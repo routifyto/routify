@@ -1,4 +1,5 @@
 export type RouteType = 'COMPLETION' | 'EMBEDDING';
+export type RouteSchemaType = 'OPENAI';
 
 export type RoutePayload = {
   id: string;
@@ -6,6 +7,7 @@ export type RoutePayload = {
   description?: string | null;
   path: string;
   type: RouteType;
+  schemaType: RouteSchemaType;
   providers: RouteProviderPayload[];
 };
 
@@ -20,6 +22,7 @@ export type CreateRouteInput = {
   description?: string | null;
   path: string;
   type: RouteType;
+  schemaType: RouteSchemaType;
   attrs: Record<string, string>;
   providers: RouteProviderInput[];
 };
@@ -29,10 +32,12 @@ export type UpdateRouteInput = {
   description?: string | null;
   path: string;
   providers: RouteProviderInput[];
+  attrs?: Record<string, string> | null;
 };
 
 export type RouteProviderInput = {
   id?: string | null;
   appProviderId: string;
   model?: string | null;
+  attrs?: Record<string, string> | null;
 };

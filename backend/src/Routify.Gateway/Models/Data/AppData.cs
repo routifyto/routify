@@ -23,14 +23,15 @@ internal record AppData
                 Name = route.Name,
                 Path = route.Path,
                 Type = route.Type,
-                InputType = route.InputType,
+                Schema = route.Schema,
                 Providers = route
                     .Providers
                     .Select(routeProvider => new RouteProviderData
                     {
                         Id = routeProvider.Id,
                         AppProviderId = routeProvider.AppProviderId,
-                        Model = routeProvider.Model
+                        Model = routeProvider.Model,
+                        Attrs = routeProvider.Attrs
                     })
                     .ToList()
             });

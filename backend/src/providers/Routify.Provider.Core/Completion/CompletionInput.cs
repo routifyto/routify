@@ -10,5 +10,5 @@ public record CompletionInput
     public int? MaxTokens { get; set; }
     public float? PresencePenalty { get; set; }
     public float? FrequencyPenalty { get; set; }
-    public int? Temperature { get; set; }
+    public double? Temperature { get; set; }
 }

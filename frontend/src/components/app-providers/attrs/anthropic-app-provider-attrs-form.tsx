@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-export function AzureOpenAiConfigForm() {
+export function AnthropicAppProviderAttrsForm() {
   const form = useFormContext<AppProviderInput>();
   return (
     <React.Fragment>

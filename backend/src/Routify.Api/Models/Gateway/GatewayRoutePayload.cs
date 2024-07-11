@@ -8,6 +8,6 @@ public record GatewayRoutePayload
     public string Name { get; set; } = null!;
     public string Path { get; set; } = null!;
     public RouteType Type { get; set; }
-    public RouteInputType InputType { get; set; }
+    public string Schema { get; set; } = null!;
     public List<GatewayRouteProviderPayload> Providers { get; set; } = [];
 }

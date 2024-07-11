@@ -323,16 +323,16 @@ namespace Routify.Migrations.Migrations
 
                     b.Property<string>("Attrs")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("attrs");
 
                     b.Property<string>("CacheConfig")
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("cache_config");
 
                     b.Property<string>("Config")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("config");
 
                     b.Property<DateTime>("CreatedAt")
@@ -349,10 +349,6 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("character varying(512)")
                         .HasColumnName("description");
 
-                    b.Property<int>("InputType")
-                        .HasColumnType("integer")
-                        .HasColumnName("input_type");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -366,12 +362,13 @@ namespace Routify.Migrations.Migrations
                         .HasColumnName("path");
 
                     b.Property<string>("RateLimitConfig")
-                        .HasColumnType("text")
+                        .HasColumnType("jsonb")
                         .HasColumnName("rate_limit_config");
 
-                    b.Property<string>("RetryConfig")
+                    b.Property<string>("Schema")
+                        .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("retry_config");
+                        .HasColumnName("schema");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -421,6 +418,11 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("app_provider_id");
 
+                    b.Property<string>("Attrs")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("attrs");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -434,6 +436,10 @@ namespace Routify.Migrations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")
                         .HasColumnName("model");
+
+                    b.Property<string>("RetryConfig")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("retry_config");
 
                     b.Property<string>("RouteId")
                         .IsRequired()

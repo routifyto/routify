@@ -74,7 +74,7 @@ export function EmailLogin({ onLogin }: EmailLoginProps) {
         <Button
           type="submit"
           variant="outline"
-          className="w-80"
+          className="w-full"
           disabled={isPending}
         >
           {isPending ? (

@@ -29,7 +29,7 @@ function GoogleLoginButton({ onLogin }: GoogleLoginProps) {
       variant="outline"
       type="button"
       disabled={isPending}
-      className="w-80"
+      className="w-full"
       onClick={() => login()}
     >
       {isPending ? (
