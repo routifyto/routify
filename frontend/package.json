@@ -37,6 +37,7 @@
     "react-intersection-observer": "^9.10.3",
     "react-router-dom": "^6.24.0",
     "react-wrap-balancer": "^1.1.1",
+    "recharts": "^2.12.7",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "ts-pattern": "^5.2.0",

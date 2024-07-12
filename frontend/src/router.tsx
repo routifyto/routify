@@ -17,6 +17,7 @@ import { RouteCreate } from '@/components/routes/route-create';
 import { Route } from '@/components/routes/route';
 import { CompletionLogs } from '@/components/logs/completion-logs';
 import { EmbeddingLogs } from '@/components/logs/embedding-logs';
+import { AnalyticsDashboard } from '@/components/analytics/analytics-dashboard';
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
         path: '/:appId',
         element: <AppLayout />,
         children: [
+          {
+            path: '',
+            element: <AnalyticsDashboard />,
+          },
           {
             path: 'providers',
             children: [
