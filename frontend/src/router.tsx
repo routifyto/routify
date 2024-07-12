@@ -18,6 +18,7 @@ import { Route } from '@/components/routes/route';
 import { CompletionLogs } from '@/components/logs/completion-logs';
 import { EmbeddingLogs } from '@/components/logs/embedding-logs';
 import { AnalyticsDashboard } from '@/components/analytics/analytics-dashboard';
+import { Customers } from '@/components/customers/customers';
 
 export const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
                 element: <Route />,
               },
             ],
+          },
+          {
+            path: 'customers',
+            element: <Customers />,
           },
           {
             path: 'logs/completions',
