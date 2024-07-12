@@ -1,18 +1,9 @@
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Handlers;
+using Routify.Gateway.Providers.OpenAi;
+using Routify.Gateway.Providers.TogetherAi;
 using Routify.Gateway.Services;
-using Routify.Provider.Anthropic;
-using Routify.Provider.Anyscale;
-using Routify.Provider.AzureOpenAi;
-using Routify.Provider.Bedrock;
-using Routify.Provider.Cohere;
-using Routify.Provider.Google;
-using Routify.Provider.Groq;
-using Routify.Provider.MistralAi;
-using Routify.Provider.OpenAi;
-using Routify.Provider.PerplexityAi;
-using Routify.Provider.WorkersAi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,16 +24,7 @@ builder.Services.AddKeyedScoped<IRequestHandler, CompletionHandler>(RouteType.Co
 
 //inject providers
 builder.Services.AddOpenAi();
-builder.Services.AddAnthropic();
-builder.Services.AddMistralAi();
-builder.Services.AddAnyscale();
-builder.Services.AddGoogle();
-builder.Services.AddCohere();
-builder.Services.AddWorkersAi();
-builder.Services.AddAzureOpenAi();
-builder.Services.AddBedrock();
-builder.Services.AddPerplexityAi();
-builder.Services.AddGroq();
+builder.Services.AddTogetherAi();
 
 //inject api http client
 builder.Services.AddHttpClient("api",client =>

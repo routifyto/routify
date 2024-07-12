@@ -6,8 +6,6 @@ using Routify.Core.Utils;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Services;
-using Routify.Provider.Core;
-using Routify.Provider.Core.Models;
 
 namespace Routify.Gateway.Handlers;
 
@@ -43,15 +41,15 @@ internal class CompletionHandler(
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
             
-            var completionSerializer = serviceProvider.GetKeyedService<ICompletionSerializer>(ProviderIds.OpenAi);
-            if (completionSerializer == null)
+            var inputParser = serviceProvider.GetKeyedService<ICompletionInputParser>(ProviderIds.OpenAi);
+            if (inputParser == null)
             {
                 httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                 return;
             }
             
             var requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
-            var input = completionSerializer.Parse(requestBody);
+            var input = inputParser.Parse(requestBody);
             if (input == null)
             {
                 httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -94,7 +92,7 @@ internal class CompletionHandler(
             log.AppProviderId = appProvider.Id;
             log.RouteProviderId = routeProvider.Id;
             log.Provider = appProvider.Provider;
-            log.Model = completionResponse.Payload?.Model;
+            log.Model = completionResponse.Model;
             log.ResponseStatusCode = completionResponse.StatusCode;
             log.InputTokens = completionResponse.InputTokens;
             log.OutputTokens = completionResponse.OutputTokens;
@@ -102,12 +100,20 @@ internal class CompletionHandler(
             log.OutputCost = completionResponse.OutputCost;
             
             context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
-            if (completionResponse.Payload != null)
+            if (completionResponse.Output != null)
             {
-                var responseBdy = completionSerializer.Serialize(completionResponse.Payload, Options);
-                log.ResponseBody = responseBdy;
+                var outputMapper = serviceProvider.GetKeyedService<ICompletionOutputMapper>(ProviderIds.OpenAi);
+                if (outputMapper == null)
+                {
+                    httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+                    return;
+                }
+                
+                var responseOutput = outputMapper.Map(completionResponse.Output);
+                var responseBody = JsonSerializer.Serialize(responseOutput, Options);
+                log.ResponseBody = responseBody;
                 context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.WriteAsync(responseBdy, cancellationToken);    
+                await context.HttpContext.Response.WriteAsync(responseBody, cancellationToken);    
             }
         }
         finally
