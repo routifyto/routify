@@ -49,6 +49,8 @@ internal class TogetherAiCompletionProvider(
 
         if (responseOutput != null)
         {
+            completionResponse.Model = responseOutput.Model;
+            
             var usage = responseOutput.Usage;
             completionResponse.InputTokens = usage.PromptTokens;
             completionResponse.OutputTokens = usage.CompletionTokens;

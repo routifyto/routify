@@ -35,9 +35,9 @@ export function CompletionLogs() {
             <TableHead>Path</TableHead>
             <TableHead>Model</TableHead>
             <TableHead>Date & time</TableHead>
-            <TableHead className="w-20 text-right">Tokens</TableHead>
-            <TableHead className="w-20 text-right">Cost</TableHead>
-            <TableHead className="w-20 text-right">Duration</TableHead>
+            <TableHead className="w-24 text-right">Tokens</TableHead>
+            <TableHead className="w-24 text-right">Cost</TableHead>
+            <TableHead className="w-24 text-right">Duration</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,13 +84,13 @@ export function CompletionLogs() {
                         <TableCell>
                           {new Date(completionLog.endedAt).toLocaleString()}
                         </TableCell>
-                        <TableCell className="w-20 text-right">
+                        <TableCell className="w-24 text-right">
                           {(
                             completionLog.inputTokens +
                             completionLog.outputTokens
                           ).toLocaleString()}
                         </TableCell>
-                        <TableCell className="w-20 text-right">
+                        <TableCell className="w-24 text-right">
                           {(
                             completionLog.inputCost + completionLog.outputCost
                           ).toLocaleString('en-US', {
@@ -98,7 +98,7 @@ export function CompletionLogs() {
                           })}
                           $
                         </TableCell>
-                        <TableCell className="w-20 text-right">
+                        <TableCell className="w-24 text-right">
                           {Math.floor(completionLog.duration).toLocaleString()}{' '}
                           ms
                         </TableCell>

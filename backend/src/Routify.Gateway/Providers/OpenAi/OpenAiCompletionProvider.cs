@@ -64,7 +64,56 @@ internal class OpenAiCompletionProvider(
         var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
 
-        var openAiInput = inputMapper.Map(request.Input);
+        var openAiInput = inputMapper.Map(request.Input) as OpenAiCompletionInput;
+        if (openAiInput == null)
+        {
+            return new CompletionResponse
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+            };
+        }
+        
+        if (!string.IsNullOrWhiteSpace(request.Model))
+            openAiInput.Model = request.Model;
+
+        if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
+            && !string.IsNullOrWhiteSpace(systemPrompt))
+        {
+            openAiInput.Messages.Insert(0, new OpenAiCompletionMessageInput
+            {
+                Content = systemPrompt,
+                Role = "system"
+            });
+        }
+
+        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
+            && !string.IsNullOrWhiteSpace(temperatureString) 
+            && double.TryParse(temperatureString, out var temperature))
+        {
+            openAiInput.Temperature = temperature;
+        }
+
+        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString) 
+            && !string.IsNullOrWhiteSpace(maxTokensString) 
+            && int.TryParse(maxTokensString, out var maxTokens))
+        {
+            openAiInput.MaxTokens = maxTokens;
+        }
+
+        if (request.RouteProviderAttrs.TryGetValue("frequencyPenalty", out var frequencyPenaltyString) 
+            && !string.IsNullOrWhiteSpace(frequencyPenaltyString) 
+            && float.TryParse(frequencyPenaltyString, out var frequencyPenalty))
+        {
+            openAiInput.FrequencyPenalty = frequencyPenalty;
+        }
+
+        if (request.RouteProviderAttrs.TryGetValue("presencePenalty", out var presencePenaltyString) 
+            && !string.IsNullOrWhiteSpace(presencePenaltyString) 
+            && float.TryParse(presencePenaltyString, out var presencePenalty))
+        {
+            openAiInput.PresencePenalty = presencePenalty;
+        }
+        
         var response = await client.PostAsJsonAsync("chat/completions", openAiInput, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
         var responseOutput = JsonSerializer.Deserialize<OpenAiCompletionOutput>(responseBody);
@@ -77,6 +126,8 @@ internal class OpenAiCompletionProvider(
 
         if (responseOutput != null)
         {
+            completionResponse.Model = responseOutput.Model;
+            
             var usage = responseOutput.Usage;
             completionResponse.InputTokens = usage.PromptTokens;
             completionResponse.OutputTokens = usage.CompletionTokens;

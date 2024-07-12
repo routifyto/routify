@@ -41,15 +41,15 @@ internal class CompletionHandler(
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
             
-            var inputParser = serviceProvider.GetKeyedService<ICompletionInputParser>(ProviderIds.OpenAi);
-            if (inputParser == null)
+            var serializer = serviceProvider.GetKeyedService<ICompletionSerializer>(ProviderIds.OpenAi);
+            if (serializer == null)
             {
                 httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
                 return;
             }
             
             var requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
-            var input = inputParser.Parse(requestBody);
+            var input = serializer.Parse(requestBody);
             if (input == null)
             {
                 httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -110,7 +110,7 @@ internal class CompletionHandler(
                 }
                 
                 var responseOutput = outputMapper.Map(completionResponse.Output);
-                var responseBody = JsonSerializer.Serialize(responseOutput, Options);
+                var responseBody = serializer.Serialize(responseOutput, Options);
                 log.ResponseBody = responseBody;
                 context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.WriteAsync(responseBody, cancellationToken);    
