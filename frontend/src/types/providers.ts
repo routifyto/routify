@@ -134,7 +134,50 @@ export const providers: Provider[] = [
     name: 'MistralAI',
     description: 'Description coming soon.',
     logo: '/providers/mistral-ai.png',
-    models: [],
+    models: [
+      {
+        id: 'open-mistral-7b',
+        name: 'open-mistral-7b',
+        description:
+          'The first dense model released by Mistral AI, perfect for experimentation, customization, and quick iteration. At the time of the release, it matched the capabilities of models up to 30B parameters.',
+        contextWindow: 32000,
+      },
+      {
+        id: 'open-mixtral-8x7b',
+        name: 'open-mixtral-8x7b',
+        description:
+          'A sparse mixture of experts model. As such, it leverages up to 45B parameters but only uses about 12B during inference, leading to better inference throughput at the cost of more vRAM.',
+        contextWindow: 32000,
+      },
+      {
+        id: 'open-mixtral-8x22b',
+        name: 'open-mixtral-8x22b',
+        description:
+          'A bigger sparse mixture of experts model. As such, it leverages up to 141B parameters but only uses about 39B during inference, leading to better inference throughput at the cost of more vRAM.',
+        contextWindow: 32000,
+      },
+      {
+        id: 'mistral-small-2402',
+        name: 'mistral-small-2402',
+        description:
+          'Suitable for simple tasks that one can do in bulk (Classification, Customer Support, or Text Generation).',
+        contextWindow: 32000,
+      },
+      {
+        id: 'codestral-2405',
+        name: 'codestral-2405',
+        description:
+          'State-of-the-art Mistral model trained specifically for code tasks.',
+        contextWindow: 32000,
+      },
+      {
+        id: 'mistral-large-2402',
+        name: 'mistral-large-2402',
+        description:
+          "Our flagship model that's ideal for complex tasks that require large reasoning capabilities or are highly specialized (Synthetic Text Generation, Code Generation, RAG, or Agents).",
+        contextWindow: 32000,
+      },
+    ],
   },
   {
     id: 'anyscale',

@@ -4,39 +4,35 @@ using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
-namespace Routify.Gateway.Providers.OpenAi;
+namespace Routify.Gateway.Providers.MistralAi;
 
-internal class OpenAiCompletionInputMapper : ICompletionInputMapper
+internal class MistralAiCompletionInputMapper : ICompletionInputMapper
 {
     public ICompletionInput Map(
         ICompletionInput input)
     {
         return input switch
         {
-            OpenAiCompletionInput _ => input,
+            MistralAiCompletionInput _ => input,
+            OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
-            MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
 
-    private static OpenAiCompletionInput MapTogetherAiCompletionInput(
-        TogetherAiCompletionInput input)
+    private static MistralAiCompletionInput MapOpenAiCompletionInput(
+        OpenAiCompletionInput input)
     {
-        return new OpenAiCompletionInput
+        return new MistralAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
-            N = input.N,
-            Stop = input.Stop,
             MaxTokens = input.MaxTokens,
-            PresencePenalty = input.PresencePenalty,
-            FrequencyPenalty = input.FrequencyPenalty,
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new OpenAiCompletionMessageInput
+                .Select(message => new MistralAiCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -45,12 +41,32 @@ internal class OpenAiCompletionInputMapper : ICompletionInputMapper
         };
     }
     
-    private static OpenAiCompletionInput MapAnthropicCompletionInput(
+    private static MistralAiCompletionInput MapTogetherAiCompletionInput(
+        TogetherAiCompletionInput input)
+    {
+        return new MistralAiCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = input
+                .Messages
+                .Select(message => new MistralAiCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
+    private static MistralAiCompletionInput MapAnthropicCompletionInput(
         AnthropicCompletionInput input)
     {
         var messages = input
             .Messages
-            .Select(message => new OpenAiCompletionMessageInput
+            .Select(message => new MistralAiCompletionMessageInput
             {
                 Content = message.Content,
                 Role = message.Role
@@ -59,40 +75,20 @@ internal class OpenAiCompletionInputMapper : ICompletionInputMapper
 
         if (!string.IsNullOrWhiteSpace(input.System))
         {
-            messages.Insert(0, new OpenAiCompletionMessageInput
+            messages.Insert(0, new MistralAiCompletionMessageInput
             {
                 Content = input.System,
                 Role = "system"
             });
         }
         
-        return new OpenAiCompletionInput
+        return new MistralAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
             MaxTokens = input.MaxTokens,
             Temperature = input.Temperature,
             Messages = messages
-        };
-    }
-    
-    private static OpenAiCompletionInput MapMistralAiCompletionInput(
-        MistralAiCompletionInput input)
-    {
-        return new OpenAiCompletionInput
-        {
-            Model = input.Model,
-            TopP = input.TopP,
-            MaxTokens = input.MaxTokens,
-            Temperature = input.Temperature,
-            Messages = input
-                .Messages
-                .Select(message => new OpenAiCompletionMessageInput
-                {
-                    Content = message.Content,
-                    Role = message.Role
-                })
-                .ToList()
         };
     }
 }
