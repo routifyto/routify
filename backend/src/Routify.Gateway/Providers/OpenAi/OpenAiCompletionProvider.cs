@@ -53,7 +53,7 @@ internal class OpenAiCompletionProvider(
         CompletionRequest request, 
         CancellationToken cancellationToken)
     {
-        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var openAiApiKey))
+        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
         {
             return new CompletionResponse
             {
@@ -62,7 +62,7 @@ internal class OpenAiCompletionProvider(
         }
 
         var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
-        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
         var openAiInput = inputMapper.Map(request.Input) as OpenAiCompletionInput;
         if (openAiInput == null)
@@ -88,7 +88,7 @@ internal class OpenAiCompletionProvider(
 
         if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
             && !string.IsNullOrWhiteSpace(temperatureString) 
-            && double.TryParse(temperatureString, out var temperature))
+            && float.TryParse(temperatureString, out var temperature))
         {
             openAiInput.Temperature = temperature;
         }

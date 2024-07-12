@@ -1,6 +1,7 @@
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Handlers;
+using Routify.Gateway.Providers.Anthropic;
 using Routify.Gateway.Providers.OpenAi;
 using Routify.Gateway.Providers.TogetherAi;
 using Routify.Gateway.Services;
@@ -25,6 +26,7 @@ builder.Services.AddKeyedScoped<IRequestHandler, CompletionHandler>(RouteType.Co
 //inject providers
 builder.Services.AddOpenAi();
 builder.Services.AddTogetherAi();
+builder.Services.AddAnthropic();
 
 //inject api http client
 builder.Services.AddHttpClient("api",client =>

@@ -1,4 +1,5 @@
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
@@ -11,8 +12,9 @@ internal class OpenAiCompletionInputMapper : ICompletionInputMapper
     {
         return input switch
         {
-            OpenAiCompletionInput openAiCompletionInput => openAiCompletionInput,
+            OpenAiCompletionInput _ => input,
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
+            AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -38,6 +40,37 @@ internal class OpenAiCompletionInputMapper : ICompletionInputMapper
                     Role = message.Role
                 })
                 .ToList()
+        };
+    }
+    
+    private static OpenAiCompletionInput MapAnthropicCompletionInput(
+        AnthropicCompletionInput input)
+    {
+        var messages = input
+            .Messages
+            .Select(message => new OpenAiCompletionMessageInput
+            {
+                Content = message.Content,
+                Role = message.Role
+            })
+            .ToList();
+
+        if (!string.IsNullOrWhiteSpace(input.System))
+        {
+            messages.Insert(0, new OpenAiCompletionMessageInput
+            {
+                Content = input.System,
+                Role = "system"
+            });
+        }
+        
+        return new OpenAiCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = messages
         };
     }
 }

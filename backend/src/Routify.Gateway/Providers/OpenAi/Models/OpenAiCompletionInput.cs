@@ -30,5 +30,5 @@ internal record OpenAiCompletionInput : ICompletionInput
     public float? FrequencyPenalty { get; set; }
     
     [JsonPropertyName("temperature")]
-    public double? Temperature { get; set; }
+    public float? Temperature { get; set; }
 }

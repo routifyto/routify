@@ -11,7 +11,7 @@ internal class TogetherAiCompletionOutputMapper : ICompletionOutputMapper
     {
         return output switch
         {
-            TogetherAiCompletionOutput togetherAiCompletionOutput => togetherAiCompletionOutput,
+            TogetherAiCompletionOutput _ => output,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };

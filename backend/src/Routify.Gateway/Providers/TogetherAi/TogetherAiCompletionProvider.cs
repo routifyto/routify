@@ -25,7 +25,7 @@ internal class TogetherAiCompletionProvider(
         CompletionRequest request, 
         CancellationToken cancellationToken)
     {
-        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var openAiApiKey))
+        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
         {
             return new CompletionResponse
             {
@@ -33,8 +33,8 @@ internal class TogetherAiCompletionProvider(
             };
         }
 
-        var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
-        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
+        var client = httpClientFactory.CreateClient(ProviderIds.TogetherAi);
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
         var openAiInput = inputMapper.Map(request.Input);
         var response = await client.PostAsJsonAsync("chat/completions", openAiInput, cancellationToken);

@@ -11,7 +11,7 @@ internal class TogetherAiCompletionInputMapper : ICompletionInputMapper
     {
         return input switch
         {
-            TogetherAiCompletionInput togetherAiCompletionInput => togetherAiCompletionInput,
+            TogetherAiCompletionInput _ => input,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
