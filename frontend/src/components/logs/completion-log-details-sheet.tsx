@@ -28,7 +28,9 @@ export function CompletionLogDetailsSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="min-w-2/3 max-w-2/3 sm:max-w-2/3 sm:min-w-2/3">
         <SheetHeader>
-          <SheetTitle className="pb-2">Text log details - {id}</SheetTitle>
+          <SheetTitle className="pb-2">
+            Completion log details - {id}
+          </SheetTitle>
         </SheetHeader>
         {isPending ? (
           <div className="flex h-full w-full items-center justify-center">
@@ -38,7 +40,7 @@ export function CompletionLogDetailsSheet({
           <CompletionLogDetails completionLog={data} />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <p>Text log not found</p>
+            <p>Completion log not found</p>
           </div>
         )}
       </SheetContent>
