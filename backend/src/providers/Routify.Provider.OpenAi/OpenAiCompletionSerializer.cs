@@ -1,5 +1,6 @@
 using System.Text.Json;
-using Routify.Provider.Core.Completion;
+using Routify.Provider.Core;
+using Routify.Provider.Core.Models;
 using Routify.Provider.OpenAi.Models;
 
 namespace Routify.Provider.OpenAi;

@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Routify.Core\Routify.Core.csproj" />
+      <ProjectReference Include="..\Routify.Provider.Core\Routify.Provider.Core.csproj" />
     </ItemGroup>
 
 </Project>

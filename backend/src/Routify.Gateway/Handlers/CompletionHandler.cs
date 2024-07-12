@@ -6,7 +6,8 @@ using Routify.Core.Utils;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Services;
-using Routify.Provider.Core.Completion;
+using Routify.Provider.Core;
+using Routify.Provider.Core.Models;
 
 namespace Routify.Gateway.Handlers;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Routify.Core.Constants;
-using Routify.Provider.Core.Completion;
+using Routify.Provider.Core;
 
 namespace Routify.Provider.OpenAi;
 

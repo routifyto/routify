@@ -4,54 +4,24 @@ using System.Text.Json;
 using Routify.Core.Constants;
 using Routify.Provider.Core;
 using Routify.Provider.Core.Models;
-using Routify.Provider.OpenAi.Models;
+using Routify.Provider.TogetherAi.Models;
 
-namespace Routify.Provider.OpenAi;
+namespace Routify.Provider.TogetherAi;
 
-internal class OpenAiCompletionProvider(
-    IHttpClientFactory httpClientFactory)
+internal class TogetherAiCompletionProvider(
+    IHttpClientFactory httpClientFactory) 
     : ICompletionProvider
 {
     private static readonly Dictionary<string, decimal> ModelInputCosts = new()
     {
-        { "gpt-4o", 0.000005m },
-        { "gpt-4o-2024-05-13", 0.000005m },
-
-        { "gpt-4-turbo", 0.00001m },
-        { "gpt-4-turbo-2024-04-09", 0.00001m },
-        { "gpt-4-turbo-preview", 0.00001m },
-        { "gpt-4-0125-preview", 0.00001m },
-        { "gpt-4", 0.00003m },
-        { "gpt-4-0613", 0.00003m },
-        { "gpt-4-0314", 0.00003m },
-
-        { "gpt-3.5-turbo-0125", 0.0000005m },
-        { "gpt-3.5-turbo", 0.0000005m },
-        { "gpt-3.5-turbo-1106", 0.000001m },
-        { "gpt-3.5-turbo-instruct", 0.0000015m },
     };
 
     private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
     {
-        { "gpt-4o", 0.000015m },
-        { "gpt-4o-2024-05-13", 0.000015m },
-
-        { "gpt-4-turbo", 0.00003m },
-        { "gpt-4-turbo-2024-04-09", 0.00003m },
-        { "gpt-4-turbo-preview", 0.00003m },
-        { "gpt-4-0125-preview", 0.00003m },
-        { "gpt-4", 0.00006m },
-        { "gpt-4-0613", 0.00006m },
-        { "gpt-4-0314", 0.00006m },
-
-        { "gpt-3.5-turbo-0125", 0.0000015m },
-        { "gpt-3.5-turbo", 0.0000015m },
-        { "gpt-3.5-turbo-1106", 0.000002m },
-        { "gpt-3.5-turbo-instruct", 0.000002m },
     };
-
+    
     public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request,
+        CompletionRequest request, 
         CancellationToken cancellationToken)
     {
         if (!request.AppProviderAttrs.TryGetValue("apiKey", out var openAiApiKey))
@@ -65,10 +35,10 @@ internal class OpenAiCompletionProvider(
         var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {openAiApiKey}");
 
-        var openAiInput = PrepareOpenAiInput(request);
+        var openAiInput = PrepareTogetherAiInput(request);
         var response = await client.PostAsJsonAsync("chat/completions", openAiInput, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        var responsePayload = JsonSerializer.Deserialize<OpenAiCompletionPayload>(responseBody);
+        var responsePayload = JsonSerializer.Deserialize<TogetherAiCompletionPayload>(responseBody);
 
         var completionResponse = new CompletionResponse
         {
@@ -87,20 +57,19 @@ internal class OpenAiCompletionProvider(
 
         return completionResponse;
     }
-
-    private static OpenAiCompletionInput PrepareOpenAiInput(
+    
+    private static TogetherAiCompletionInput PrepareTogetherAiInput(
         CompletionRequest request)
     {
         var input = request.Input;
-        var openAiInput = new OpenAiCompletionInput
+        var openAiInput = new TogetherAiCompletionInput
         {
             Model = input.Model,
             Messages = input
                 .Messages
-                .Select(message => new OpenAiCompletionMessageInput
+                .Select(message => new TogetherAiCompletionMessageInput
                 {
                     Content = message.Content,
-                    Name = message.Name,
                     Role = message.Role
                 })
                 .ToList(),
@@ -119,7 +88,7 @@ internal class OpenAiCompletionProvider(
         if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
             && !string.IsNullOrWhiteSpace(systemPrompt))
         {
-            openAiInput.Messages.Insert(0, new OpenAiCompletionMessageInput
+            openAiInput.Messages.Insert(0, new TogetherAiCompletionMessageInput
             {
                 Content = systemPrompt,
                 Role = "system"
@@ -158,7 +127,7 @@ internal class OpenAiCompletionProvider(
     }
 
     private static CompletionPayload? MapToCompletionPayload(
-        OpenAiCompletionPayload? payload)
+        TogetherAiCompletionPayload? payload)
     {
         if (payload == null)
             return null;
@@ -171,27 +140,17 @@ internal class OpenAiCompletionProvider(
                 .Choices
                 .Select(choice => new CompletionChoicePayload
                 {
-                    Index = choice.Index,
                     FinishReason = choice.FinishReason,
                     Message = new CompletionMessagePayload
                     {
                         Content = choice.Message.Content,
                         Role = choice.Message.Role
                     },
-                    Logprobs = new CompletionLogprobsPayload
-                    {
-                        Content = choice
-                            .Logprobs?
-                            .Content?
-                            .Select(MapLogprobsContent)
-                            .ToList()
-                    }
+                    Logprobs = new CompletionLogprobsPayload()
                 })
                 .ToList(),
             Created = payload.Created,
             Model = payload.Model,
-            ServiceTier = payload.ServiceTier,
-            SystemFingerprint = payload.SystemFingerprint,
             Usage = new CompletionUsagePayload
             {
                 PromptTokens = payload.Usage.PromptTokens,
@@ -200,19 +159,7 @@ internal class OpenAiCompletionProvider(
             }
         };
     }
-
-    private static CompletionLogprobsContentPayload MapLogprobsContent(
-        OpenAiCompletionLogprobsContentPayload content)
-    {
-        return new CompletionLogprobsContentPayload
-        {
-            Token = content.Token,
-            Logprob = content.Logprob,
-            Bytes = content.Bytes,
-            TopLogprobs = content.TopLogprobs.Select(MapLogprobsContent).ToList()
-        };
-    }
-
+    
     private static decimal CalculateInputCost(
         string model,
         int tokens)

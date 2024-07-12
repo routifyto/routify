@@ -1,4 +1,6 @@
-namespace Routify.Provider.Core.Completion;
+using Routify.Provider.Core.Models;
+
+namespace Routify.Provider.Core;
 
 public interface ICompletionProvider
 {

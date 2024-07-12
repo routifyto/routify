@@ -1,6 +1,7 @@
 using System.Text.Json;
+using Routify.Provider.Core.Models;
 
-namespace Routify.Provider.Core.Completion;
+namespace Routify.Provider.Core;
 
 public interface ICompletionSerializer
 {

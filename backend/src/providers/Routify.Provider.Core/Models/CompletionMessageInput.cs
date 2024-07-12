@@ -1,4 +1,4 @@
-namespace Routify.Provider.Core.Completion;
+namespace Routify.Provider.Core.Models;
 
 public class CompletionMessageInput
 {
