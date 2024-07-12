@@ -26,7 +26,7 @@ export function CompletionLogs() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-row items-center justify-between pb-4">
-        <h1 className="text-2xl font-semibold">Text logs</h1>
+        <h1 className="text-2xl font-semibold">Completion logs</h1>
       </div>
       <Table>
         <TableHeader>

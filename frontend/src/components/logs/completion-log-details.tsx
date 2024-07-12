@@ -5,6 +5,11 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/app';
 import { providers } from '@/types/providers';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
+SyntaxHighlighter.registerLanguage('json', json);
 
 interface CompletionLogDetailsProps {
   completionLog: CompletionLogPayload;
@@ -155,11 +160,13 @@ export function CompletionLogDetails({
               <CardTitle>Request</CardTitle>
             </CardHeader>
             <CardContent>
-              <code>
-                <pre className="whitespace-pre-wrap text-sm">
-                  {completionLog.requestBody}
-                </pre>
-              </code>
+              <SyntaxHighlighter
+                className="rounded-md bg-white p-3 text-sm"
+                language="json"
+                style={docco}
+              >
+                {completionLog.requestBody}
+              </SyntaxHighlighter>
             </CardContent>
           </Card>
           <Card>
@@ -167,11 +174,13 @@ export function CompletionLogDetails({
               <CardTitle>Response</CardTitle>
             </CardHeader>
             <CardContent>
-              <code>
-                <pre className="whitespace-pre-wrap text-sm">
-                  {completionLog.responseBody}
-                </pre>
-              </code>
+              <SyntaxHighlighter
+                className="rounded-md bg-white p-3 text-sm"
+                language="json"
+                style={docco}
+              >
+                {completionLog.responseBody}
+              </SyntaxHighlighter>
             </CardContent>
           </Card>
         </div>
