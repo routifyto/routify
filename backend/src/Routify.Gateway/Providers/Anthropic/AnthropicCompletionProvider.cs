@@ -13,12 +13,18 @@ internal class AnthropicCompletionProvider(
 {
     private static readonly Dictionary<string, decimal> ModelInputCosts = new()
     {
-        
+        { "claude-3-5-sonnet-20240620", 3m },
+        { "claude-3-opus-20240229", 15m },
+        { "claude-3-sonnet-20240229", 3m },
+        { "claude-3-haiku-20240307", 0.25m },
     };
 
     private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
     {
-        
+        { "claude-3-5-sonnet-20240620", 15m },
+        { "claude-3-opus-20240229", 75m },
+        { "claude-3-sonnet-20240229", 5m },
+        { "claude-3-haiku-20240307", 1.25m },
     };
     
     public async Task<CompletionResponse> CompleteAsync(
@@ -98,7 +104,7 @@ internal class AnthropicCompletionProvider(
     {
         if (ModelInputCosts.TryGetValue(model, out var cost))
         {
-            return cost * tokens;
+            return cost / 1000000 * tokens;
         }
 
         return 0;
@@ -110,7 +116,7 @@ internal class AnthropicCompletionProvider(
     {
         if (ModelOutputCosts.TryGetValue(model, out var cost))
         {
-            return cost * tokens;
+            return cost / 1000000 * tokens;
         }
 
         return 0;

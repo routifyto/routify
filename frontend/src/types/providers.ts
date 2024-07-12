@@ -102,7 +102,32 @@ export const providers: Provider[] = [
     name: 'Anthropic',
     description: 'Description coming soon.',
     logo: '/providers/anthropic.png',
-    models: [],
+    models: [
+      {
+        id: 'claude-3-5-sonnet-20240620',
+        name: 'claude-3-5-sonnet-20240620',
+        description: 'Our most intelligent model.',
+        contextWindow: 200000,
+      },
+      {
+        id: 'claude-3-opus-20240229',
+        name: 'claude-3-opus-20240229',
+        description: 'Claude 3 Opus.',
+        contextWindow: 200000,
+      },
+      {
+        id: 'claude-3-sonnet-20240229',
+        name: 'claude-3-sonnet-20240229',
+        description: 'Claude 3 Sonnet.',
+        contextWindow: 200000,
+      },
+      {
+        id: 'claude-3-haiku-20240307',
+        name: 'claude-3-haiku-20240307',
+        description: 'Claude 3 Haiku.',
+        contextWindow: 200000,
+      },
+    ],
   },
   {
     id: 'mistral-ai',
