@@ -198,7 +198,50 @@ export const providers: Provider[] = [
     name: 'Cohere',
     description: 'Description coming soon.',
     logo: '/providers/cohere.png',
-    models: [],
+    models: [
+      {
+        id: 'command-r-plus',
+        name: 'command-r-plus',
+        description:
+          'Command R+ is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with a longer context than previous models. It is best suited for complex RAG workflows and multi-step tool use.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'command-r',
+        name: 'command-r',
+        description:
+          'Command R is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with a longer context than previous models. It can be used for complex workflows like code generation, retrieval augmented generation (RAG), tool use, and agents.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'command',
+        name: 'command',
+        description:
+          'An instruction-following conversational model that performs language tasks with high quality, more reliably and with a longer context than our base generative models.',
+        contextWindow: 4000,
+      },
+      {
+        id: 'command-nightly',
+        name: 'command-nightly',
+        description:
+          'Be advised that command-nightly is the latest, most experimental, and (possibly) unstable version of its default counterpart. Nightly releases are updated regularly, without warning, and are not recommended for production use.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'command-light',
+        name: 'command-light',
+        description:
+          'A smaller, faster version of command. Almost as capable, but a lot faster.',
+        contextWindow: 4000,
+      },
+      {
+        id: 'command-light-nightly',
+        name: 'command-light-nightly',
+        description:
+          'Be advised that command-light-nightly is the latest, most experimental, and (possibly) unstable version of its default counterpart. Nightly releases are updated regularly, without warning, and are not recommended for production use.',
+        contextWindow: 4000,
+      },
+    ],
   },
   {
     id: 'together-ai',
