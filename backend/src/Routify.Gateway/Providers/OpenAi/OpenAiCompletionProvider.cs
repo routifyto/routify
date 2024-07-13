@@ -13,40 +13,40 @@ internal class OpenAiCompletionProvider(
 {
     private static readonly Dictionary<string, decimal> ModelInputCosts = new()
     {
-        { "gpt-4o", 0.000005m },
-        { "gpt-4o-2024-05-13", 0.000005m },
+        { "gpt-4o", 5m },
+        { "gpt-4o-2024-05-13", 5m },
 
-        { "gpt-4-turbo", 0.00001m },
-        { "gpt-4-turbo-2024-04-09", 0.00001m },
-        { "gpt-4-turbo-preview", 0.00001m },
-        { "gpt-4-0125-preview", 0.00001m },
-        { "gpt-4", 0.00003m },
-        { "gpt-4-0613", 0.00003m },
-        { "gpt-4-0314", 0.00003m },
+        { "gpt-4-turbo", 10m },
+        { "gpt-4-turbo-2024-04-09", 10m },
+        { "gpt-4-turbo-preview", 10m },
+        { "gpt-4-0125-preview", 10m },
+        { "gpt-4", 30m },
+        { "gpt-4-0613", 30m },
+        { "gpt-4-0314", 30m },
 
-        { "gpt-3.5-turbo-0125", 0.0000005m },
-        { "gpt-3.5-turbo", 0.0000005m },
-        { "gpt-3.5-turbo-1106", 0.000001m },
-        { "gpt-3.5-turbo-instruct", 0.0000015m },
+        { "gpt-3.5-turbo-0125", 0.5m },
+        { "gpt-3.5-turbo", 0.5m },
+        { "gpt-3.5-turbo-1106", 1m },
+        { "gpt-3.5-turbo-instruct", 1.5m },
     };
 
     private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
     {
-        { "gpt-4o", 0.000015m },
-        { "gpt-4o-2024-05-13", 0.000015m },
+        { "gpt-4o", 15m },
+        { "gpt-4o-2024-05-13", 15m },
 
-        { "gpt-4-turbo", 0.00003m },
-        { "gpt-4-turbo-2024-04-09", 0.00003m },
-        { "gpt-4-turbo-preview", 0.00003m },
-        { "gpt-4-0125-preview", 0.00003m },
-        { "gpt-4", 0.00006m },
-        { "gpt-4-0613", 0.00006m },
-        { "gpt-4-0314", 0.00006m },
+        { "gpt-4-turbo", 30m },
+        { "gpt-4-turbo-2024-04-09", 30m },
+        { "gpt-4-turbo-preview", 30m },
+        { "gpt-4-0125-preview", 30m },
+        { "gpt-4", 60m },
+        { "gpt-4-0613", 60m },
+        { "gpt-4-0314", 60m },
 
-        { "gpt-3.5-turbo-0125", 0.0000015m },
-        { "gpt-3.5-turbo", 0.0000015m },
-        { "gpt-3.5-turbo-1106", 0.000002m },
-        { "gpt-3.5-turbo-instruct", 0.000002m },
+        { "gpt-3.5-turbo-0125", 1.5m },
+        { "gpt-3.5-turbo", 1.5m },
+        { "gpt-3.5-turbo-1106", 2m },
+        { "gpt-3.5-turbo-instruct", 2m },
     };
     
     public async Task<CompletionResponse> CompleteAsync(
@@ -144,7 +144,7 @@ internal class OpenAiCompletionProvider(
     {
         if (ModelInputCosts.TryGetValue(model, out var cost))
         {
-            return cost * tokens;
+            return cost / 1000000 * tokens;
         }
 
         return 0;
@@ -156,7 +156,7 @@ internal class OpenAiCompletionProvider(
     {
         if (ModelOutputCosts.TryGetValue(model, out var cost))
         {
-            return cost * tokens;
+            return cost / 1000000 * tokens;
         }
 
         return 0;
