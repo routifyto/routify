@@ -44,7 +44,7 @@ builder.Services.AddHttpClient("api",client =>
         throw new Exception("Token is not set.");
     
     client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Add("x-proxy-token", token);
+    client.DefaultRequestHeaders.Add("x-gateway-token", token);
 });
 
 var app = builder.Build();

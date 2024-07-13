@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Routify.Api.Configs;
 using Routify.Data;
 using Routify.Data.Models;
 
@@ -64,6 +65,9 @@ builder.Services.AddPostgres(builder.Configuration);
 
 // Inject PasswordHasher from .NET Core Identity
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+// Inject configurations from appsettings.json
+builder.Services.Configure<GatewayConfig>(builder.Configuration.GetSection("Gateway"));
 
 var app = builder.Build();
 

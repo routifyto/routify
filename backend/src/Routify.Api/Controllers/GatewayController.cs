@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Routify.Api.Configs;
 using Routify.Api.Models.Gateway;
 using Routify.Data;
 
@@ -7,36 +9,42 @@ namespace Routify.Api.Controllers;
 
 [Route("/v1/gateway")]
 public class GatewayController(
-    DatabaseContext databaseContext)
+    DatabaseContext databaseContext,
+    IOptions<GatewayConfig> gatewayConfig)
     : BaseController
 {
     [HttpGet("data", Name = "GetGatewayData")]
-    public async Task<ActionResult<GatewayDataOutput>> GetGatewayData()
+    public async Task<ActionResult<GatewayDataOutput>> GetGatewayData(
+        [FromHeader(Name = "x-gateway-token")] string? token,
+        CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(token) || !gatewayConfig.Value.Tokens.Contains(token))
+            return Unauthorized();
+        
         var allApps = await databaseContext
             .Apps
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var allRoutes = await databaseContext
             .Routes
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var allRouteProviders = await databaseContext
             .RouteProviders
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         
         var allAppProviders = await databaseContext
             .AppProviders
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         
         var allApiKeys = await databaseContext
             .ApiKeys
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var apps = allApps
             .Select(app => new GatewayAppOutput
@@ -98,8 +106,12 @@ public class GatewayController(
     [HttpPost("logs", Name = "CreateGatewayLogs")]
     public async Task<ActionResult> CreateGatewayLogs(
         [FromBody] GatewayLogsInput input,
+        [FromHeader(Name = "x-gateway-token")] string? token,
         CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(token) || !gatewayConfig.Value.Tokens.Contains(token))
+            return Unauthorized();
+        
         await databaseContext.CompletionLogs.AddRangeAsync(input.CompletionLogs, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
         
