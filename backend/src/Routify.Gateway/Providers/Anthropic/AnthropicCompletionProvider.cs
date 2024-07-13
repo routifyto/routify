@@ -8,7 +8,7 @@ namespace Routify.Gateway.Providers.Anthropic;
 
 internal class AnthropicCompletionProvider(
     IHttpClientFactory httpClientFactory,
-    [FromKeyedServices(ProviderIds.Anthropic)] ICompletionInputMapper inputMapper) 
+    [FromKeyedServices(ProviderIds.Anthropic)] ICompletionInputMapper inputMapper)
     : ICompletionProvider
 {
     private static readonly Dictionary<string, decimal> ModelInputCosts = new()
@@ -26,9 +26,9 @@ internal class AnthropicCompletionProvider(
         { "claude-3-sonnet-20240229", 5m },
         { "claude-3-haiku-20240307", 1.25m },
     };
-    
+
     public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request, 
+        CompletionRequest request,
         CancellationToken cancellationToken)
     {
         if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
@@ -50,7 +50,7 @@ internal class AnthropicCompletionProvider(
                 StatusCode = (int)HttpStatusCode.BadRequest,
             };
         }
-        
+
         if (!string.IsNullOrWhiteSpace(request.Model))
             anthropicInput.Model = request.Model;
 
@@ -60,15 +60,15 @@ internal class AnthropicCompletionProvider(
             anthropicInput.System = systemPrompt;
         }
 
-        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
-            && !string.IsNullOrWhiteSpace(temperatureString) 
+        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString)
+            && !string.IsNullOrWhiteSpace(temperatureString)
             && float.TryParse(temperatureString, out var temperature))
         {
             anthropicInput.Temperature = temperature;
         }
 
-        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString) 
-            && !string.IsNullOrWhiteSpace(maxTokensString) 
+        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString)
+            && !string.IsNullOrWhiteSpace(maxTokensString)
             && int.TryParse(maxTokensString, out var maxTokens))
         {
             anthropicInput.MaxTokens = maxTokens;
@@ -76,28 +76,40 @@ internal class AnthropicCompletionProvider(
 
         var response = await client.PostAsJsonAsync("messages", anthropicInput, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        var responseOutput = JsonSerializer.Deserialize<AnthropicCompletionOutput>(responseBody);
 
+        if (!response.IsSuccessStatusCode)
+        {
+            return new CompletionResponse
+            {
+                StatusCode = (int)response.StatusCode,
+                Error = responseBody,
+            };
+        }
+
+        var responseOutput = JsonSerializer.Deserialize<AnthropicCompletionOutput>(responseBody);
+        if (responseOutput == null)
+        {
+            return new CompletionResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+            };
+        }
+
+        var usage = responseOutput.Usage;
         var completionResponse = new CompletionResponse
         {
-            Output = responseOutput,
             StatusCode = (int)response.StatusCode,
+            Model = responseOutput.Model,
+            InputTokens = usage.InputTokens,
+            OutputTokens = usage.OutputTokens,
+            Output = responseOutput,
+            InputCost = CalculateInputCost(responseOutput.Model, usage.InputTokens),
+            OutputCost = CalculateOutputCost(responseOutput.Model, usage.OutputTokens)
         };
-
-        if (responseOutput != null)
-        {
-            completionResponse.Model = responseOutput.Model;
-            
-            var usage = responseOutput.Usage;
-            completionResponse.InputTokens = usage.InputTokens;
-            completionResponse.OutputTokens = usage.OutputTokens;
-            completionResponse.InputCost = CalculateInputCost(responseOutput.Model, usage.InputTokens);
-            completionResponse.OutputCost = CalculateOutputCost(responseOutput.Model, usage.OutputTokens);
-        }
 
         return completionResponse;
     }
-    
+
     private static decimal CalculateInputCost(
         string model,
         int tokens)

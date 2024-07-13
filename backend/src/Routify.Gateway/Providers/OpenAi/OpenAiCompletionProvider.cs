@@ -116,24 +116,36 @@ internal class OpenAiCompletionProvider(
         
         var response = await client.PostAsJsonAsync("chat/completions", openAiInput, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        var responseOutput = JsonSerializer.Deserialize<OpenAiCompletionOutput>(responseBody);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            return new CompletionResponse
+            {
+                StatusCode = (int)response.StatusCode,
+                Error = responseBody,
+            };
+        }
 
+        var responseOutput = JsonSerializer.Deserialize<OpenAiCompletionOutput>(responseBody);
+        if (responseOutput == null)
+        {
+            return new CompletionResponse
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+            };
+        }
+
+        var usage = responseOutput.Usage;
         var completionResponse = new CompletionResponse
         {
-            Output = responseOutput,
             StatusCode = (int)response.StatusCode,
+            Model = responseOutput.Model,
+            InputTokens = usage.PromptTokens,
+            OutputTokens = usage.CompletionTokens,
+            Output = responseOutput,
+            InputCost = CalculateInputCost(responseOutput.Model, usage.PromptTokens),
+            OutputCost = CalculateOutputCost(responseOutput.Model, usage.CompletionTokens)
         };
-
-        if (responseOutput != null)
-        {
-            completionResponse.Model = responseOutput.Model;
-            
-            var usage = responseOutput.Usage;
-            completionResponse.InputTokens = usage.PromptTokens;
-            completionResponse.OutputTokens = usage.CompletionTokens;
-            completionResponse.InputCost = CalculateInputCost(responseOutput.Model, usage.PromptTokens);
-            completionResponse.OutputCost = CalculateOutputCost(responseOutput.Model, usage.CompletionTokens);
-        }
 
         return completionResponse;
     }

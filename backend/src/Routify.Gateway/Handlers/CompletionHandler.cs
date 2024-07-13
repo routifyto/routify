@@ -115,6 +115,18 @@ internal class CompletionHandler(
                 context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.WriteAsync(responseBody, cancellationToken);    
             }
+            else if (completionResponse.Error != null)
+            {
+                log.ResponseBody = completionResponse.Error;
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.WriteAsync(completionResponse.Error, cancellationToken);
+            }
+            else
+            {
+                log.ResponseBody = string.Empty;
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.WriteAsync(string.Empty, cancellationToken);
+            }
         }
         finally
         {
