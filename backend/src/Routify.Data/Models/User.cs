@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Routify.Core.Utils;
+using Routify.Data.Enums;
 
 namespace Routify.Data.Models;
 
@@ -66,12 +67,6 @@ public record User
             entity.HasIndex(e => e.Email).IsUnique();
         });
     }
-}
-
-public enum UserStatus
-{
-    Pending = 0,
-    Active = 1,
 }
 
 public record UserAttrs

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Routify.Core.Utils;
 using Routify.Data.Common;
+using Routify.Data.Enums;
 using Routify.Data.Utils;
 
 namespace Routify.Data.Models;
@@ -134,16 +135,4 @@ public record Route
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
-}
-
-public enum RouteType
-{
-    Completion = 1,
-    Embedding = 2,
-}
-
-public enum RouteStatus
-{
-    Active = 1,
-    Inactive = 2
 }

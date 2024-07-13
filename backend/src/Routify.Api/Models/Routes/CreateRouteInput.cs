@@ -1,4 +1,4 @@
-using Routify.Data.Models;
+using Routify.Data.Enums;
 
 namespace Routify.Api.Models.Routes;
 

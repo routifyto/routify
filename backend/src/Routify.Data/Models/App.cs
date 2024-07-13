@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Routify.Data.Enums;
 
 namespace Routify.Data.Models;
 
@@ -64,10 +65,4 @@ public record App
                 .IsRequired();
         });
     }
-}
-
-public enum AppStatus
-{
-    Active = 1,
-    Inactive = 2
 }

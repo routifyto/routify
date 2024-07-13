@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Routify.Core.Utils;
+using Routify.Data.Enums;
 using Routify.Data.Utils;
 
 namespace Routify.Data.Models;
@@ -95,10 +96,4 @@ public record AppProvider
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
-}
-
-public enum AppProviderStatus
-{
-    Active = 1,
-    Inactive = 2
 }
