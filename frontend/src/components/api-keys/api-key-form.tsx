@@ -15,43 +15,37 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import { AppProviderInput, AppProviderOutput } from '@/types/app-providers';
-import { ProviderSelect } from '@/components/providers/provider-select';
-import { AppProviderAttrsForm } from '@/components/app-providers/app-provider-attrs-form';
+import { ApiKeyInput, ApiKeyOutput } from '@/types/api-keys';
+import { ApiKeyExpirationCalendar } from '@/components/api-keys/api-key-expiration-calendar';
 
 const formSchema = z.object({
   name: z.string(),
-  alias: z.string().regex(/^[a-z0-9-_]+$/, {
-    message:
-      'Only lowercase alphanumeric characters, hyphens, and underscores are allowed. No spaces or other characters.',
-  }),
-  provider: z.string(),
-  description: z.string().optional(),
-  attrs: z.record(z.string(), z.string()),
+  description: z.string().optional().nullable(),
+  expiresAt: z.date().optional().nullable(),
+  canUseGateway: z.boolean(),
 });
 
-interface AppProviderProps {
-  appProvider: AppProviderOutput | null;
+interface ApiKeyProps {
+  apiKey: ApiKeyOutput | null;
   errors: string[];
   isPending: boolean;
-  onSubmit: (data: AppProviderInput) => void;
+  onSubmit: (data: ApiKeyInput) => void;
 }
 
-export function AppProviderForm({
-  appProvider,
+export function ApiKeyForm({
+  apiKey,
   errors,
   isPending,
   onSubmit,
-}: AppProviderProps) {
-  const isUpdate = appProvider != null;
-  const form = useForm<AppProviderInput>({
+}: ApiKeyProps) {
+  const isUpdate = apiKey != null;
+  const form = useForm<ApiKeyInput>({
     resolver: zodResolver(formSchema),
-    defaultValues: appProvider ?? {
+    defaultValues: apiKey ?? {
       name: '',
       description: '',
-      alias: '',
-      provider: 'openai',
-      attrs: {},
+      expiresAt: null,
+      canUseGateway: true,
     },
   });
 
@@ -62,7 +56,7 @@ export function AppProviderForm({
         onSubmit={form.handleSubmit(onSubmit)}
       >
         {!isUpdate && (
-          <h1 className="pb-4 text-2xl font-semibold">Create provider</h1>
+          <h1 className="pb-4 text-2xl font-semibold">Create API Key</h1>
         )}
         <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
           <FormField
@@ -73,19 +67,6 @@ export function AppProviderForm({
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="alias"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Alias</FormLabel>
-                <FormControl>
-                  <Input placeholder="Alias" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -108,25 +89,24 @@ export function AppProviderForm({
               </FormItem>
             )}
           />
-        </div>
-        <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
           <FormField
             control={form.control}
-            name="provider"
+            name="expiresAt"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>Provider</FormLabel>
+                <FormLabel>Expiration date</FormLabel>
                 <FormControl>
-                  <ProviderSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <div className="w-full">
+                    <ApiKeyExpirationCalendar
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <AppProviderAttrsForm />
         </div>
         <div className="flex flex-col gap-2 pb-2">
           <div className="flex flex-row items-center justify-end gap-2">

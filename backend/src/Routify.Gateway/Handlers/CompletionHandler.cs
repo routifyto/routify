@@ -33,7 +33,7 @@ internal class CompletionHandler(
             RouteId = context.Route.Id,
             Path = context.Route.Path,
             StartedAt = DateTime.UtcNow,
-            ApiKeyId = ""
+            ApiKeyId = context.ApiKey.Id
         };
         
         try

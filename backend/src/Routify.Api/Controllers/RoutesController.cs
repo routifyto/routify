@@ -28,14 +28,9 @@ public class RoutesController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var query = databaseContext
@@ -80,16 +75,11 @@ public class RoutesController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
             return NotFound();
 
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
-        
         var route = await databaseContext
             .Routes
             .Include(x => x.Providers)
@@ -113,14 +103,9 @@ public class RoutesController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var route = new Route
@@ -175,14 +160,9 @@ public class RoutesController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var route = await databaseContext
@@ -259,14 +239,9 @@ public class RoutesController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var route = await databaseContext

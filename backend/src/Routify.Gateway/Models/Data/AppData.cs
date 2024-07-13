@@ -9,6 +9,7 @@ internal record AppData
 
     private Dictionary<string, RouteData> Routes { get; set; } = [];
     private Dictionary<string, AppProviderData> Providers { get; set; } = [];
+    private Dictionary<string, ApiKeyData> ApiKeys { get; set; } = [];
 
     public AppData(
         ApiAppOutput output)
@@ -45,6 +46,18 @@ internal record AppData
                 Alias = provider.Alias,
                 Attrs = provider.Attrs
             });
+        
+        ApiKeys = output
+            .ApiKeys
+            .ToDictionary(apiKey => apiKey.Id, apiKey => new ApiKeyData
+            {
+                Id = apiKey.Id,
+                Hash = apiKey.Hash,
+                Salt = apiKey.Salt,
+                Prefix = apiKey.Prefix,
+                Algorithm = apiKey.Algorithm,
+                ExpiresAt = apiKey.ExpiresAt
+            });
     }
 
     public RouteData? GetRoute(
@@ -59,5 +72,12 @@ internal record AppData
     {
         Providers.TryGetValue(id, out var provider);
         return provider;
+    }
+
+    public ApiKeyData? GetApiKeyById(
+        string id)
+    {
+        ApiKeys.TryGetValue(id, out var apiKey);
+        return apiKey;
     }
 }

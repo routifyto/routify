@@ -10,6 +10,7 @@ using Routify.Api.Models.Accounts;
 using Routify.Api.Models.Common;
 using Routify.Core.Utils;
 using Routify.Data;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 
 namespace Routify.Api.Controllers;

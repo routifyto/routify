@@ -6,4 +6,5 @@ public record GatewayAppOutput
     public string Name { get; set; } = null!;
     public List<GatewayRouteOutput> Routes { get; set; } = [];
     public List<GatewayAppProviderOutput> Providers { get; set; } = [];
+    public List<GatewayApiKeyOutput> ApiKeys { get; set; } = [];
 }

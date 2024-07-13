@@ -65,11 +65,19 @@ app.MapPost("/{appId}/{*path}", async (
         return;
     }
     
+    var apiKey = AuthorizationUtils.ParseApiKey(httpContext, appData);
+    if (apiKey == null)
+    {
+        httpContext.Response.StatusCode = 401;
+        return;
+    }
+    
     var context = new RequestContext
     {
         HttpContext = httpContext,
         App = appData,
-        Route = routeData
+        Route = routeData,
+        ApiKey = apiKey
     };
 
     var handler = serviceProvider.GetRequiredKeyedService<IRequestHandler>(routeData.Type);

@@ -6,13 +6,16 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { router } from '@/router';
 import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const queryClient = new QueryClient();
 
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <TooltipProvider>
+        <RouterProvider router={router} />
+      </TooltipProvider>
       <ReactQueryDevtools initialIsOpen={false} />
       <Toaster />
     </QueryClientProvider>

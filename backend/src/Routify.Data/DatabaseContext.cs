@@ -14,6 +14,7 @@ public class DatabaseContext(
     public DbSet<Route> Routes { get; init; }
     public DbSet<RouteProvider> RouteProviders { get; init; }
     public DbSet<CompletionLog> CompletionLogs { get; init; }
+    public DbSet<ApiKey> ApiKeys { get; init; }
 
     protected override void OnModelCreating(
         ModelBuilder modelBuilder)
@@ -25,5 +26,6 @@ public class DatabaseContext(
         Route.OnModelCreating(modelBuilder);
         RouteProvider.OnModelCreating(modelBuilder);
         CompletionLog.OnModelCreating(modelBuilder);
+        ApiKey.OnModelCreating(modelBuilder);
     }
 }

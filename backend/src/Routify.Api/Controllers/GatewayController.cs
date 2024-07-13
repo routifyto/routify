@@ -32,6 +32,11 @@ public class GatewayController(
             .AppProviders
             .AsNoTracking()
             .ToListAsync();
+        
+        var allApiKeys = await databaseContext
+            .ApiKeys
+            .AsNoTracking()
+            .ToListAsync();
 
         var apps = allApps
             .Select(app => new GatewayAppOutput
@@ -67,6 +72,18 @@ public class GatewayController(
                         Provider = appProvider.Provider,
                         Alias = appProvider.Alias,
                         Attrs = appProvider.Attrs
+                    })
+                    .ToList(),
+                ApiKeys = allApiKeys
+                    .Where(apiKey => apiKey.AppId == app.Id)
+                    .Select(apiKey => new GatewayApiKeyOutput
+                    {
+                        Id = apiKey.Id,
+                        Hash = apiKey.Hash,
+                        Salt = apiKey.Salt,
+                        Prefix = apiKey.Prefix,
+                        Algorithm = apiKey.Algorithm,
+                        ExpiresAt = apiKey.ExpiresAt
                     })
                     .ToList()
             })

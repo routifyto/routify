@@ -19,6 +19,9 @@ import { CompletionLogs } from '@/components/logs/completion-logs';
 import { EmbeddingLogs } from '@/components/logs/embedding-logs';
 import { AnalyticsDashboard } from '@/components/analytics/analytics-dashboard';
 import { Customers } from '@/components/customers/customers';
+import { ApiKeys } from '@/components/api-keys/api-keys';
+import { ApiKeyCreate } from '@/components/api-keys/api-key-create';
+import { ApiKey } from '@/components/api-keys/api-key';
 
 export const router = createBrowserRouter([
   {
@@ -90,6 +93,23 @@ export const router = createBrowserRouter([
           {
             path: 'users',
             element: <AppUsers />,
+          },
+          {
+            path: 'api-keys',
+            children: [
+              {
+                path: '',
+                element: <ApiKeys />,
+              },
+              {
+                path: 'create',
+                element: <ApiKeyCreate />,
+              },
+              {
+                path: ':apiKeyId',
+                element: <ApiKey />,
+              },
+            ],
           },
           {
             path: 'settings',

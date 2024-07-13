@@ -23,14 +23,9 @@ public class LogsController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var query = databaseContext
@@ -86,14 +81,9 @@ public class LogsController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var completionLog = await databaseContext

@@ -26,14 +26,9 @@ public class AppProvidersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var query = databaseContext
@@ -77,14 +72,9 @@ public class AppProvidersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
-        var app = currentAppUser.App;
-        if (app is null)
             return NotFound();
 
         var appProvider = await databaseContext
@@ -109,15 +99,10 @@ public class AppProvidersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
             return Forbid();
-
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
 
         var appProvider = new AppProvider
         {
@@ -130,7 +115,7 @@ public class AppProvidersController(
             Attrs = input.Attrs,
             CreatedBy = CurrentUserId,
             CreatedAt = DateTime.UtcNow,
-            VersionId = app.VersionId,
+            VersionId = RoutifyId.Generate(IdType.Version),
             Status = AppProviderStatus.Active
         };
 
@@ -153,15 +138,10 @@ public class AppProvidersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
             return Forbid();
-
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
 
         var appProvider = await databaseContext
             .AppProviders
@@ -193,15 +173,10 @@ public class AppProvidersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
             return Forbid();
-
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
 
         var appProvider = await databaseContext
             .AppProviders

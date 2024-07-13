@@ -21,16 +21,11 @@ public class AnalyticsController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
             return NotFound();
 
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
-        
         var (from, to) = GetPeriod(period);
         var (previousFrom, previousTo) = GetPreviousPeriod(period, from);
         
@@ -88,16 +83,11 @@ public class AnalyticsController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
             return NotFound();
 
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
-        
         var (from, to) = GetPeriod(period);
         
         var histogramData = await databaseContext
@@ -139,16 +129,11 @@ public class AnalyticsController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
             return NotFound();
 
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
-        
         var (from, to) = GetPeriod(period);
 
         var providerAggregation = await databaseContext

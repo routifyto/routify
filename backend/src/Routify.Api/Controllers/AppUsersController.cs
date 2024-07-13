@@ -27,16 +27,11 @@ public class AppUsersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
         if (currentAppUser is null)
             return NotFound();
         
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
-
         var query = databaseContext
             .AppUsers
             .Include(x => x.User)
@@ -85,15 +80,10 @@ public class AppUsersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
         if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
-        
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
         
         if (input.Emails.Count == 0)
             return BadRequest("Emails cannot be empty");
@@ -134,7 +124,7 @@ public class AppUsersController(
                 var newAppUser = new AppUser
                 {
                     Id = RoutifyId.Generate(IdType.AppUser),
-                    AppId = app.Id,
+                    AppId = currentAppUser.AppId,
                     UserId = user.Id,
                     Role = input.Role,
                     CreatedAt = DateTime.UtcNow,
@@ -177,15 +167,10 @@ public class AppUsersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
         if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
-        
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
         
         var appUserToUpdate = await databaseContext
             .AppUsers
@@ -220,15 +205,10 @@ public class AppUsersController(
 
         var currentAppUser = await databaseContext
             .AppUsers
-            .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
         if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
-        
-        var app = currentAppUser.App;
-        if (app is null)
-            return NotFound();
         
         var appUserToDelete = await databaseContext
             .AppUsers

@@ -8,4 +8,5 @@ internal record RequestContext
     public HttpContext HttpContext { get; set; } = null!;
     public AppData App { get; set; } = null!;
     public RouteData Route { get; set; } = null!;
+    public ApiKeyData ApiKey { get; set; } = null!;
 }
