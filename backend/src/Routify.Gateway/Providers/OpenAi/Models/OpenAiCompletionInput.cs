@@ -31,4 +31,7 @@ internal record OpenAiCompletionInput : ICompletionInput
     
     [JsonPropertyName("temperature")]
     public float? Temperature { get; set; }
+    
+    [JsonPropertyName("seed")]
+    public long? Seed { get; set; }
 }

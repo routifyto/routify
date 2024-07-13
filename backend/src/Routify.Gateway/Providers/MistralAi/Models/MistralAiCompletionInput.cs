@@ -27,5 +27,5 @@ internal record MistralAiCompletionInput : ICompletionInput
     public bool? SafePrompt { get; set; }
     
     [JsonPropertyName("random_seed")]
-    public int? RandomSeed { get; set; }
+    public long? RandomSeed { get; set; }
 }
