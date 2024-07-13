@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Routify.Api.Configs;
+using Routify.Core.Services;
 using Routify.Data;
 using Routify.Data.Models;
 
@@ -21,25 +22,23 @@ builder.Services.AddControllers()
     {
         // Configure JSON serialization options for API endpoints. We use camelCase for property names,
         // ignore null values, and convert enum values to SNACK_CASE_UPPER.
-        
+
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
     });
 
 builder.Services.AddCors();
-builder.Services.AddRouting(options =>
-{
-    options.LowercaseUrls = true;
-});
+builder.Services.AddRouting(options => { options.LowercaseUrls = true; });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("Jwt:Secret is missing.");
+        var jwtSecret = builder.Configuration["Jwt:Secret"] ??
+                        throw new InvalidOperationException("Jwt:Secret is missing.");
         var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "routify";
         var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "routify";
-        
+
         var keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
         var key = new SymmetricSecurityKey(keyBytes);
 
@@ -54,7 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             NameClaimType = ClaimTypes.Name
         };
-        
+
         options.MapInboundClaims = false;
     });
 
@@ -68,6 +67,10 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 // Inject configurations from appsettings.json
 builder.Services.Configure<GatewayConfig>(builder.Configuration.GetSection("Gateway"));
+
+// Inject services from Routify.Provider.Core
+builder.Services.AddSingleton(new EncryptionService(builder.Configuration["Encryption:Key"] ??
+                                                    throw new InvalidOperationException("Encryption:Key is missing.")));
 
 var app = builder.Build();
 

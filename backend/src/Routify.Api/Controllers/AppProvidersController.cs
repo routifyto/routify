@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Routify.Api.Models.AppProviders;
 using Routify.Api.Models.Common;
+using Routify.Core.Services;
 using Routify.Core.Utils;
 using Routify.Data;
 using Routify.Data.Enums;
@@ -11,7 +12,8 @@ namespace Routify.Api.Controllers;
 
 [Route("v1/apps/{appId}/providers")]
 public class AppProvidersController(
-    DatabaseContext databaseContext) 
+    DatabaseContext databaseContext,
+    EncryptionService encryptionService) 
     : BaseController
 {
     [HttpGet(Name = "GetAppProviders")]
@@ -112,7 +114,7 @@ public class AppProvidersController(
             Name = input.Name,
             Alias = input.Alias,
             Description = input.Description,
-            Attrs = input.Attrs,
+            Attrs = EncryptAttrs(input.Attrs),
             CreatedBy = CurrentUserId,
             CreatedAt = DateTime.UtcNow,
             VersionId = RoutifyId.Generate(IdType.Version),
@@ -154,7 +156,7 @@ public class AppProvidersController(
         appProvider.Name = input.Name;
         appProvider.Alias = input.Alias;
         appProvider.Description = input.Description;
-        appProvider.Attrs = input.Attrs;
+        appProvider.Attrs = EncryptAttrs(input.Attrs);
         
         await databaseContext.SaveChangesAsync(cancellationToken);
 
@@ -196,7 +198,7 @@ public class AppProvidersController(
         return Ok(output);
     }
     
-    private static AppProviderOutput MapToOutput(
+    private AppProviderOutput MapToOutput(
         AppProvider appProvider)
     {
         return new AppProviderOutput
@@ -206,7 +208,31 @@ public class AppProvidersController(
             Alias = appProvider.Alias,
             Description = appProvider.Description,
             Provider = appProvider.Provider,
-            Attrs = appProvider.Attrs
+            Attrs = DecryptAttrs(appProvider.Attrs)
         };
+    }
+
+    private Dictionary<string, string> EncryptAttrs(
+        Dictionary<string, string> attrs)
+    {
+        var encryptedAttrs = new Dictionary<string, string>();
+        foreach (var (key, value) in attrs)
+        {
+            var encryptedValue = encryptionService.Encrypt(value);
+            encryptedAttrs[key] = encryptedValue;
+        }
+        return encryptedAttrs;
+    }
+    
+    private Dictionary<string, string> DecryptAttrs(
+        Dictionary<string, string> attrs)
+    {
+        var decryptedAttrs = new Dictionary<string, string>();
+        foreach (var (key, value) in attrs)
+        {
+            var decryptedValue = encryptionService.Decrypt(value);
+            decryptedAttrs[key] = decryptedValue;
+        }
+        return decryptedAttrs;
     }
 }

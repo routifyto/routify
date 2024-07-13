@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Routify.Api.Configs;
 using Routify.Api.Models.Gateway;
+using Routify.Core.Services;
 using Routify.Data;
 
 namespace Routify.Api.Controllers;
@@ -10,7 +11,8 @@ namespace Routify.Api.Controllers;
 [Route("/v1/gateway")]
 public class GatewayController(
     DatabaseContext databaseContext,
-    IOptions<GatewayConfig> gatewayConfig)
+    IOptions<GatewayConfig> gatewayConfig,
+    EncryptionService encryptionService)
     : BaseController
 {
     [HttpGet("data", Name = "GetGatewayData")]
@@ -79,7 +81,7 @@ public class GatewayController(
                         Id = appProvider.Id,
                         Provider = appProvider.Provider,
                         Alias = appProvider.Alias,
-                        Attrs = appProvider.Attrs
+                        Attrs = DecryptAttrs(appProvider.Attrs)
                     })
                     .ToList(),
                 ApiKeys = allApiKeys
@@ -116,5 +118,16 @@ public class GatewayController(
         await databaseContext.SaveChangesAsync(cancellationToken);
         
         return Ok();
+    }
+
+    private Dictionary<string, string> DecryptAttrs(
+        Dictionary<string, string> attrs)
+    {
+        var decryptedAttrs = new Dictionary<string, string>();
+        foreach (var (key, value) in attrs)
+        {
+            decryptedAttrs[key] = encryptionService.Decrypt(value);
+        }
+        return decryptedAttrs;
     }
 }
