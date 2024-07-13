@@ -1,5 +1,5 @@
 import React from 'react';
-import { MetricsPayload } from '@/types/analytics';
+import { MetricsOutput } from '@/types/analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { providers } from '@/types/providers';
 import {
@@ -46,7 +46,7 @@ export function AnalyticsProvidersSkeleton() {
 }
 
 interface AnalyticsListsProps {
-  providersMetrics: MetricsPayload[];
+  providersMetrics: MetricsOutput[];
 }
 
 export function AnalyticsProviders({ providersMetrics }: AnalyticsListsProps) {

@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import { AppProviderInput, AppProviderPayload } from '@/types/app-providers';
+import { AppProviderInput, AppProviderOutput } from '@/types/app-providers';
 import { ProviderSelect } from '@/components/providers/provider-select';
 import { AppProviderAttrsForm } from '@/components/app-providers/app-provider-attrs-form';
 
@@ -31,7 +31,7 @@ const formSchema = z.object({
 });
 
 interface AlertProviderProps {
-  appProvider: AppProviderPayload | null;
+  appProvider: AppProviderOutput | null;
   errors: string[];
   isPending: boolean;
   onSubmit: (data: AppProviderInput) => void;

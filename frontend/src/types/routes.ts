@@ -1,17 +1,17 @@
 export type RouteType = 'COMPLETION' | 'EMBEDDING';
 export type RouteSchemaType = 'OPENAI';
 
-export type RoutePayload = {
+export type RouteOutput = {
   id: string;
   name: string;
   description?: string | null;
   path: string;
   type: RouteType;
   schemaType: RouteSchemaType;
-  providers: RouteProviderPayload[];
+  providers: RouteProviderOutput[];
 };
 
-export type RouteProviderPayload = {
+export type RouteProviderOutput = {
   id: string;
   appProviderId: string;
   model?: string | null;

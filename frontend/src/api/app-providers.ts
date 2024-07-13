@@ -5,15 +5,15 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { axios } from '@/api/axios';
-import { AppProviderInput, AppProviderPayload } from '@/types/app-providers';
-import { PaginatedPayload } from '@/types/common';
+import { AppProviderInput, AppProviderOutput } from '@/types/app-providers';
+import { PaginatedOutput } from '@/types/common';
 
 export function useGetAppProvidersQuery(appId: string, limit?: number) {
   return useInfiniteQuery({
     queryKey: ['app-providers', appId],
     initialPageParam: '',
     queryFn: async ({ pageParam }) => {
-      const { data } = await axios.get<PaginatedPayload<AppProviderPayload>>(
+      const { data } = await axios.get<PaginatedOutput<AppProviderOutput>>(
         `v1/apps/${appId}/providers`,
         {
           params: {
@@ -32,7 +32,7 @@ export function useGetAppProviderQuery(appId: string, appProviderId: string) {
   return useQuery({
     queryKey: ['app-provider', appProviderId],
     queryFn: async () => {
-      const { data } = await axios.get<AppProviderPayload>(
+      const { data } = await axios.get<AppProviderOutput>(
         `v1/apps/${appId}/providers/${appProviderId}`,
       );
       return data;
@@ -44,7 +44,7 @@ export function useCreateAppProviderMutation(appId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: AppProviderInput) => {
-      const { data } = await axios.post<AppProviderPayload>(
+      const { data } = await axios.post<AppProviderOutput>(
         `v1/apps/${appId}/providers`,
         input,
       );
@@ -67,7 +67,7 @@ export function useUpdateAppProviderMutation(
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: AppProviderInput) => {
-      const { data } = await axios.put<AppProviderPayload>(
+      const { data } = await axios.put<AppProviderOutput>(
         `v1/apps/${appId}/providers/${appProviderId}`,
         input,
       );

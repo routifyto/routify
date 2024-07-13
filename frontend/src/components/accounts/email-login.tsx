@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail } from 'lucide-react';
-import { LoginPayload } from '@/types/accounts';
+import { LoginOutput } from '@/types/accounts';
 
 const formSchema = z.object({
   email: z.string().min(2).email(),
@@ -22,7 +22,7 @@ const formSchema = z.object({
 });
 
 interface EmailLoginProps {
-  onLogin: (payload: LoginPayload) => void;
+  onLogin: (output: LoginOutput) => void;
 }
 
 export function EmailLogin({ onLogin }: EmailLoginProps) {

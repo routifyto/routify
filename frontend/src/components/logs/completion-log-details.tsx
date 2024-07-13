@@ -1,5 +1,5 @@
 import React from 'react';
-import { CompletionLogPayload } from '@/types/logs';
+import { CompletionLogOutput } from '@/types/logs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,7 @@ import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 SyntaxHighlighter.registerLanguage('json', json);
 
 interface CompletionLogDetailsProps {
-  completionLog: CompletionLogPayload;
+  completionLog: CompletionLogOutput;
 }
 
 const rowClass =

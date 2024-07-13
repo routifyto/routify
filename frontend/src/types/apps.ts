@@ -1,13 +1,13 @@
-import { AppUserRole } from '@/types/app-users';
+import { AppRole } from '@/types/app-users';
 
 export type AppInput = {
   name: string;
   description?: string;
 };
 
-export type AppPayload = {
+export type AppOutput = {
   id: string;
   name: string;
   description?: string;
-  role: AppUserRole;
+  role: AppRole;
 };

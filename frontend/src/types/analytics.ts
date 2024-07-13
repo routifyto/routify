@@ -1,4 +1,4 @@
-export type AnalyticsSummaryPayload = {
+export type AnalyticsSummaryOutput = {
   totalRequests: number;
   previousTotalRequests: number;
   totalTokens: number;
@@ -9,21 +9,21 @@ export type AnalyticsSummaryPayload = {
   previousAverageDuration: number;
 };
 
-export type AnalyticsHistogramPayload = {
-  requests: DateTimeHistogramPayload[];
+export type AnalyticsHistogramOutput = {
+  requests: DateTimeHistogramOutput[];
 };
 
-export type AnalyticsListsPayload = {
-  providers: MetricsPayload[];
-  models: MetricsPayload[];
+export type AnalyticsListsOutput = {
+  providers: MetricsOutput[];
+  models: MetricsOutput[];
 };
 
-export type DateTimeHistogramPayload = {
+export type DateTimeHistogramOutput = {
   dateTime: Date;
   count: number;
 };
 
-export type MetricsPayload = {
+export type MetricsOutput = {
   id: string;
   totalRequests: number;
   totalTokens: number;

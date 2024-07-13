@@ -1,18 +1,18 @@
-export type LogRoutePayload = {
+export type LogRouteOutput = {
   id: string;
   name: string;
   description?: string | null;
   path: string;
 };
 
-export type LogAppProviderPayload = {
+export type LogAppProviderOutput = {
   id: string;
   name: string;
   alias: string;
   description?: string | null;
 };
 
-export type CompletionLogRowPayload = {
+export type CompletionLogRowOutput = {
   id: string;
   routeId: string;
   path: string;
@@ -26,7 +26,7 @@ export type CompletionLogRowPayload = {
   duration: number;
 };
 
-export type CompletionLogPayload = {
+export type CompletionLogOutput = {
   id: string;
   routeId: string;
   path: string;
@@ -47,6 +47,6 @@ export type CompletionLogPayload = {
   endedAt: string;
   duration: number;
 
-  route: LogRoutePayload | null;
-  appProvider: LogAppProviderPayload | null;
+  route: LogRouteOutput | null;
+  appProvider: LogAppProviderOutput | null;
 };

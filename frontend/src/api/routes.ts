@@ -8,16 +8,16 @@ import { axios } from '@/api/axios';
 import {
   CreateRouteInput,
   UpdateRouteInput,
-  RoutePayload,
+  RouteOutput,
 } from '@/types/routes';
-import { PaginatedPayload } from '@/types/common';
+import { PaginatedOutput } from '@/types/common';
 
 export function useGetRoutesQuery(appId: string, limit?: number) {
   return useInfiniteQuery({
     queryKey: ['routes', appId],
     initialPageParam: '',
     queryFn: async ({ pageParam }) => {
-      const { data } = await axios.get<PaginatedPayload<RoutePayload>>(
+      const { data } = await axios.get<PaginatedOutput<RouteOutput>>(
         `v1/apps/${appId}/routes`,
         {
           params: {
@@ -36,7 +36,7 @@ export function useGetRouteQuery(appId: string, routeId: string) {
   return useQuery({
     queryKey: ['route', routeId],
     queryFn: async () => {
-      const { data } = await axios.get<RoutePayload>(
+      const { data } = await axios.get<RouteOutput>(
         `v1/apps/${appId}/routes/${routeId}`,
       );
       return data;
@@ -48,7 +48,7 @@ export function useCreateRouteMutation(appId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateRouteInput) => {
-      const { data } = await axios.post<RoutePayload>(
+      const { data } = await axios.post<RouteOutput>(
         `v1/apps/${appId}/routes`,
         input,
       );
@@ -68,7 +68,7 @@ export function useUpdateRouteMutation(appId: string, routeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateRouteInput) => {
-      const { data } = await axios.put<RoutePayload>(
+      const { data } = await axios.put<RouteOutput>(
         `v1/apps/${appId}/routes/${routeId}`,
         input,
       );

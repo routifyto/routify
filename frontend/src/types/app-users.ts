@@ -1,24 +1,24 @@
 import { EnumOption } from '@/types/common';
 
-export type AppUserRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+export type AppRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
-export type AppUserPayload = {
+export type AppUserOutput = {
   id: string;
   userId: string;
   name: string;
   email: string;
   avatar?: string | null;
-  role: AppUserRole;
+  role: AppRole;
   createdAt: Date;
 };
 
 export type AppUserInput = {
-  role: AppUserRole;
+  role: AppRole;
 };
 
 export type AppUsersInput = {
   emails: string[];
-  role: AppUserRole;
+  role: AppRole;
 };
 
 export const appUserRoleOptions: EnumOption[] = [

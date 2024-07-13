@@ -2,12 +2,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { GoogleIcon } from '@/components/ui/icons';
-import { LoginPayload } from '@/types/accounts';
+import { LoginOutput } from '@/types/accounts';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import { useGoogleLoginMutation } from '@/api/accounts';
 
 interface GoogleLoginProps {
-  onLogin: (payload: LoginPayload) => void;
+  onLogin: (output: LoginOutput) => void;
   clientId: string;
 }
 

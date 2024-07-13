@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AnalyticsHistogramPayload } from '@/types/analytics';
+import { AnalyticsHistogramOutput } from '@/types/analytics';
 
 export function AnalyticsHistogramSkeleton() {
   return (
@@ -31,7 +31,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface AnalyticsHistogramProps {
-  histogram: AnalyticsHistogramPayload;
+  histogram: AnalyticsHistogramOutput;
 }
 
 export function AnalyticsHistogram({ histogram }: AnalyticsHistogramProps) {

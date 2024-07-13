@@ -20,9 +20,9 @@ import { toast } from '@/components/ui/use-toast';
 import { Avatar } from '@/components/ui/avatar';
 import { useApp } from '@/contexts/app';
 import { appUserRoleOptions } from '@/types/app-users';
-import { type AppUserPayload } from '@/types/app-users';
+import { type AppUserOutput } from '@/types/app-users';
 
-export function AppUserRow({ appUser }: { appUser: AppUserPayload }) {
+export function AppUserRow({ appUser }: { appUser: AppUserOutput }) {
   const app = useApp();
   const { mutate, isPending } = useUpdateAppUserMutation(app.id, appUser.id);
   const appUserRole = appUserRoleOptions.find((m) => m.value === appUser.role);

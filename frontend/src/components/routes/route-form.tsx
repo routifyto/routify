@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
-import { CreateRouteInput, RoutePayload } from '@/types/routes';
+import { CreateRouteInput, RouteOutput } from '@/types/routes';
 import { RouteProviderForm } from '@/components/routes/route-provider-form';
 import { Plus } from 'lucide-react';
 import { AppProvidersDialog } from '@/components/app-providers/app-providers-dialog';
@@ -40,7 +40,7 @@ const formSchema = z.object({
 });
 
 interface RouteFormProps {
-  route: RoutePayload | null;
+  route: RouteOutput | null;
   errors: string[];
   isPending: boolean;
   onSubmit: (data: CreateRouteInput) => void;

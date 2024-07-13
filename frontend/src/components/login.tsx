@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { EmailLogin } from '@/components/accounts/email-login';
 import { GoogleLogin } from '@/components/accounts/google-login';
-import { LoginPayload } from '@/types/accounts';
+import { LoginOutput } from '@/types/accounts';
 import { readToken, saveToken } from '@/lib/storage';
 import { EmailRegister } from '@/components/accounts/email-register';
 
@@ -10,8 +10,8 @@ const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 export function Login() {
   const [showRegister, setShowRegister] = React.useState(false);
 
-  function handleLogin(payload: LoginPayload) {
-    saveToken(payload.token);
+  function handleLogin(output: LoginOutput) {
+    saveToken(output.token);
     window.location.href = '/';
   }
 
@@ -28,7 +28,7 @@ export function Login() {
         <h1 className="font-neotrax text-6xl text-white">routify</h1>
       </div>
       <div className="col-span-3 flex items-center justify-center py-12">
-        <div className="w-128 mx-auto grid gap-6">
+        <div className="mx-auto grid w-128 gap-6">
           <div className="grid gap-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
               Login to Routify

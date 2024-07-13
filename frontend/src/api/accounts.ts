@@ -3,14 +3,14 @@ import {
   EmailLoginInput,
   EmailRegisterInput,
   GoogleLoginInput,
-  LoginPayload,
+  LoginOutput,
 } from '@/types/accounts';
 import { axios } from '@/api/axios';
 
 export function useEmailLoginMutation() {
   return useMutation({
     mutationFn: async (input: EmailLoginInput) => {
-      const { data } = await axios.post<LoginPayload>(
+      const { data } = await axios.post<LoginOutput>(
         'v1/accounts/login/email',
         input,
       );
@@ -23,7 +23,7 @@ export function useEmailLoginMutation() {
 export function useEmailRegisterMutation() {
   return useMutation({
     mutationFn: async (input: EmailRegisterInput) => {
-      const { data } = await axios.post<LoginPayload>(
+      const { data } = await axios.post<LoginOutput>(
         'v1/accounts/register/email',
         input,
       );
@@ -36,7 +36,7 @@ export function useEmailRegisterMutation() {
 export function useGoogleLoginMutation() {
   return useMutation({
     mutationFn: async (input: GoogleLoginInput) => {
-      const { data } = await axios.post<LoginPayload>(
+      const { data } = await axios.post<LoginOutput>(
         'v1/accounts/login/google',
         input,
       );

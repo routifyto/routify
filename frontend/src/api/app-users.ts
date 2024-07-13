@@ -4,15 +4,15 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { axios } from '@/api/axios';
-import { PaginatedPayload } from '@/types/common';
-import { AppUserInput, AppUserPayload, AppUsersInput } from '@/types/app-users';
+import { PaginatedOutput } from '@/types/common';
+import { AppUserInput, AppUserOutput, AppUsersInput } from '@/types/app-users';
 
 export function useGetAppUsersQuery(appId: string, limit?: number) {
   return useInfiniteQuery({
     queryKey: ['app-users', appId],
     initialPageParam: '',
     queryFn: async ({ pageParam }) => {
-      const { data } = await axios.get<PaginatedPayload<AppUserPayload>>(
+      const { data } = await axios.get<PaginatedOutput<AppUserOutput>>(
         `v1/apps/${appId}/users`,
         {
           params: {
@@ -31,7 +31,7 @@ export function useCreateAppUsersMutation(appId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: AppUsersInput) => {
-      const { data } = await axios.post<AppUserPayload>(
+      const { data } = await axios.post<AppUserOutput>(
         `v1/apps/${appId}/users`,
         input,
       );
@@ -47,7 +47,7 @@ export function useUpdateAppUserMutation(appId: string, appUserId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: AppUserInput) => {
-      const { data } = await axios.put<AppUserPayload>(
+      const { data } = await axios.put<AppUserOutput>(
         `v1/apps/${appId}/users/${appUserId}`,
         input,
       );

@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail } from 'lucide-react';
-import { LoginPayload } from '@/types/accounts';
+import { LoginOutput } from '@/types/accounts';
 
 const formSchema = z.object({
   name: z.string().min(2),
@@ -23,7 +23,7 @@ const formSchema = z.object({
 });
 
 interface EmailRegisterProps {
-  onRegister: (payload: LoginPayload) => void;
+  onRegister: (output: LoginOutput) => void;
 }
 
 export function EmailRegister({ onRegister }: EmailRegisterProps) {

@@ -1,4 +1,4 @@
-export type AppProviderPayload = {
+export type AppProviderOutput = {
   id: string;
   name: string;
   alias: string;
