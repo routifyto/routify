@@ -49,10 +49,10 @@ export function AppUpdate() {
   return (
     <Form {...form}>
       <form
-        className="flex flex-col"
+        className="flex flex-col gap-4"
         onSubmit={form.handleSubmit(handleSubmit)}
       >
-        <div className="flex-grow space-y-4 py-2 pb-4">
+        <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
           <FormField
             control={form.control}
             name="name"

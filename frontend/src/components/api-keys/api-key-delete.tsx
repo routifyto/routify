@@ -26,7 +26,7 @@ export function ApiKeyDelete({ apiKeyId }: ApiKeyDeleteProps) {
   const { mutate, isPending } = useDeleteApiKeyMutation(app.id, apiKeyId);
 
   return (
-    <div className="flex flex-row items-center justify-between py-2">
+    <div className="flex flex-row items-center justify-between rounded-xl border bg-card p-4 text-card-foreground shadow">
       <div className="flex flex-col gap-2">
         <h2 className="flex flex-row items-center gap-1 font-semibold">
           <BadgeX className="h-4 w-4" />

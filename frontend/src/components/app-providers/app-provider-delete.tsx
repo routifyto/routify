@@ -29,7 +29,7 @@ export function AppProviderDelete({ appProviderId }: AppProviderDeleteProps) {
   );
 
   return (
-    <div className="flex flex-row items-center justify-between py-2">
+    <div className="flex flex-row items-center justify-between rounded-xl border bg-card p-4 text-card-foreground shadow">
       <div className="flex flex-col gap-2">
         <h2 className="flex flex-row items-center gap-1 font-semibold">
           <BadgeX className="h-4 w-4" />
@@ -57,7 +57,8 @@ export function AppProviderDelete({ appProviderId }: AppProviderDeleteProps) {
               Are you sure you want to delete this provider?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone and will permanently delete the app.
+              This action cannot be undone and will permanently delete the
+              provider.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
