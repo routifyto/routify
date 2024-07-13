@@ -1,9 +1,9 @@
-using Routify.Data.Models;
+using Routify.Data.Enums;
 
 namespace Routify.Api.Models.AppUsers;
 
 public record AppUsersInput
 {
     public List<string> Emails { get; set; } = null!;
-    public AppUserRole Role { get; set; }
+    public AppRole Role { get; set; }
 }

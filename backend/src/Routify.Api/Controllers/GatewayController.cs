@@ -11,7 +11,7 @@ public class GatewayController(
     : BaseController
 {
     [HttpGet("data", Name = "GetGatewayData")]
-    public async Task<ActionResult<GatewayDataPayload>> GetGatewayData()
+    public async Task<ActionResult<GatewayDataOutput>> GetGatewayData()
     {
         var allApps = await databaseContext
             .Apps
@@ -34,13 +34,13 @@ public class GatewayController(
             .ToListAsync();
 
         var apps = allApps
-            .Select(app => new GatewayAppPayload
+            .Select(app => new GatewayAppOutput
             {
                 Id = app.Id,
                 Name = app.Name,
                 Routes = allRoutes
                     .Where(route => route.AppId == app.Id)
-                    .Select(route => new GatewayRoutePayload
+                    .Select(route => new GatewayRouteOutput
                     {
                         Id = route.Id,
                         Name = route.Name,
@@ -49,7 +49,7 @@ public class GatewayController(
                         Schema = route.Schema,
                         Providers = allRouteProviders
                             .Where(routeProvider => routeProvider.RouteId == route.Id)
-                            .Select(routeProvider => new GatewayRouteProviderPayload
+                            .Select(routeProvider => new GatewayRouteProviderOutput
                             {
                                 Id = routeProvider.Id,
                                 AppProviderId = routeProvider.AppProviderId,
@@ -61,7 +61,7 @@ public class GatewayController(
                     .ToList(),
                 Providers = allAppProviders
                     .Where(appProvider => appProvider.AppId == app.Id)
-                    .Select(appProvider => new GatewayAppProviderPayload
+                    .Select(appProvider => new GatewayAppProviderOutput
                     {
                         Id = appProvider.Id,
                         Provider = appProvider.Provider,
@@ -72,7 +72,7 @@ public class GatewayController(
             })
             .ToList();
 
-        return new GatewayDataPayload
+        return new GatewayDataOutput
         {
             Apps = apps
         };

@@ -12,7 +12,7 @@ public class LogsController(
     : BaseController
 {
     [HttpGet("completions", Name = "GetCompletionLogs")]
-    public async Task<ActionResult<PaginatedPayload<CompletionLogRowPayload>>> GetCompletionLogsAsync(
+    public async Task<ActionResult<PaginatedOutput<CompletionLogRowOutput>>> GetCompletionLogsAsync(
         [FromRoute] string appId,
         [FromQuery] string? after,
         [FromQuery] int limit = 20,
@@ -47,8 +47,8 @@ public class LogsController(
             .Take(limit)
             .ToListAsync(cancellationToken);
 
-        var completionLogPayloads = completionLogs
-            .Select(log => new CompletionLogRowPayload
+        var completionLogOutputs = completionLogs
+            .Select(log => new CompletionLogRowOutput
             {
                 Id = log.Id,
                 RouteId = log.RouteId,
@@ -67,16 +67,16 @@ public class LogsController(
         var hasNext = completionLogs.Count == limit;
         var nextCursor = hasNext ? completionLogs.Last().Id : null;
 
-        return new PaginatedPayload<CompletionLogRowPayload>
+        return new PaginatedOutput<CompletionLogRowOutput>
         {
-            Items = completionLogPayloads,
+            Items = completionLogOutputs,
             HasNext = hasNext,
             NextCursor = nextCursor
         };
     }
     
     [HttpGet("completions/{completionLogId}", Name = "GetCompletionLog")]
-    public async Task<ActionResult<CompletionLogPayload>> GetCompletionLogAsync(
+    public async Task<ActionResult<CompletionLogOutput>> GetCompletionLogAsync(
         [FromRoute] string appId,
         [FromRoute] string completionLogId,
         CancellationToken cancellationToken = default)
@@ -111,7 +111,7 @@ public class LogsController(
             .AppProviders
             .SingleOrDefaultAsync(x => x.Id == completionLog.AppProviderId, cancellationToken);
 
-        return new CompletionLogPayload
+        return new CompletionLogOutput
         {
             Id = completionLog.Id,
             RouteId = completionLog.RouteId,
@@ -132,14 +132,14 @@ public class LogsController(
             StartedAt = completionLog.StartedAt,
             EndedAt = completionLog.EndedAt,
             Duration = completionLog.Duration,
-            Route = route is null ? null : new LogRoutePayload
+            Route = route is null ? null : new LogRouteOutput
             {
                 Id = route.Id,
                 Name = route.Name,
                 Description = route.Description,
                 Path = route.Path
             },
-            AppProvider = appProvider is null ? null : new LogAppProviderPayload
+            AppProvider = appProvider is null ? null : new LogAppProviderOutput
             {
                 Id = appProvider.Id,
                 Name = appProvider.Name,

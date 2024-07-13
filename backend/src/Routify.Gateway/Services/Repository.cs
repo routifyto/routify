@@ -10,7 +10,7 @@ internal class Repository
     public bool IsLoaded { get; private set; }
     
     public void UpdateApps(
-        List<ApiAppPayload> apps)
+        List<ApiAppOutput> apps)
     {
         foreach (var app in apps)
         {

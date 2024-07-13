@@ -17,7 +17,7 @@ public class RoutesController(
     : BaseController
 {
     [HttpGet(Name = "GetRoutes")]
-    public async Task<ActionResult<PaginatedPayload<RoutePayload>>> GetRoutesAsync(
+    public async Task<ActionResult<PaginatedOutput<RouteOutput>>> GetRoutesAsync(
         [FromRoute] string appId,
         [FromQuery] string? after,
         [FromQuery] int limit = 20,
@@ -53,24 +53,24 @@ public class RoutesController(
             .Take(limit)
             .ToListAsync(cancellationToken);
 
-        var routePayloads = routes
-            .Select(MapToPayload)
+        var routeOutputs = routes
+            .Select(MapToOutput)
             .ToList();
 
         var hasNext = routes.Count == limit;
         var nextCursor = hasNext ? routes.Last().Id : null;
-        var payload = new PaginatedPayload<RoutePayload>
+        var output = new PaginatedOutput<RouteOutput>
         {
-            Items = routePayloads,
+            Items = routeOutputs,
             HasNext = hasNext,
             NextCursor = nextCursor
         };
 
-        return Ok(payload);
+        return Ok(output);
     }
     
     [HttpGet("{routeId}", Name = "GetRoute")]
-    public async Task<ActionResult<RoutePayload>> GetRouteAsync(
+    public async Task<ActionResult<RouteOutput>> GetRouteAsync(
         [FromRoute] string appId,
         [FromRoute] string routeId,
         CancellationToken cancellationToken = default)
@@ -98,12 +98,12 @@ public class RoutesController(
         if (route is null)
             return NotFound();
         
-        var payload = MapToPayload(route);
-        return Ok(payload);
+        var output = MapToOutput(route);
+        return Ok(output);
     }
     
     [HttpPost(Name = "CreateRoute")]
-    public async Task<ActionResult<RoutePayload>> CreateRouteAsync(
+    public async Task<ActionResult<RouteOutput>> CreateRouteAsync(
         [FromRoute] string appId,
         [FromBody] CreateRouteInput input,
         CancellationToken cancellationToken = default)
@@ -159,12 +159,12 @@ public class RoutesController(
         databaseContext.RouteProviders.AddRange(routeProviders);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var routePayload = MapToPayload(route);
-        return CreatedAtRoute("GetRoute", new { appId, routeId = route.Id }, routePayload);
+        var routeOutput = MapToOutput(route);
+        return CreatedAtRoute("GetRoute", new { appId, routeId = route.Id }, routeOutput);
     }
     
     [HttpPut("{routeId}", Name = "UpdateRoute")]
-    public async Task<ActionResult<RoutePayload>> UpdateRouteAsync(
+    public async Task<ActionResult<RouteOutput>> UpdateRouteAsync(
         [FromRoute] string appId,
         [FromRoute] string routeId,
         [FromBody] UpdateRouteInput input,
@@ -244,12 +244,12 @@ public class RoutesController(
         
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var routePayload = MapToPayload(route);
-        return Ok(routePayload);
+        var routeOutput = MapToOutput(route);
+        return Ok(routeOutput);
     }
     
     [HttpDelete("{routeId}", Name = "DeleteRoute")]
-    public async Task<ActionResult<DeletePayload>> DeleteRouteAsync(
+    public async Task<ActionResult<DeleteOutput>> DeleteRouteAsync(
         [FromRoute] string appId,
         [FromRoute] string routeId,
         CancellationToken cancellationToken = default)
@@ -279,13 +279,13 @@ public class RoutesController(
         databaseContext.Routes.Remove(route);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        return Ok(new DeletePayload());
+        return Ok(new DeleteOutput());
     }
 
-    private static RoutePayload MapToPayload(
+    private static RouteOutput MapToOutput(
         Route route)
     {
-        return new RoutePayload
+        return new RouteOutput
         {
             Id = route.Id,
             Name = route.Name,
@@ -294,7 +294,7 @@ public class RoutesController(
             Type = route.Type,
             Attrs = route.Attrs,
             Providers = route.Providers
-                .Select(x => new RouteProviderPayload
+                .Select(x => new RouteProviderOutput
                 {
                     Id = x.Id,
                     AppProviderId = x.AppProviderId,

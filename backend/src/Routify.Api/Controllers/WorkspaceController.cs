@@ -11,7 +11,7 @@ public class WorkspaceController(
     : BaseController
 {
     [HttpGet(Name = "GetWorkspace")]
-    public async Task<ActionResult<WorkspacePayload>> GetWorkspaceAsync(
+    public async Task<ActionResult<WorkspaceOutput>> GetWorkspaceAsync(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
@@ -30,9 +30,9 @@ public class WorkspaceController(
             .Where(x => x.UserId == user.Id)
             .ToListAsync(cancellationToken);
         
-        var payload = new WorkspacePayload
+        var output = new WorkspaceOutput
         {
-            User = new WorkspaceUserPayload
+            User = new WorkspaceUserOutput
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -47,7 +47,7 @@ public class WorkspaceController(
             if (app == null)
                 continue;
 
-            var appPayload = new WorkspaceAppPayload
+            var appOutput = new WorkspaceAppOutput
             {
                 Id = app.Id,
                 Name = app.Name,
@@ -55,9 +55,9 @@ public class WorkspaceController(
                 Description = app.Description
             };
             
-            payload.Apps.Add(appPayload);
+            output.Apps.Add(appOutput);
         }
         
-        return Ok(payload);
+        return Ok(output);
     }
 }

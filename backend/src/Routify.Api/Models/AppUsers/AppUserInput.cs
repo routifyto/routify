@@ -1,8 +1,8 @@
-using Routify.Data.Models;
+using Routify.Data.Enums;
 
 namespace Routify.Api.Models.AppUsers;
 
 public class AppUserInput
 {
-    public AppUserRole Role { get; set; }
+    public AppRole Role { get; set; }
 }

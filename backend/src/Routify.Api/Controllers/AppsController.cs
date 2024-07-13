@@ -4,6 +4,7 @@ using Routify.Api.Models.Apps;
 using Routify.Api.Models.Common;
 using Routify.Core.Utils;
 using Routify.Data;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 
 namespace Routify.Api.Controllers;
@@ -13,7 +14,7 @@ public class AppsController(
     DatabaseContext databaseContext) : BaseController
 {
     [HttpGet("{appId}", Name = "GetApp")]
-    public async Task<ActionResult<AppPayload>> GetAppAsync(
+    public async Task<ActionResult<AppOutput>> GetAppAsync(
         [FromRoute] string appId,
         CancellationToken cancellationToken = default)
     {
@@ -33,18 +34,18 @@ public class AppsController(
         if (app is null)
             return NotFound();
         
-        var payload = new AppPayload
+        var output = new AppOutput
         {
             Id = app.Id,
             Name = app.Name,
             Role = currentAppUser.Role
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
     [HttpPost(Name = "CreateApp")]
-    public async Task<ActionResult<AppPayload>> CreateAppAsync(
+    public async Task<ActionResult<AppOutput>> CreateAppAsync(
         [FromBody] AppInput input,
         CancellationToken cancellationToken = default)
     {
@@ -67,7 +68,7 @@ public class AppsController(
             Id = RoutifyId.Generate(IdType.AppUser),
             AppId = app.Id,
             UserId = CurrentUserId,
-            Role = AppUserRole.Owner,
+            Role = AppRole.Owner,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = CurrentUserId
         };
@@ -76,7 +77,7 @@ public class AppsController(
         await databaseContext.AppUsers.AddAsync(appUser, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
         
-        var payload = new AppPayload
+        var output = new AppOutput
         {
             Id = app.Id,
             Name = app.Name,
@@ -84,11 +85,11 @@ public class AppsController(
             Role = appUser.Role
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
     [HttpPut("{appId}", Name = "UpdateApp")]
-    public async Task<ActionResult<AppPayload>> UpdateAppAsync(
+    public async Task<ActionResult<AppOutput>> UpdateAppAsync(
         [FromRoute] string appId,
         [FromBody] AppInput input,
         CancellationToken cancellationToken = default)
@@ -101,7 +102,7 @@ public class AppsController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
         
         var app = currentAppUser.App;
@@ -116,7 +117,7 @@ public class AppsController(
         
         await databaseContext.SaveChangesAsync(cancellationToken);
         
-        return Ok(new AppPayload
+        return Ok(new AppOutput
         {
             Id = app.Id,
             Name = app.Name,
@@ -126,7 +127,7 @@ public class AppsController(
     }
     
     [HttpDelete("{appId}", Name = "DeleteApp")]
-    public async Task<ActionResult<DeletePayload>> DeleteAppAsync(
+    public async Task<ActionResult<DeleteOutput>> DeleteAppAsync(
         [FromRoute] string appId,
         CancellationToken cancellationToken = default)
     {
@@ -138,7 +139,7 @@ public class AppsController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
         
         var app = currentAppUser.App;
@@ -148,11 +149,11 @@ public class AppsController(
         databaseContext.Apps.Remove(app);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var payload = new DeletePayload
+        var output = new DeleteOutput
         {
             Id = app.Id
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
 }

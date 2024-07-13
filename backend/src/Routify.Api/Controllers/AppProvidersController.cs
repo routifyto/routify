@@ -4,6 +4,7 @@ using Routify.Api.Models.AppProviders;
 using Routify.Api.Models.Common;
 using Routify.Core.Utils;
 using Routify.Data;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 
 namespace Routify.Api.Controllers;
@@ -14,7 +15,7 @@ public class AppProvidersController(
     : BaseController
 {
     [HttpGet(Name = "GetAppProviders")]
-    public async Task<ActionResult<PaginatedPayload<AppProviderPayload>>> GetProvidersAsync(
+    public async Task<ActionResult<PaginatedOutput<AppProviderOutput>>> GetProvidersAsync(
         [FromRoute] string appId,
         [FromQuery] string? after,
         [FromQuery] int limit = 20,
@@ -49,24 +50,24 @@ public class AppProvidersController(
             .Take(limit)
             .ToListAsync(cancellationToken);
 
-        var appProviderPayloads = appProviders
-            .Select(MapToPayload)
+        var appProviderOutputs = appProviders
+            .Select(MapToOutput)
             .ToList();
         
         var hasNext = appProviders.Count == limit;
         var nextCursor = hasNext ? appProviders.Last().Id : null;
-        var payload = new PaginatedPayload<AppProviderPayload>
+        var output = new PaginatedOutput<AppProviderOutput>
         {
-            Items = appProviderPayloads,
+            Items = appProviderOutputs,
             HasNext = hasNext,
             NextCursor = nextCursor
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
     [HttpGet("{appProviderId}", Name = "GetAppProvider")]
-    public async Task<ActionResult<AppProviderPayload>> GetProviderAsync(
+    public async Task<ActionResult<AppProviderOutput>> GetProviderAsync(
         [FromRoute] string appId,
         [FromRoute] string appProviderId,
         CancellationToken cancellationToken = default)
@@ -93,12 +94,12 @@ public class AppProvidersController(
         if (appProvider is null)
             return NotFound();
 
-        var payload = MapToPayload(appProvider);
-        return Ok(payload);
+        var output = MapToOutput(appProvider);
+        return Ok(output);
     }
     
     [HttpPost(Name = "CreateAppProvider")]
-    public async Task<ActionResult<AppProviderPayload>> CreateProviderAsync(
+    public async Task<ActionResult<AppProviderOutput>> CreateProviderAsync(
         [FromRoute] string appId,
         [FromBody] AppProviderInput input,
         CancellationToken cancellationToken = default)
@@ -111,7 +112,7 @@ public class AppProvidersController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
-        if (currentAppUser is null || currentAppUser.Role == AppUserRole.Member)
+        if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
             return Forbid();
 
         var app = currentAppUser.App;
@@ -136,12 +137,12 @@ public class AppProvidersController(
         databaseContext.AppProviders.Add(appProvider);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var payload = MapToPayload(appProvider);
-        return Ok(payload);
+        var output = MapToOutput(appProvider);
+        return Ok(output);
     }
     
     [HttpPut("{appProviderId}", Name = "UpdateAppProvider")]
-    public async Task<ActionResult<AppProviderPayload>> UpdateProviderAsync(
+    public async Task<ActionResult<AppProviderOutput>> UpdateProviderAsync(
         [FromRoute] string appId,
         [FromRoute] string appProviderId,
         [FromBody] AppProviderInput input,
@@ -155,7 +156,7 @@ public class AppProvidersController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
-        if (currentAppUser is null || currentAppUser.Role == AppUserRole.Member)
+        if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
             return Forbid();
 
         var app = currentAppUser.App;
@@ -177,12 +178,12 @@ public class AppProvidersController(
         
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var payload = MapToPayload(appProvider);
-        return Ok(payload);
+        var output = MapToOutput(appProvider);
+        return Ok(output);
     }
     
     [HttpDelete("{appProviderId}", Name = "DeleteAppProvider")]
-    public async Task<ActionResult<DeletePayload>> DeleteProviderAsync(
+    public async Task<ActionResult<DeleteOutput>> DeleteProviderAsync(
         [FromRoute] string appId,
         [FromRoute] string appProviderId,
         CancellationToken cancellationToken = default)
@@ -195,7 +196,7 @@ public class AppProvidersController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
-        if (currentAppUser is null || currentAppUser.Role == AppUserRole.Member)
+        if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
             return Forbid();
 
         var app = currentAppUser.App;
@@ -212,18 +213,18 @@ public class AppProvidersController(
         databaseContext.Remove(appProvider);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var payload = new DeletePayload
+        var output = new DeleteOutput
         {
             Id = appProvider.Id
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
-    private static AppProviderPayload MapToPayload(
+    private static AppProviderOutput MapToOutput(
         AppProvider appProvider)
     {
-        return new AppProviderPayload
+        return new AppProviderOutput
         {
             Id = appProvider.Id,
             Name = appProvider.Name,

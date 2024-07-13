@@ -11,11 +11,11 @@ internal record AppData
     private Dictionary<string, AppProviderData> Providers { get; set; } = [];
 
     public AppData(
-        ApiAppPayload payload)
+        ApiAppOutput output)
     {
-        Id = payload.Id;
-        Name = payload.Name;
-        Routes = payload
+        Id = output.Id;
+        Name = output.Name;
+        Routes = output
             .Routes
             .ToDictionary(route => route.Path, route => new RouteData
             {
@@ -36,7 +36,7 @@ internal record AppData
                     .ToList()
             });
         
-        Providers = payload
+        Providers = output
             .Providers
             .ToDictionary(provider => provider.Id, provider => new AppProviderData
             {

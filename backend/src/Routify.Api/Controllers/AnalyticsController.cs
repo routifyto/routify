@@ -11,7 +11,7 @@ public class AnalyticsController(
     : BaseController
 {
     [HttpGet("summary", Name = "GetAppAnalyticsSummary")]
-    public async Task<ActionResult<AnalyticsSummaryPayload>> GetAnalyticsSummaryAsync(
+    public async Task<ActionResult<AnalyticsSummaryOutput>> GetAnalyticsSummaryAsync(
         [FromRoute] string appId,
         [FromQuery] string period,
         CancellationToken cancellationToken = default)
@@ -62,7 +62,7 @@ public class AnalyticsController(
             })
             .FirstOrDefaultAsync(cancellationToken) ?? new { TotalRequests = 0, TotalTokens = 0, TotalCost = 0m, AverageDuration = 0.0 };
 
-        var analyticsSummary = new AnalyticsSummaryPayload
+        var analyticsSummary = new AnalyticsSummaryOutput
         {
             TotalRequests = currentPeriodData.TotalRequests,
             PreviousTotalRequests = previousPeriodData.TotalRequests,
@@ -78,7 +78,7 @@ public class AnalyticsController(
     }
 
     [HttpGet("histogram", Name = "GetAppAnalyticsHistogram")]
-    public async Task<ActionResult<AnalyticsHistogramPayload>> GetAnalyticsHistogramAsync(
+    public async Task<ActionResult<AnalyticsHistogramOutput>> GetAnalyticsHistogramAsync(
         [FromRoute] string appId,
         [FromQuery] string period,
         CancellationToken cancellationToken)
@@ -104,7 +104,7 @@ public class AnalyticsController(
             .CompletionLogs
             .Where(log => log.AppId == appId && log.StartedAt >= from && log.StartedAt <= to)
             .GroupBy(log => new { log.StartedAt.Year, log.StartedAt.Month, log.StartedAt.Day, log.StartedAt.Hour })
-            .Select(g => new DateTimeHistogramPayload
+            .Select(g => new DateTimeHistogramOutput
             {
                 DateTime = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, 0, 0),
                 Count = g.Count()
@@ -112,24 +112,24 @@ public class AnalyticsController(
             .OrderBy(h => h.DateTime)
             .ToDictionaryAsync(x => x.DateTime.ToString("yyyMMddHH"), cancellationToken);
 
-        var requestsHistogram = new List<DateTimeHistogramPayload>();
+        var requestsHistogram = new List<DateTimeHistogramOutput>();
         for (var date = from; date <= to; date = date.AddHours(1))
         {
             var key = date.ToString("yyyyMMddHH");
-            var value = histogramData.GetValueOrDefault(key, new DateTimeHistogramPayload { DateTime = date, Count = 0 });
+            var value = histogramData.GetValueOrDefault(key, new DateTimeHistogramOutput { DateTime = date, Count = 0 });
             requestsHistogram.Add(value);
         }
         
-        var payload = new AnalyticsHistogramPayload
+        var output = new AnalyticsHistogramOutput
         {
             Requests = requestsHistogram
         };
 
-        return Ok(payload);
+        return Ok(output);
     }
 
     [HttpGet("lists", Name = "GetAppAnalyticsLists")]
-    public async Task<ActionResult<AnalyticsHistogramPayload>> GetAnalyticsHistogram(
+    public async Task<ActionResult<AnalyticsHistogramOutput>> GetAnalyticsHistogram(
         [FromRoute] string appId,
         [FromQuery] string period,
         CancellationToken cancellationToken)
@@ -179,10 +179,10 @@ public class AnalyticsController(
             })
             .ToListAsync(cancellationToken);
 
-        var analyticsLists = new AnalyticsListsPayload
+        var analyticsLists = new AnalyticsListsOutput
         {
             Providers = providerAggregation
-                .Select(x => new MetricsPayload
+                .Select(x => new MetricsOutput
                 {
                     Id = x.Provider ?? "Unknown",
                     TotalRequests = x.TotalRequests,
@@ -192,7 +192,7 @@ public class AnalyticsController(
                 })
                 .ToList(),
             Models = modelAggregations
-                .Select(x => new MetricsPayload
+                .Select(x => new MetricsOutput
                 {
                     Id = x.Model ?? "Unknown",
                     TotalRequests = x.TotalRequests,

@@ -38,7 +38,7 @@ public class AccountsController(
 
         if (existingUser is not null)
         {
-            return BadRequest(new ApiErrorPayload
+            return BadRequest(new ApiErrorOutput
             {
                 Code = ApiError.EmailAlreadyExists,
                 Message = "Email already exists."
@@ -59,7 +59,7 @@ public class AccountsController(
         await databaseContext.Users.AddAsync(user, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
         
-        return Ok(BuildLoginPayload(user));
+        return Ok(BuildLoginOutput(user));
     }
     
     [HttpPost("login/email", Name = "LoginWithEmail")]
@@ -73,7 +73,7 @@ public class AccountsController(
 
         if (user is null)
         {
-            return BadRequest(new ApiErrorPayload
+            return BadRequest(new ApiErrorOutput
             {
                 Code = ApiError.InvalidEmailOrPassword,
                 Message = "Invalid email or password."
@@ -82,7 +82,7 @@ public class AccountsController(
 
         if (string.IsNullOrWhiteSpace(user.Password))
         {
-            return BadRequest(new ApiErrorPayload
+            return BadRequest(new ApiErrorOutput
             {
                 Code = ApiError.InvalidEmailOrPassword,
                 Message = "Invalid email or password."
@@ -92,7 +92,7 @@ public class AccountsController(
         var result = passwordHasher.VerifyHashedPassword(user, user.Password, input.Password);
         if (result == PasswordVerificationResult.Failed)
         {
-            return BadRequest(new ApiErrorPayload
+            return BadRequest(new ApiErrorOutput
             {
                 Code = ApiError.InvalidEmailOrPassword,
                 Message = "Invalid email or password."
@@ -106,11 +106,11 @@ public class AccountsController(
             await databaseContext.SaveChangesAsync(cancellationToken);
         }
         
-        return Ok(BuildLoginPayload(user));
+        return Ok(BuildLoginOutput(user));
     }
 
     [HttpPost("login/google", Name = "LoginWithGoogle")]
-    public async Task<ActionResult<LoginPayload>> LoginWithGoogleAsync(
+    public async Task<ActionResult<LoginOutput>> LoginWithGoogleAsync(
         [FromBody] GoogleLoginInput input,
         CancellationToken cancellationToken = default)
     {
@@ -120,7 +120,7 @@ public class AccountsController(
 
         if (!userInfoResponse.IsSuccessStatusCode)
         {
-            return BadRequest(new ApiErrorPayload
+            return BadRequest(new ApiErrorOutput
             {
                 Code = ApiError.GoogleAuthFailed,
                 Message = "Failed to authenticate with Google."
@@ -132,7 +132,7 @@ public class AccountsController(
 
         if (googleUser is null)
         {
-            return BadRequest(new ApiErrorPayload
+            return BadRequest(new ApiErrorOutput
             {
                 Code = ApiError.GoogleAuthFailed,
                 Message = "Failed to authenticate with Google."
@@ -147,7 +147,7 @@ public class AccountsController(
         {
             if (existingUser.Status == UserStatus.Pending)
             {
-                return BadRequest(new ApiErrorPayload
+                return BadRequest(new ApiErrorOutput
                 {
                     Code = ApiError.UserPendingActivation,
                     Message = "User is pending activation."
@@ -164,7 +164,7 @@ public class AccountsController(
                 await databaseContext.SaveChangesAsync(cancellationToken);
             }
             
-            return Ok(BuildLoginPayload(existingUser));
+            return Ok(BuildLoginOutput(existingUser));
         }
             
         var user = new User
@@ -185,10 +185,10 @@ public class AccountsController(
             .AddAsync(user, cancellationToken);
         
         await databaseContext.SaveChangesAsync(cancellationToken);
-        return Ok(BuildLoginPayload(user));
+        return Ok(BuildLoginOutput(user));
     }
 
-    private LoginPayload BuildLoginPayload(
+    private LoginOutput BuildLoginOutput(
         User user)
     {
         var keyBytes = Encoding.UTF8.GetBytes(JwtSecret);
@@ -213,7 +213,7 @@ public class AccountsController(
         var token = handler.CreateToken(tokenDescriptor);
         var tokenString = handler.WriteToken(token);
 
-        return new LoginPayload
+        return new LoginOutput
         {
             Token = tokenString
         };

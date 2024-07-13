@@ -23,11 +23,11 @@ internal class Synchronizer(
                         break;
 
                     var client = httpClientFactory.CreateClient("api");
-                    var payloadResponse = await client.GetStringAsync("/v1/gateway/data", stoppingToken);
-                    if (string.IsNullOrWhiteSpace(payloadResponse))
+                    var outputResponse = await client.GetStringAsync("/v1/gateway/data", stoppingToken);
+                    if (string.IsNullOrWhiteSpace(outputResponse))
                         continue;
 
-                    var data = RoutifyJsonSerializer.Deserialize<ApiDataPayload>(payloadResponse);
+                    var data = RoutifyJsonSerializer.Deserialize<ApiDataOutput>(outputResponse);
                     if (data == null)
                         continue;
 

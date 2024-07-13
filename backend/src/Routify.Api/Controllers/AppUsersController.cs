@@ -5,6 +5,7 @@ using Routify.Api.Models.Common;
 using Routify.Core.Extensions;
 using Routify.Core.Utils;
 using Routify.Data;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 
 namespace Routify.Api.Controllers;
@@ -15,7 +16,7 @@ public class AppUsersController(
     : BaseController
 {
     [HttpGet(Name = "GetAppUsers")]
-    public async Task<ActionResult<PaginatedPayload<AppUserPayload>>> GetAppUsersAsync(
+    public async Task<ActionResult<PaginatedOutput<AppUserOutput>>> GetAppUsersAsync(
         [FromRoute] string appId,
         [FromQuery] string? after,
         [FromQuery] int limit = 20,
@@ -52,29 +53,29 @@ public class AppUsersController(
             .ToListAsync(cancellationToken);
 
 
-        var appUserPayloads = new List<AppUserPayload>();
+        var appUserOutputs = new List<AppUserOutput>();
         foreach (var appUser in appUsers)
         {
             if (appUser.User is null)
                 continue;
             
-            appUserPayloads.Add(MapToPayload(appUser, appUser.User));
+            appUserOutputs.Add(MapToOutput(appUser, appUser.User));
         }
 
         var hasNext = appUsers.Count == limit;
         var nextCursor = hasNext ? appUsers.Last().Id : null;
-        var payload = new PaginatedPayload<AppUserPayload>
+        var output = new PaginatedOutput<AppUserOutput>
         {
-            Items = appUserPayloads,
+            Items = appUserOutputs,
             HasNext = hasNext,
             NextCursor = nextCursor,
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
     [HttpPost(Name = "CreateAppUser")]
-    public async Task<ActionResult<AppUsersPayload>> CreateAppUserAsync(
+    public async Task<ActionResult<AppUsersOutput>> CreateAppUserAsync(
         [FromRoute] string appId,
         [FromBody] AppUsersInput input,
         CancellationToken cancellationToken = default)
@@ -87,7 +88,7 @@ public class AppUsersController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
         
         var app = currentAppUser.App;
@@ -146,26 +147,26 @@ public class AppUsersController(
         
         await databaseContext.SaveChangesAsync(cancellationToken);
         
-        var appUserPayloads = new List<AppUserPayload>();
+        var appUserOutputs = new List<AppUserOutput>();
         var usersIdDict = users.ToDictionary(x => x.Id);
         foreach (var item in appUsers)
         {
             if (!usersIdDict.TryGetValue(item.UserId, out var user))
                 continue;
             
-            appUserPayloads.Add(MapToPayload(item, user));
+            appUserOutputs.Add(MapToOutput(item, user));
         }
         
-        var payload = new AppUsersPayload
+        var output = new AppUsersOutput
         {
-            Users = appUserPayloads,
+            Users = appUserOutputs,
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
     [HttpPut("{appUserId}", Name = "UpdateAppUser")]
-    public async Task<ActionResult<AppUserPayload>> UpdateAppUserAsync(
+    public async Task<ActionResult<AppUserOutput>> UpdateAppUserAsync(
         [FromRoute] string appId,
         [FromRoute] string appUserId,
         [FromBody] AppUserInput input,
@@ -179,7 +180,7 @@ public class AppUsersController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
         
         var app = currentAppUser.App;
@@ -204,12 +205,12 @@ public class AppUsersController(
         appUserToUpdate.Role = input.Role;
         await databaseContext.SaveChangesAsync(cancellationToken);
         
-        var payload = MapToPayload(appUserToUpdate, user);
-        return Ok(payload);
+        var output = MapToOutput(appUserToUpdate, user);
+        return Ok(output);
     }
     
     [HttpDelete("{appUserId}", Name = "DeleteAppUser")]
-    public async Task<ActionResult<DeletePayload>> DeleteAppUserAsync(
+    public async Task<ActionResult<DeleteOutput>> DeleteAppUserAsync(
         [FromRoute] string appId,
         [FromRoute] string appUserId,
         CancellationToken cancellationToken = default)
@@ -222,7 +223,7 @@ public class AppUsersController(
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppUserRole.Owner)
+        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
             return Forbid();
         
         var app = currentAppUser.App;
@@ -247,12 +248,12 @@ public class AppUsersController(
         databaseContext.AppUsers.Remove(appUserToDelete);
         await databaseContext.SaveChangesAsync(cancellationToken);
 
-        var payload = new DeletePayload
+        var output = new DeleteOutput
         {
             Id = appUserToDelete.Id
         };
         
-        return Ok(payload);
+        return Ok(output);
     }
     
     private async Task<List<User>> CreateUsersByEmail(
@@ -277,11 +278,11 @@ public class AppUsersController(
         return users;
     }
     
-    private static AppUserPayload MapToPayload(
+    private static AppUserOutput MapToOutput(
         AppUser appUser,
         User user)
     {
-        return new AppUserPayload
+        return new AppUserOutput
         {
             Id = appUser.Id,
             Role = appUser.Role,

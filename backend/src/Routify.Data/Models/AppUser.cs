@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Routify.Data.Enums;
 
 namespace Routify.Data.Models;
 
@@ -7,7 +8,7 @@ public record AppUser
     public string Id { get; set; } = null!;
     public string AppId { get; set; } = null!;
     public string UserId { get; set; } = null!;
-    public AppUserRole Role { get; set; }
+    public AppRole Role { get; set; }
     
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
@@ -72,11 +73,4 @@ public record AppUser
             entity.HasIndex(e => e.UserId);
         });
     }
-}
-
-public enum AppUserRole
-{
-    Owner = 1,
-    Admin = 2,
-    Member = 3
 }
