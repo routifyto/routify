@@ -14,6 +14,7 @@ import { useApp } from '@/contexts/app';
 import { Spinner } from '@/components/ui/spinner';
 import { useDeleteAppProviderMutation } from '@/api/app-providers';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
 interface AppProviderDeleteProps {
   appProviderId: string;
@@ -69,6 +70,13 @@ export function AppProviderDelete({ appProviderId }: AppProviderDeleteProps) {
                 mutate(undefined, {
                   onSuccess: () => {
                     navigate(`/${app.id}/providers`);
+                  },
+                  onError: (error) => {
+                    toast({
+                      title: 'Failed to delete provider',
+                      description: error.message,
+                      variant: 'destructive',
+                    });
                   },
                 });
               }}

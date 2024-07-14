@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Routify.Api.Models.Common;
 using Routify.Api.Models.Workspaces;
 using Routify.Data;
 
@@ -15,14 +16,26 @@ public class WorkspaceController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var user = await databaseContext
             .Users
             .FindAsync(CurrentUserId, cancellationToken);
 
         if (user is null)
-            return NotFound();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var userApps = await databaseContext
             .AppUsers

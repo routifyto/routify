@@ -1,17 +1,17 @@
 import { AppRole } from '@/types/app-users';
 
-export type Workspace = {
-  user: WorkspaceUser;
-  apps: WorkspaceApp[];
+export type WorkspaceOutput = {
+  user: WorkspaceUserOutput;
+  apps: WorkspaceAppOutput[];
 };
 
-export type WorkspaceUser = {
+export type WorkspaceUserOutput = {
   id: string;
   name: string;
   email: string;
 };
 
-export type WorkspaceApp = {
+export type WorkspaceAppOutput = {
   id: string;
   name: string;
   role: AppRole;

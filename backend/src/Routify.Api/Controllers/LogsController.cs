@@ -19,14 +19,26 @@ public class LogsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var query = databaseContext
             .CompletionLogs
@@ -77,21 +89,39 @@ public class LogsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var completionLog = await databaseContext
             .CompletionLogs
             .SingleOrDefaultAsync(x => x.AppId == appId && x.Id == completionLogId, cancellationToken);
 
         if (completionLog is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.CompletionLogNotFound,
+                Message = "Completion log not found"
+            });
+        }
         
         var route = await databaseContext
             .Routes

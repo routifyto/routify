@@ -1,31 +1,44 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppInput, AppOutput } from '@/types/apps';
-import { axios } from '@/api/axios';
-import { Workspace } from '@/types/workspaces';
+import { axios, parseApiError } from '@/api/axios';
+import { WorkspaceOutput } from '@/types/workspaces';
+import { ApiErrorOutput } from '@/types/errors';
 
 export function useCreateAppMutation() {
-  return useMutation({
+  return useMutation<AppOutput, ApiErrorOutput, AppInput>({
     mutationFn: async (input: AppInput) => {
-      const { data } = await axios.post<AppOutput>('v1/apps', input);
-      return data;
+      try {
+        const { data } = await axios.post<AppOutput>('v1/apps', input);
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }
 
 export function useUpdateAppMutation(appId: string) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<AppOutput, ApiErrorOutput, AppInput>({
     mutationFn: async (input: AppInput) => {
-      const { data } = await axios.put<AppOutput>(`v1/apps/${appId}`, input);
-      return data;
+      try {
+        const { data } = await axios.put<AppOutput>(`v1/apps/${appId}`, input);
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: (data) => {
-      const workspace = queryClient.getQueryData<Workspace>(['workspace']);
+      const workspace = queryClient.getQueryData<WorkspaceOutput>([
+        'workspace',
+      ]);
       if (!workspace) {
         return;
       }
 
-      queryClient.setQueryData<Workspace>(['workspace'], {
+      queryClient.setQueryData<WorkspaceOutput>(['workspace'], {
         ...workspace,
         apps: workspace.apps.map((app) => (app.id === data.id ? data : app)),
       });
@@ -34,9 +47,14 @@ export function useUpdateAppMutation(appId: string) {
 }
 
 export function useDeleteAppMutation(appId: string) {
-  return useMutation({
+  return useMutation<unknown, ApiErrorOutput, unknown>({
     mutationFn: async () => {
-      await axios.delete(`v1/apps/${appId}`);
+      try {
+        await axios.delete(`v1/apps/${appId}`);
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }

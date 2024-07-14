@@ -32,6 +32,13 @@ export function ApiKeyUpdate({ apiKeyId }: ApiKeyUpdateProps) {
           variant: 'default',
         });
       },
+      onError: (error) => {
+        toast({
+          title: 'Failed to update API Key',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   }
 

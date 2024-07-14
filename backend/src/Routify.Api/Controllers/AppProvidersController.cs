@@ -24,14 +24,26 @@ public class AppProvidersController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var query = databaseContext
             .AppProviders
@@ -70,21 +82,39 @@ public class AppProvidersController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var appProvider = await databaseContext
             .AppProviders
             .SingleOrDefaultAsync(x => x.Id == appProviderId, cancellationToken);
 
         if (appProvider is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.AppProviderNotFound,
+                Message = "Provider was not found or has been deleted"
+            });
+        }
 
         var output = MapToOutput(appProvider);
         return Ok(output);
@@ -97,15 +127,36 @@ public class AppProvidersController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
-        if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
-            return Forbid();
-
+        if (currentAppUser is null)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageAppProviders(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageAppProviders,
+                Message = "You do not have permission to manage providers"
+            });
+        }
+        
         var appProvider = new AppProvider
         {
             Id = RoutifyId.Generate(IdType.AppProvider),
@@ -136,21 +187,48 @@ public class AppProvidersController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
-        if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
-            return Forbid();
+        if (currentAppUser is null)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageAppProviders(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageAppProviders,
+                Message = "You do not have permission to manage providers"
+            });
+        }
 
         var appProvider = await databaseContext
             .AppProviders
             .SingleOrDefaultAsync(x => x.Id == appProviderId, cancellationToken);
 
         if (appProvider is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.AppProviderNotFound,
+                Message = "Provider was not found or has been deleted"
+            });
+        }
 
         appProvider.Provider = input.Provider;
         appProvider.Name = input.Name;
@@ -171,21 +249,48 @@ public class AppProvidersController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
-        if (currentAppUser is null || currentAppUser.Role == AppRole.Member)
-            return Forbid();
+        if (currentAppUser is null)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageAppProviders(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageAppProviders,
+                Message = "You do not have permission to manage providers"
+            });
+        }
 
         var appProvider = await databaseContext
             .AppProviders
             .SingleOrDefaultAsync(x => x.Id == appProviderId, cancellationToken);
 
         if (appProvider is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.AppProviderNotFound,
+                Message = "Provider not not found or has been deleted"
+            });
+        }
 
         databaseContext.Remove(appProvider);
         await databaseContext.SaveChangesAsync(cancellationToken);
@@ -234,5 +339,11 @@ public class AppProvidersController(
             decryptedAttrs[key] = decryptedValue;
         }
         return decryptedAttrs;
+    }
+    
+    private static bool CanManageAppProviders(
+        AppUser appUser)
+    {
+        return appUser.Role is AppRole.Owner or AppRole.Admin;
     }
 }

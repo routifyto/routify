@@ -5,6 +5,7 @@ import { ApiKeyForm } from '@/components/api-keys/api-key-form';
 import { ApiKeyInput, CreateApiKeyOutput } from '@/types/api-keys';
 import { useCreateApiKeyMutation } from '@/api/api-keys';
 import { ApiKeyConfirmDialog } from '@/components/api-keys/api-key-confirm-dialog';
+import { toast } from '@/components/ui/use-toast';
 
 export function ApiKeyCreate() {
   const app = useApp();
@@ -18,6 +19,13 @@ export function ApiKeyCreate() {
     mutate(input, {
       onSuccess: (data) => {
         setCreatedApiKey(data);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Failed to create API Key',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   }

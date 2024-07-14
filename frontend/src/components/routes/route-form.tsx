@@ -68,7 +68,6 @@ export function RouteForm({
 
   const [openProvidersDialog, setOpenProvidersDialog] = React.useState(false);
   const providers = form.watch('providers');
-  console.log('form', form.getValues());
 
   return (
     <React.Fragment>

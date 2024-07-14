@@ -1,4 +1,4 @@
-import Axios from 'axios';
+import Axios, { isAxiosError } from 'axios';
 import { readToken } from '@/lib/storage';
 
 export const axios = Axios.create({
@@ -16,3 +16,14 @@ axios.interceptors.request.use((config) => {
 
   return config;
 });
+
+export function parseApiError(error: unknown) {
+  if (isAxiosError(error) && error.response) {
+    return error.response.data;
+  }
+
+  return {
+    code: 'UNKNOWN',
+    message: 'An unknown error occurred',
+  };
+}

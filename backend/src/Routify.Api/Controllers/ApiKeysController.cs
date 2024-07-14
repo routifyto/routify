@@ -23,14 +23,26 @@ public class ApiKeysController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var query = databaseContext
             .ApiKeys
@@ -73,7 +85,7 @@ public class ApiKeysController(
             NextCursor = nextCursor
         });
     }
-    
+
     [HttpGet("{apiKeyId}", Name = "GetApiKey")]
     public async Task<ActionResult<ApiKeyOutput>> GetApiKeyAsync(
         [FromRoute] string appId,
@@ -81,21 +93,39 @@ public class ApiKeysController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
         var apiKey = await databaseContext
             .ApiKeys
             .SingleOrDefaultAsync(x => x.Id == apiKeyId, cancellationToken);
 
         if (apiKey is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.ApiKeyNotFound,
+                Message = "API key was not found or has been deleted"
+            });
+        }
 
         var output = new ApiKeyOutput
         {
@@ -111,7 +141,7 @@ public class ApiKeysController(
 
         return Ok(output);
     }
-    
+
     [HttpPost(Name = "CreateApiKey")]
     public async Task<ActionResult<CreateApiKeyOutput>> CreateApiKeyAsync(
         [FromRoute] string appId,
@@ -119,14 +149,35 @@ public class ApiKeysController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageApiKeys(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageApiKeys,
+                Message = "You do not have permission to manage API keys"
+            });
+        }
 
         var id = RoutifyId.Generate(IdType.ApiKey);
         var salt = Guid.NewGuid().ToString("N");
@@ -134,7 +185,7 @@ public class ApiKeysController(
         var hash = $"{secret}{salt}".ToSha256();
         var suffix = secret[^4..];
         var key = $"rtf_{id}{secret}";
-        
+
         var apiKey = new ApiKey
         {
             Id = id,
@@ -154,10 +205,10 @@ public class ApiKeysController(
             VersionId = RoutifyId.Generate(IdType.Version),
             Status = ApiKeyStatus.Active
         };
-        
+
         databaseContext.ApiKeys.Add(apiKey);
         await databaseContext.SaveChangesAsync(cancellationToken);
-        
+
         var output = new CreateApiKeyOutput
         {
             Key = key,
@@ -173,7 +224,7 @@ public class ApiKeysController(
                 ExpiresAt = apiKey.ExpiresAt
             }
         };
-        
+
         return Ok(output);
     }
 
@@ -185,21 +236,48 @@ public class ApiKeysController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageApiKeys(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageApiKeys,
+                Message = "You do not have permission to manage API keys"
+            });
+        }
 
         var apiKey = await databaseContext
             .ApiKeys
             .SingleOrDefaultAsync(x => x.Id == apiKeyId, cancellationToken);
 
         if (apiKey is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.ApiKeyNotFound,
+                Message = "API key was not found or has been deleted"
+            });
+        }
 
         apiKey.Name = input.Name;
         apiKey.Description = input.Description;
@@ -234,21 +312,48 @@ public class ApiKeysController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
-
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageApiKeys(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageApiKeys,
+                Message = "You do not have permission to manage API keys"
+            });
+        }
+        
         var apiKey = await databaseContext
             .ApiKeys
             .SingleOrDefaultAsync(x => x.Id == apiKeyId, cancellationToken);
 
         if (apiKey is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.ApiKeyNotFound,
+                Message = "API key was not found or has been deleted"
+            });
+        }
 
         databaseContext.ApiKeys.Remove(apiKey);
         await databaseContext.SaveChangesAsync(cancellationToken);
@@ -257,7 +362,13 @@ public class ApiKeysController(
         {
             Id = apiKey.Id
         };
-        
+
         return Ok(output);
+    }
+    
+    private static bool CanManageApiKeys(
+        AppUser appUser)
+    {
+        return appUser.Role is AppRole.Owner or AppRole.Admin;
     }
 }

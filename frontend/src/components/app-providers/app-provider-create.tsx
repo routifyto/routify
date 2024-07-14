@@ -4,6 +4,7 @@ import { useCreateAppProviderMutation } from '@/api/app-providers';
 import { AppProviderForm } from '@/components/app-providers/app-provider-form';
 import { AppProviderInput } from '@/types/app-providers';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
 export function AppProviderCreate() {
   const app = useApp();
@@ -14,6 +15,13 @@ export function AppProviderCreate() {
     mutate(input, {
       onSuccess: (data) => {
         navigate(`/${app.id}/providers/${data.id}`);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Failed to create provider',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   }

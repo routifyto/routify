@@ -13,6 +13,7 @@ import {
 import { useDeleteAppMutation } from '@/api/apps';
 import { useApp } from '@/contexts/app';
 import { Spinner } from '@/components/ui/spinner';
+import { toast } from '@/components/ui/use-toast';
 
 export function AppDelete() {
   const app = useApp();
@@ -59,6 +60,13 @@ export function AppDelete() {
                 mutate(undefined, {
                   onSuccess: () => {
                     window.location.href = '/';
+                  },
+                  onError: (error) => {
+                    toast({
+                      title: 'Failed to delete app',
+                      description: error.message,
+                      variant: 'destructive',
+                    });
                   },
                 });
               }}

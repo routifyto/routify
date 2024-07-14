@@ -61,9 +61,16 @@ export function AppUserRole({ appUser }: { appUser: AppUserOutput }) {
                 {
                   onSuccess: () => {
                     toast({
-                      title: 'User updated',
-                      description: 'The user was updated successfully',
+                      title: 'User role updated',
+                      description: 'The user role was updated successfully',
                       variant: 'default',
+                    });
+                  },
+                  onError: (error) => {
+                    toast({
+                      title: 'Failed to update user role',
+                      description: error.message,
+                      variant: 'destructive',
                     });
                   },
                 },

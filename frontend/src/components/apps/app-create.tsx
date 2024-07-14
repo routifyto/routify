@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters long.'),
@@ -40,6 +41,13 @@ export function AppCreate() {
         // so the workspace is reloaded with the new app
         // we could update the workspace state instead, but this is simpler for now
         window.location.href = `/${data.id}`;
+      },
+      onError: (error) => {
+        toast({
+          title: 'Failed to create app',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   }

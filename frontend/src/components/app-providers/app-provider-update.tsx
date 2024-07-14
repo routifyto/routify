@@ -35,6 +35,13 @@ export function AppProviderUpdate({ appProviderId }: AppProviderUpdateProps) {
           variant: 'default',
         });
       },
+      onError: (error) => {
+        toast({
+          title: 'Failed to update provider',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   }
 

@@ -12,6 +12,10 @@ export type AppUserOutput = {
   createdAt: Date;
 };
 
+export type AppUsersOutput = {
+  users: AppUserOutput[];
+};
+
 export type AppUserInput = {
   role: AppRole;
 };

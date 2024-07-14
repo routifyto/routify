@@ -14,6 +14,7 @@ import { useApp } from '@/contexts/app';
 import { Spinner } from '@/components/ui/spinner';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteApiKeyMutation } from '@/api/api-keys';
+import { toast } from '@/components/ui/use-toast';
 
 interface ApiKeyDeleteProps {
   apiKeyId: string;
@@ -66,6 +67,13 @@ export function ApiKeyDelete({ apiKeyId }: ApiKeyDeleteProps) {
                 mutate(undefined, {
                   onSuccess: () => {
                     navigate(`/${app.id}/api-keys`);
+                  },
+                  onError: (error) => {
+                    toast({
+                      title: 'Failed to delete API Key',
+                      description: error.message,
+                      variant: 'destructive',
+                    });
                   },
                 });
               }}

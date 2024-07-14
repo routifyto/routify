@@ -19,7 +19,13 @@ public class AppsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
         
         var currentAppUser = await databaseContext
             .AppUsers
@@ -28,11 +34,23 @@ public class AppsController(
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
         if (currentAppUser is null)
-            return Forbid();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
         
         var app = currentAppUser.App;
         if (app is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
         
         var output = new AppOutput
         {
@@ -50,7 +68,13 @@ public class AppsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
         
         var app = new App
         {
@@ -95,19 +119,46 @@ public class AppsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
         
         var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
-            return Forbid();
+        if (currentAppUser is null)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+
+        if (currentAppUser.Role != AppRole.Owner)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageApp,
+                Message = "You do not have access to manage this app"
+            });
+        }
         
         var app = currentAppUser.App;
         if (app is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
         
         app.Name = input.Name;
         app.Description = input.Description;
@@ -132,19 +183,46 @@ public class AppsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
         
         var currentAppUser = await databaseContext
             .AppUsers
             .Include(x => x.App)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
         
-        if (currentAppUser is null || currentAppUser.Role != AppRole.Owner)
-            return Forbid();
+        if (currentAppUser is null)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (currentAppUser.Role != AppRole.Owner)
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageApp,
+                Message = "You do not have access to manage this app"
+            });
+        }
         
         var app = currentAppUser.App;
         if (app is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
         
         databaseContext.Apps.Remove(app);
         await databaseContext.SaveChangesAsync(cancellationToken);

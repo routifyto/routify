@@ -29,6 +29,13 @@ export function RouteUpdate({ routeId }: RouteUpdateProps) {
           variant: 'default',
         });
       },
+      onError: (error) => {
+        toast({
+          title: 'Failed to update route',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   }
 

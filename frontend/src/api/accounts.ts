@@ -5,43 +5,59 @@ import {
   GoogleLoginInput,
   LoginOutput,
 } from '@/types/accounts';
-import { axios } from '@/api/axios';
+import { axios, parseApiError } from '@/api/axios';
+import { ApiErrorOutput } from '@/types/errors';
 
 export function useEmailLoginMutation() {
-  return useMutation({
+  return useMutation<LoginOutput, ApiErrorOutput, EmailLoginInput>({
     mutationFn: async (input: EmailLoginInput) => {
-      const { data } = await axios.post<LoginOutput>(
-        'v1/accounts/login/email',
-        input,
-      );
+      try {
+        const { data } = await axios.post<LoginOutput>(
+          'v1/accounts/login/email',
+          input,
+        );
 
-      return data;
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }
 
 export function useEmailRegisterMutation() {
-  return useMutation({
+  return useMutation<LoginOutput, ApiErrorOutput, EmailRegisterInput>({
     mutationFn: async (input: EmailRegisterInput) => {
-      const { data } = await axios.post<LoginOutput>(
-        'v1/accounts/register/email',
-        input,
-      );
+      try {
+        const { data } = await axios.post<LoginOutput>(
+          'v1/accounts/register/email',
+          input,
+        );
 
-      return data;
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }
 
 export function useGoogleLoginMutation() {
-  return useMutation({
+  return useMutation<LoginOutput, ApiErrorOutput, GoogleLoginInput>({
     mutationFn: async (input: GoogleLoginInput) => {
-      const { data } = await axios.post<LoginOutput>(
-        'v1/accounts/login/google',
-        input,
-      );
+      try {
+        const { data } = await axios.post<LoginOutput>(
+          'v1/accounts/login/google',
+          input,
+        );
 
-      return data;
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }

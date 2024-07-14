@@ -6,6 +6,7 @@ using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Data;
 using Routify.Data.Common;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 using Route = Routify.Data.Models.Route;
 
@@ -24,14 +25,26 @@ public class RoutesController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var query = databaseContext
             .Routes
@@ -63,7 +76,7 @@ public class RoutesController(
 
         return Ok(output);
     }
-    
+
     [HttpGet("{routeId}", Name = "GetRoute")]
     public async Task<ActionResult<RouteOutput>> GetRouteAsync(
         [FromRoute] string appId,
@@ -71,27 +84,45 @@ public class RoutesController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var route = await databaseContext
             .Routes
             .Include(x => x.Providers)
             .SingleOrDefaultAsync(x => x.AppId == appId && x.Id == routeId, cancellationToken);
-        
+
         if (route is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.RouteNotFound,
+                Message = "Route was not found or has been deleted"
+            });
+        }
         
         var output = MapToOutput(route);
         return Ok(output);
     }
-    
+
     [HttpPost(Name = "CreateRoute")]
     public async Task<ActionResult<RouteOutput>> CreateRouteAsync(
         [FromRoute] string appId,
@@ -99,14 +130,35 @@ public class RoutesController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+
+        if (!CanManageRoutes(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageRoutes,
+                Message = "You do not have permission to manage routes"
+            });
+        }
 
         var route = new Route
         {
@@ -123,7 +175,7 @@ public class RoutesController(
             CreatedBy = CurrentUserId,
             VersionId = RoutifyId.Generate(IdType.Version)
         };
-        
+
         var routeProviders = input
             .Providers
             .Select(x => new RouteProvider
@@ -147,7 +199,7 @@ public class RoutesController(
         var routeOutput = MapToOutput(route);
         return CreatedAtRoute("GetRoute", new { appId, routeId = route.Id }, routeOutput);
     }
-    
+
     [HttpPut("{routeId}", Name = "UpdateRoute")]
     public async Task<ActionResult<RouteOutput>> UpdateRouteAsync(
         [FromRoute] string appId,
@@ -156,14 +208,35 @@ public class RoutesController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageRoutes(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageRoutes,
+                Message = "You do not have permission to manage routes"
+            });
+        }
 
         var route = await databaseContext
             .Routes
@@ -171,7 +244,13 @@ public class RoutesController(
             .SingleOrDefaultAsync(x => x.AppId == appId && x.Id == routeId, cancellationToken);
 
         if (route is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.RouteNotFound,
+                Message = "Route not found"
+            });
+        }
 
         route.Name = input.Name;
         route.Description = input.Description;
@@ -204,7 +283,7 @@ public class RoutesController(
                     CreatedBy = CurrentUserId,
                     VersionId = RoutifyId.Generate(IdType.Version)
                 };
-                
+
                 databaseContext.RouteProviders.Add(routeProvider);
             }
             else
@@ -221,13 +300,13 @@ public class RoutesController(
                 routeProvider.VersionId = RoutifyId.Generate(IdType.Version);
             }
         }
-        
+
         await databaseContext.SaveChangesAsync(cancellationToken);
 
         var routeOutput = MapToOutput(route);
         return Ok(routeOutput);
     }
-    
+
     [HttpDelete("{routeId}", Name = "DeleteRoute")]
     public async Task<ActionResult<DeleteOutput>> DeleteRouteAsync(
         [FromRoute] string appId,
@@ -235,21 +314,48 @@ public class RoutesController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+        
+        if (!CanManageRoutes(currentAppUser))
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.CannotManageRoutes,
+                Message = "You do not have permission to manage routes"
+            });
+        }
 
         var route = await databaseContext
             .Routes
             .SingleOrDefaultAsync(x => x.AppId == appId && x.Id == routeId, cancellationToken);
 
         if (route is null)
-            return NotFound();
+        {
+            return NotFound(new ApiErrorOutput
+            {
+                Code = ApiError.RouteNotFound,
+                Message = "Route not found"
+            });
+        }
 
         databaseContext.Routes.Remove(route);
         await databaseContext.SaveChangesAsync(cancellationToken);
@@ -277,6 +383,12 @@ public class RoutesController(
                     Attrs = x.Attrs
                 })
                 .ToList(),
-        };        
+        };
+    }
+
+    private static bool CanManageRoutes(
+        AppUser appUser)
+    {
+        return appUser.Role is AppRole.Owner or AppRole.Admin;
     }
 }

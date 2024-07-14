@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Routify.Api.Models.Analytics;
+using Routify.Api.Models.Common;
 using Routify.Data;
 
 namespace Routify.Api.Controllers;
@@ -17,14 +18,26 @@ public class AnalyticsController(
         CancellationToken cancellationToken = default)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var (from, to) = GetPeriod(period);
         var (previousFrom, previousTo) = GetPreviousPeriod(period, from);
@@ -79,14 +92,26 @@ public class AnalyticsController(
         CancellationToken cancellationToken)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var (from, to) = GetPeriod(period);
         
@@ -125,14 +150,26 @@ public class AnalyticsController(
         CancellationToken cancellationToken)
     {
         if (!IsAuthenticated)
-            return Unauthorized();
+        {
+            return Unauthorized(new ApiErrorOutput
+            {
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
 
         var currentAppUser = await databaseContext
             .AppUsers
             .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
 
         if (currentAppUser is null)
-            return NotFound();
+        {
+            return Forbidden(new ApiErrorOutput
+            {
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
 
         var (from, to) = GetPeriod(period);
 

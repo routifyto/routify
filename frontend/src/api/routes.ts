@@ -4,55 +4,71 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { axios } from '@/api/axios';
+import { axios, parseApiError } from '@/api/axios';
 import {
   CreateRouteInput,
   UpdateRouteInput,
   RouteOutput,
 } from '@/types/routes';
 import { PaginatedOutput } from '@/types/common';
+import { ApiErrorOutput } from '@/types/errors';
 
 export function useGetRoutesQuery(appId: string, limit?: number) {
-  return useInfiniteQuery({
+  return useInfiniteQuery<PaginatedOutput<RouteOutput>, ApiErrorOutput>({
     queryKey: ['routes', appId],
     initialPageParam: '',
     queryFn: async ({ pageParam }) => {
-      const { data } = await axios.get<PaginatedOutput<RouteOutput>>(
-        `v1/apps/${appId}/routes`,
-        {
-          params: {
-            after: pageParam,
-            limit,
+      try {
+        const { data } = await axios.get<PaginatedOutput<RouteOutput>>(
+          `v1/apps/${appId}/routes`,
+          {
+            params: {
+              after: pageParam,
+              limit,
+            },
           },
-        },
-      );
-      return data;
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 }
 
 export function useGetRouteQuery(appId: string, routeId: string) {
-  return useQuery({
+  return useQuery<RouteOutput, ApiErrorOutput>({
     queryKey: ['route', routeId],
     queryFn: async () => {
-      const { data } = await axios.get<RouteOutput>(
-        `v1/apps/${appId}/routes/${routeId}`,
-      );
-      return data;
+      try {
+        const { data } = await axios.get<RouteOutput>(
+          `v1/apps/${appId}/routes/${routeId}`,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }
 
 export function useCreateRouteMutation(appId: string) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<RouteOutput, ApiErrorOutput, CreateRouteInput>({
     mutationFn: async (input: CreateRouteInput) => {
-      const { data } = await axios.post<RouteOutput>(
-        `v1/apps/${appId}/routes`,
-        input,
-      );
-      return data;
+      try {
+        const { data } = await axios.post<RouteOutput>(
+          `v1/apps/${appId}/routes`,
+          input,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({
@@ -66,13 +82,18 @@ export function useCreateRouteMutation(appId: string) {
 
 export function useUpdateRouteMutation(appId: string, routeId: string) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<RouteOutput, ApiErrorOutput, UpdateRouteInput>({
     mutationFn: async (input: UpdateRouteInput) => {
-      const { data } = await axios.put<RouteOutput>(
-        `v1/apps/${appId}/routes/${routeId}`,
-        input,
-      );
-      return data;
+      try {
+        const { data } = await axios.put<RouteOutput>(
+          `v1/apps/${appId}/routes/${routeId}`,
+          input,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({
@@ -86,9 +107,14 @@ export function useUpdateRouteMutation(appId: string, routeId: string) {
 
 export function useDeleteRouteMutation(appId: string, routeId: string) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<unknown, ApiErrorOutput, unknown>({
     mutationFn: async () => {
-      await axios.delete(`v1/apps/${appId}/routes/${routeId}`);
+      try {
+        await axios.delete(`v1/apps/${appId}/routes/${routeId}`);
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({

@@ -4,51 +4,67 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { axios } from '@/api/axios';
+import { axios, parseApiError } from '@/api/axios';
 import { AppProviderInput, AppProviderOutput } from '@/types/app-providers';
 import { PaginatedOutput } from '@/types/common';
+import { ApiErrorOutput } from '@/types/errors';
 
 export function useGetAppProvidersQuery(appId: string, limit?: number) {
-  return useInfiniteQuery({
+  return useInfiniteQuery<PaginatedOutput<AppProviderOutput>, ApiErrorOutput>({
     queryKey: ['app-providers', appId],
     initialPageParam: '',
     queryFn: async ({ pageParam }) => {
-      const { data } = await axios.get<PaginatedOutput<AppProviderOutput>>(
-        `v1/apps/${appId}/providers`,
-        {
-          params: {
-            after: pageParam,
-            limit,
+      try {
+        const { data } = await axios.get<PaginatedOutput<AppProviderOutput>>(
+          `v1/apps/${appId}/providers`,
+          {
+            params: {
+              after: pageParam,
+              limit,
+            },
           },
-        },
-      );
-      return data;
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
 }
 
 export function useGetAppProviderQuery(appId: string, appProviderId: string) {
-  return useQuery({
+  return useQuery<AppProviderOutput, ApiErrorOutput>({
     queryKey: ['app-provider', appProviderId],
     queryFn: async () => {
-      const { data } = await axios.get<AppProviderOutput>(
-        `v1/apps/${appId}/providers/${appProviderId}`,
-      );
-      return data;
+      try {
+        const { data } = await axios.get<AppProviderOutput>(
+          `v1/apps/${appId}/providers/${appProviderId}`,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
   });
 }
 
 export function useCreateAppProviderMutation(appId: string) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<AppProviderOutput, ApiErrorOutput, AppProviderInput>({
     mutationFn: async (input: AppProviderInput) => {
-      const { data } = await axios.post<AppProviderOutput>(
-        `v1/apps/${appId}/providers`,
-        input,
-      );
-      return data;
+      try {
+        const { data } = await axios.post<AppProviderOutput>(
+          `v1/apps/${appId}/providers`,
+          input,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({
@@ -65,13 +81,18 @@ export function useUpdateAppProviderMutation(
   appProviderId: string,
 ) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<AppProviderOutput, ApiErrorOutput, AppProviderInput>({
     mutationFn: async (input: AppProviderInput) => {
-      const { data } = await axios.put<AppProviderOutput>(
-        `v1/apps/${appId}/providers/${appProviderId}`,
-        input,
-      );
-      return data;
+      try {
+        const { data } = await axios.put<AppProviderOutput>(
+          `v1/apps/${appId}/providers/${appProviderId}`,
+          input,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries({
@@ -88,9 +109,14 @@ export function useDeleteAppProviderMutation(
   appProviderId: string,
 ) {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<unknown, ApiErrorOutput, unknown>({
     mutationFn: async () => {
-      await axios.delete(`v1/apps/${appId}/providers/${appProviderId}`);
+      try {
+        await axios.delete(`v1/apps/${appId}/providers/${appProviderId}`);
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({

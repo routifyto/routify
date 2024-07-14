@@ -43,6 +43,13 @@ export function AppUpdate() {
           variant: 'default',
         });
       },
+      onError: (error) => {
+        toast({
+          title: 'Failed to update app',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
     });
   }
 
