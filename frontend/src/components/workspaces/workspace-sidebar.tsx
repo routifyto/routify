@@ -51,8 +51,8 @@ const linkGroups: LinkItemGroup[] = [
         icon: <Boxes className={iconClass} />,
       },
       {
-        label: 'Customers',
-        to: 'customers',
+        label: 'Consumers',
+        to: 'consumers',
         icon: <Contact className={iconClass} />,
       },
     ],

@@ -18,10 +18,12 @@ import { Route } from '@/components/routes/route';
 import { CompletionLogs } from '@/components/logs/completion-logs';
 import { EmbeddingLogs } from '@/components/logs/embedding-logs';
 import { AnalyticsDashboard } from '@/components/analytics/analytics-dashboard';
-import { Customers } from '@/components/customers/customers';
 import { ApiKeys } from '@/components/api-keys/api-keys';
 import { ApiKeyCreate } from '@/components/api-keys/api-key-create';
 import { ApiKey } from '@/components/api-keys/api-key';
+import { Consumers } from '@/components/consumers/consumers';
+import { ConsumerCreate } from '@/components/consumers/consumer-create';
+import { Consumer } from '@/components/consumers/consumer';
 
 export const router = createBrowserRouter([
   {
@@ -79,8 +81,21 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            path: 'customers',
-            element: <Customers />,
+            path: 'consumers',
+            children: [
+              {
+                path: '',
+                element: <Consumers />,
+              },
+              {
+                path: 'create',
+                element: <ConsumerCreate />,
+              },
+              {
+                path: ':consumerId',
+                element: <Consumer />,
+              },
+            ],
           },
           {
             path: 'logs/completions',

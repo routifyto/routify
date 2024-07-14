@@ -44,4 +44,8 @@ public enum ApiError
     
     //logs
     CompletionLogNotFound = 7000,
+    
+    //consumers
+    ConsumerNotFound = 8000,
+    CannotManageConsumers = 8001,
 }
