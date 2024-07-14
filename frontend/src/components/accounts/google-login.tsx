@@ -5,6 +5,7 @@ import { GoogleIcon } from '@/components/ui/icons';
 import { LoginOutput } from '@/types/accounts';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import { useGoogleLoginMutation } from '@/api/accounts';
+import { toast } from '@/components/ui/use-toast';
 
 interface GoogleLoginProps {
   onLogin: (output: LoginOutput) => void;
@@ -18,6 +19,13 @@ function GoogleLoginButton({ onLogin }: GoogleLoginProps) {
       mutate(response, {
         onSuccess: (data) => {
           onLogin(data);
+        },
+        onError: (error) => {
+          toast({
+            title: 'Failed to login',
+            description: error.message,
+            variant: 'destructive',
+          });
         },
       });
     },

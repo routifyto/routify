@@ -14,6 +14,7 @@ import { useApp } from '@/contexts/app';
 import { Spinner } from '@/components/ui/spinner';
 import { useNavigate } from 'react-router-dom';
 import { useDeleteRouteMutation } from '@/api/routes';
+import { toast } from '@/components/ui/use-toast';
 
 interface RouteDeleteProps {
   routeId: string;
@@ -66,6 +67,13 @@ export function RouteDelete({ routeId }: RouteDeleteProps) {
                 mutate(undefined, {
                   onSuccess: () => {
                     navigate(`/${app.id}/routes`);
+                  },
+                  onError: (error) => {
+                    toast({
+                      title: 'Failed to delete route',
+                      description: error.message,
+                      variant: 'destructive',
+                    });
                   },
                 });
               }}

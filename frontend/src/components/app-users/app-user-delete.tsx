@@ -37,8 +37,8 @@ export function AppUserDelete({ appUserId }: AppUserDeleteProps) {
           variant: 'default',
         });
       },
-      onError: () => {
-        setErrors(['Error removing user']);
+      onError: (error) => {
+        setErrors([error.message]);
       },
     });
   };

@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail } from 'lucide-react';
 import { LoginOutput } from '@/types/accounts';
+import { toast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
   email: z.string().min(2).email(),
@@ -40,6 +41,13 @@ export function EmailLogin({ onLogin }: EmailLoginProps) {
     mutate(values, {
       onSuccess: (data) => {
         onLogin(data);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Failed to login',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   }

@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail } from 'lucide-react';
 import { LoginOutput } from '@/types/accounts';
+import { toast } from '@/components/ui/use-toast';
 
 const formSchema = z.object({
   name: z.string().min(2),
@@ -42,6 +43,13 @@ export function EmailRegister({ onRegister }: EmailRegisterProps) {
     mutate(values, {
       onSuccess: (data) => {
         onRegister(data);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Failed to register',
+          description: error.message,
+          variant: 'destructive',
+        });
       },
     });
   }

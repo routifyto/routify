@@ -64,8 +64,8 @@ export function AppUsersCreate({
         onOpenChange(false);
         form.reset();
       },
-      onError() {
-        setErrors(['Error adding users to app']);
+      onError(error) {
+        setErrors([error.message]);
       },
       onSettled() {
         form.reset();
