@@ -10,6 +10,8 @@ internal record AppData
     private Dictionary<string, RouteData> Routes { get; set; } = [];
     private Dictionary<string, AppProviderData> Providers { get; set; } = [];
     private Dictionary<string, ApiKeyData> ApiKeys { get; set; } = [];
+    private Dictionary<string, ConsumerData> Consumers { get; set; } = [];
+    private Dictionary<string, string> ConsumerByAliases { get; set; } = [];
 
     public AppData(
         ApiAppOutput output)
@@ -58,6 +60,22 @@ internal record AppData
                 Algorithm = apiKey.Algorithm,
                 ExpiresAt = apiKey.ExpiresAt
             });
+
+        Consumers = new Dictionary<string, ConsumerData>();
+        ConsumerByAliases = new Dictionary<string, string>();
+        foreach (var consumerOutput in output.Consumers)
+        {
+            Consumers[consumerOutput.Id] = new ConsumerData
+            {
+                Id = consumerOutput.Id,
+                Alias = consumerOutput.Alias
+            };
+            
+            if (!string.IsNullOrEmpty(consumerOutput.Alias))
+            {
+                ConsumerByAliases[consumerOutput.Alias] = consumerOutput.Id;
+            }
+        }
     }
 
     public RouteData? GetRoute(
@@ -79,5 +97,22 @@ internal record AppData
     {
         ApiKeys.TryGetValue(id, out var apiKey);
         return apiKey;
+    }
+    
+    public ConsumerData? GetConsumer(
+        string idOrAlias)
+    {
+        if (Consumers.TryGetValue(idOrAlias, out var consumer))
+        {
+            return consumer;
+        }
+        
+        if (ConsumerByAliases.TryGetValue(idOrAlias, out var consumerId)
+            && Consumers.TryGetValue(consumerId, out consumer))
+        {
+            return consumer;
+        }
+        
+        return null;
     }
 }

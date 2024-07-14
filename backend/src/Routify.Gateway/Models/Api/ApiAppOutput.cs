@@ -7,4 +7,5 @@ internal record ApiAppOutput
     public List<ApiRouteOutput> Routes { get; set; } = [];
     public List<ApiAppProviderOutput> Providers { get; set; } = [];
     public List<ApiApiKeyOutput> ApiKeys { get; set; } = [];
+    public List<ApiConsumerOutput> Consumers { get; set; } = [];
 }

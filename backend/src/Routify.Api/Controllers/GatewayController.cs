@@ -47,6 +47,11 @@ public class GatewayController(
             .ApiKeys
             .AsNoTracking()
             .ToListAsync(cancellationToken: cancellationToken);
+        
+        var allConsumers = await databaseContext
+            .Consumers
+            .AsNoTracking()
+            .ToListAsync(cancellationToken: cancellationToken);
 
         var apps = allApps
             .Select(app => new GatewayAppOutput
@@ -94,6 +99,14 @@ public class GatewayController(
                         Prefix = apiKey.Prefix,
                         Algorithm = apiKey.Algorithm,
                         ExpiresAt = apiKey.ExpiresAt
+                    })
+                    .ToList(),
+                Consumers = allConsumers
+                    .Where(consumer => consumer.AppId == app.Id)
+                    .Select(consumer => new GatewayConsumerOutput
+                    {
+                        Id = consumer.Id,
+                        Alias = consumer.Alias
                     })
                     .ToList()
             })
