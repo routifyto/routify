@@ -14,8 +14,5 @@ internal static class DependencyInjection
         });
 
         services.AddKeyedScoped<ICompletionProvider, CohereCompletionProvider>(ProviderIds.Cohere);
-        services.AddKeyedScoped<ICompletionInputMapper, CohereCompletionInputMapper>(ProviderIds.Cohere);
-        services.AddKeyedScoped<ICompletionOutputMapper, CohereCompletionOutputMapper>(ProviderIds.Cohere);
-        services.AddKeyedScoped<ICompletionSerializer, CohereCompletionSerializer>(ProviderIds.Cohere);
     }
 }

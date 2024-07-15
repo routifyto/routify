@@ -1,140 +1,476 @@
 using System.Net;
-using System.Text.Json;
+using System.Text;
 using Routify.Core.Constants;
+using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Extensions;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.TogetherAi;
 
 internal class TogetherAiCompletionProvider(
-    IHttpClientFactory httpClientFactory,
-    [FromKeyedServices(ProviderIds.TogetherAi)] ICompletionInputMapper inputMapper) 
+    IHttpClientFactory httpClientFactory) 
     : ICompletionProvider
 {
-    private static readonly Dictionary<string, decimal> ModelInputCosts = new()
+    private static readonly Dictionary<string, CompletionModel> Models = new()
     {
-        { "Qwen/Qwen2-72B-Instruct", 0.9m },
-        { "meta-llama/Llama-3-70b-chat-hf", 0.9m },
-        { "Snowflake/snowflake-arctic-instruct", 2.4m },
-        { "meta-llama/Llama-3-8b-chat-hf", 0.2m },
-        { "microsoft/WizardLM-2-8x22B", 1.2m },
-        { "togethercomputer/StripedHyena-Nous-7B", 0.2m },
-        { "databricks/dbrx-instruct", 1.2m },
-        { "allenai/OLMo-7B-Instruct", 0.2m },
-        { "deepseek-ai/deepseek-llm-67b-chat", 0.9m },
-        { "google/gemma-7b-it", 0.2m },
-        { "google/gemma-2b-it", 0.1m },
-        { "NousResearch/Nous-Hermes-2-Mistral-7B-DPO", 0.2m },
-        { "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT", 0.6m },
-        { "NousResearch/Nous-Hermes-2-Yi-34B", 0.8m },
-        { "codellama/CodeLlama-70b-Instruct-hf", 0.9m },
-        { "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO", 0.6m },
-        { "snorkelai/Snorkel-Mistral-PairRM-DPO", 0.2m },
-        { "deepseek-ai/deepseek-coder-33b-instruct", 0.8m },
-        { "zero-one-ai/Yi-34B-Chat", 0.8m },
-        { "NousResearch/Nous-Hermes-Llama2-13b", 0.3m },
-        { "NousResearch/Nous-Hermes-llama-2-7b", 0.2m },
-        { "togethercomputer/Llama-2-7B-32K-Instruct", 0.2m },
-        { "meta-llama/Llama-2-70b-chat-hf", 0.9m },
-        { "meta-llama/Llama-2-13b-chat-hf", 0.22m },
-        { "meta-llama/Llama-2-7b-chat-hf", 0.2m },
-        { "codellama/CodeLlama-13b-Instruct-hf", 0.22m },
-        { "codellama/CodeLlama-34b-Instruct-hf", 0.78m },
-        { "codellama/CodeLlama-7b-Instruct-hf", 0.2m },
-        { "NousResearch/Nous-Capybara-7B-V1p9", 0.2m },
-        { "teknium/OpenHermes-2p5-Mistral-7B", 0.2m },
-        { "Open-Orca/Mistral-7B-OpenOrca", 0.2m },
-        { "teknium/OpenHermes-2-Mistral-7B", 0.2m },
-        { "Austism/chronos-hermes-13b", 0.3m },
-        { "garage-bAInd/Platypus2-70B-instruct", 0.9m },
-        { "Gryphe/MythoMax-L2-13b", 0.3m },
-        { "togethercomputer/alpaca-7b", 0.2m },
-        { "WizardLM/WizardLM-13B-V1.2", 0.2m },
-        { "upstage/SOLAR-10.7B-Instruct-v1.0", 0.3m },
-        { "OpenAssistant/llama2-70b-oasst-sft-v10", 0.9m },
-        { "openchat/openchat-3.5-1210", 0.2m },
-        { "Qwen/Qwen1.5-7B-Chat", 0.2m },
-        { "Qwen/Qwen1.5-14B-Chat", 0.3m },
-        { "Qwen/Qwen1.5-1.8B-Chat", 0.1m },
-        { "cognitivecomputations/dolphin-2.5-mixtral-8x7b", 0.6m },
-        { "mistralai/Mixtral-8x22B-Instruct-v0.1", 1.2m },
-        { "lmsys/vicuna-13b-v1.5", 0.3m },
-        { "Qwen/Qwen1.5-0.5B-Chat", 0.1m },
-        { "Qwen/Qwen1.5-4B-Chat", 0.1m },
-        { "mistralai/Mistral-7B-Instruct-v0.1", 0.2m },
-        { "mistralai/Mistral-7B-Instruct-v0.2", 0.2m },
-        { "togethercomputer/Pythia-Chat-Base-7B", 0.2m },
-        { "Qwen/Qwen1.5-32B-Chat", 0.8m },
-        { "Qwen/Qwen1.5-72B-Chat", 0.9m },
-        { "mistralai/Mistral-7B-Instruct-v0.3", 0.2m },
-        { "Qwen/Qwen1.5-110B-Chat", 1.8m },
-        { "mistralai/Mixtral-8x7B-Instruct-v0.1", 0.6m },
+        {
+            "Qwen/Qwen2-72B-Instruct", new CompletionModel
+            {
+                Id = "Qwen/Qwen2-72B-Instruct",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "meta-llama/Llama-3-70b-chat-hf", new CompletionModel
+            {
+                Id = "meta-llama/Llama-3-70b-chat-hf",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "Snowflake/snowflake-arctic-instruct", new CompletionModel
+            {
+                Id = "Snowflake/snowflake-arctic-instruct",
+                InputCost = 2.4m,
+                OutputCost = 2.4m
+            }
+        },
+        {
+            "meta-llama/Llama-3-8b-chat-hf", new CompletionModel
+            {
+                Id = "meta-llama/Llama-3-8b-chat-hf",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "microsoft/WizardLM-2-8x22B", new CompletionModel
+            {
+                Id = "microsoft/WizardLM-2-8x22B",
+                InputCost = 1.2m,
+                OutputCost = 1.2m
+            }
+        },
+        {
+            "togethercomputer/StripedHyena-Nous-7B", new CompletionModel
+            {
+                Id = "togethercomputer/StripedHyena-Nous-7B",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "databricks/dbrx-instruct", new CompletionModel
+            {
+                Id = "databricks/dbrx-instruct",
+                InputCost = 1.2m,
+                OutputCost = 1.2m
+            }
+        },
+        {
+            "allenai/OLMo-7B-Instruct", new CompletionModel
+            {
+                Id = "allenai/OLMo-7B-Instruct",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "deepseek-ai/deepseek-llm-67b-chat", new CompletionModel
+            {
+                Id = "deepseek-ai/deepseek-llm-67b-chat",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "google/gemma-7b-it", new CompletionModel
+            {
+                Id = "google/gemma-7b-it",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "google/gemma-2b-it", new CompletionModel
+            {
+                Id = "google/gemma-2b-it",
+                InputCost = 0.1m,
+                OutputCost = 0.1m
+            }
+        },
+        {
+            "NousResearch/Nous-Hermes-2-Mistral-7B-DPO", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Hermes-2-Mistral-7B-DPO",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT",
+                InputCost = 0.6m,
+                OutputCost = 0.6m
+            }
+        },
+        {
+            "NousResearch/Nous-Hermes-2-Yi-34B", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Hermes-2-Yi-34B",
+                InputCost = 0.8m,
+                OutputCost = 0.8m
+            }
+        },
+        {
+            "codellama/CodeLlama-70b-Instruct-hf", new CompletionModel
+            {
+                Id = "codellama/CodeLlama-70b-Instruct-hf",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
+                InputCost = 0.6m,
+                OutputCost = 0.6m
+            }
+        },
+        {
+            "snorkelai/Snorkel-Mistral-PairRM-DPO", new CompletionModel
+            {
+                Id = "snorkelai/Snorkel-Mistral-PairRM-DPO",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "deepseek-ai/deepseek-coder-33b-instruct", new CompletionModel
+            {
+                Id = "deepseek-ai/deepseek-coder-33b-instruct",
+                InputCost = 0.8m,
+                OutputCost = 0.8m
+            }
+        },
+        {
+            "zero-one-ai/Yi-34B-Chat", new CompletionModel
+            {
+                Id = "zero-one-ai/Yi-34B-Chat",
+                InputCost = 0.8m,
+                OutputCost = 0.8m
+            }
+        },
+        {
+            "NousResearch/Nous-Hermes-Llama2-13b", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Hermes-Llama2-13b",
+                InputCost = 0.3m,
+                OutputCost = 0.3m
+            }
+        },
+        {
+            "NousResearch/Nous-Hermes-llama-2-7b", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Hermes-llama-2-7b",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "togethercomputer/Llama-2-7B-32K-Instruct", new CompletionModel
+            {
+                Id = "togethercomputer/Llama-2-7B-32K-Instruct",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "meta-llama/Llama-2-70b-chat-hf", new CompletionModel
+            {
+                Id = "meta-llama/Llama-2-70b-chat-hf",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "meta-llama/Llama-2-13b-chat-hf", new CompletionModel
+            {
+                Id = "meta-llama/Llama-2-13b-chat-hf",
+                InputCost = 0.22m,
+                OutputCost = 0.22m
+            }
+        },
+        {
+            "meta-llama/Llama-2-7b-chat-hf", new CompletionModel
+            {
+                Id = "meta-llama/Llama-2-7b-chat-hf",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "codellama/CodeLlama-13b-Instruct-hf", new CompletionModel
+            {
+                Id = "codellama/CodeLlama-13b-Instruct-hf",
+                InputCost = 0.22m,
+                OutputCost = 0.22m
+            }
+        },
+        {
+            "codellama/CodeLlama-34b-Instruct-hf", new CompletionModel
+            {
+                Id = "codellama/CodeLlama-34b-Instruct-hf",
+                InputCost = 0.78m,
+                OutputCost = 0.78m
+            }
+        },
+        {
+            "codellama/CodeLlama-7b-Instruct-hf", new CompletionModel
+            {
+                Id = "codellama/CodeLlama-7b-Instruct-hf",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "NousResearch/Nous-Capybara-7B-V1p9", new CompletionModel
+            {
+                Id = "NousResearch/Nous-Capybara-7B-V1p9",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "teknium/OpenHermes-2p5-Mistral-7B", new CompletionModel
+            {
+                Id = "teknium/OpenHermes-2p5-Mistral-7B",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "Open-Orca/Mistral-7B-OpenOrca", new CompletionModel
+            {
+                Id = "Open-Orca/Mistral-7B-OpenOrca",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "teknium/OpenHermes-2-Mistral-7B", new CompletionModel
+            {
+                Id = "teknium/OpenHermes-2-Mistral-7B",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "Austism/chronos-hermes-13b", new CompletionModel
+            {
+                Id = "Austism/chronos-hermes-13b",
+                InputCost = 0.3m,
+                OutputCost = 0.3m
+            }
+        },
+        {
+            "garage-bAInd/Platypus2-70B-instruct", new CompletionModel
+            {
+                Id = "garage-bAInd/Platypus2-70B-instruct",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "Gryphe/MythoMax-L2-13b", new CompletionModel
+            {
+                Id = "Gryphe/MythoMax-L2-13b",
+                InputCost = 0.3m,
+                OutputCost = 0.3m
+            }
+        },
+        {
+            "togethercomputer/alpaca-7b", new CompletionModel
+            {
+                Id = "togethercomputer/alpaca-7b",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "WizardLM/WizardLM-13B-V1.2", new CompletionModel
+            {
+                Id = "WizardLM/WizardLM-13B-V1.2",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "upstage/SOLAR-10.7B-Instruct-v1.0", new CompletionModel
+            {
+                Id = "upstage/SOLAR-10.7B-Instruct-v1.0",
+                InputCost = 0.3m,
+                OutputCost = 0.3m
+            }
+        },
+        {
+            "OpenAssistant/llama2-70b-oasst-sft-v10", new CompletionModel
+            {
+                Id = "OpenAssistant/llama2-70b-oasst-sft-v10",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "openchat/openchat-3.5-1210", new CompletionModel
+            {
+                Id = "openchat/openchat-3.5-1210",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-7B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-7B-Chat",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-14B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-14B-Chat",
+                InputCost = 0.3m,
+                OutputCost = 0.3m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-1.8B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-1.8B-Chat",
+                InputCost = 0.1m,
+                OutputCost = 0.1m
+            }
+        },
+        {
+            "cognitivecomputations/dolphin-2.5-mixtral-8x7b", new CompletionModel
+            {
+                Id = "cognitivecomputations/dolphin-2.5-mixtral-8x7b",
+                InputCost = 0.6m,
+                OutputCost = 0.6m
+            }
+        },
+        {
+            "mistralai/Mixtral-8x22B-Instruct-v0.1", new CompletionModel
+            {
+                Id = "mistralai/Mixtral-8x22B-Instruct-v0.1",
+                InputCost = 1.2m,
+                OutputCost = 1.2m
+            }
+        },
+        {
+            "lmsys/vicuna-13b-v1.5", new CompletionModel
+            {
+                Id = "lmsys/vicuna-13b-v1.5",
+                InputCost = 0.3m,
+                OutputCost = 0.3m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-0.5B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-0.5B-Chat",
+                InputCost = 0.1m,
+                OutputCost = 0.1m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-4B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-4B-Chat",
+                InputCost = 0.1m,
+                OutputCost = 0.1m
+            }
+        },
+        {
+            "mistralai/Mistral-7B-Instruct-v0.1", new CompletionModel
+            {
+                Id = "mistralai/Mistral-7B-Instruct-v0.1",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "mistralai/Mistral-7B-Instruct-v0.2", new CompletionModel
+            {
+                Id = "mistralai/Mistral-7B-Instruct-v0.2",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "togethercomputer/Pythia-Chat-Base-7B", new CompletionModel
+            {
+                Id = "togethercomputer/Pythia-Chat-Base-7B",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-32B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-32B-Chat",
+                InputCost = 0.8m,
+                OutputCost = 0.8m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-72B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-72B-Chat",
+                InputCost = 0.9m,
+                OutputCost = 0.9m
+            }
+        },
+        {
+            "mistralai/Mistral-7B-Instruct-v0.3", new CompletionModel
+            {
+                Id = "mistralai/Mistral-7B-Instruct-v0.3",
+                InputCost = 0.2m,
+                OutputCost = 0.2m
+            }
+        },
+        {
+            "Qwen/Qwen1.5-110B-Chat", new CompletionModel
+            {
+                Id = "Qwen/Qwen1.5-110B-Chat",
+                InputCost = 1.8m,
+                OutputCost = 1.8m
+            }
+        },
+        {
+            "mistralai/Mixtral-8x7B-Instruct-v0.1", new CompletionModel
+            {
+                Id = "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                InputCost = 0.6m,
+                OutputCost = 0.6m
+            }
+        },
     };
-
-    private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
-    {
-        { "Qwen/Qwen2-72B-Instruct", 0.9m },
-        { "meta-llama/Llama-3-70b-chat-hf", 0.9m },
-        { "Snowflake/snowflake-arctic-instruct", 2.4m },
-        { "meta-llama/Llama-3-8b-chat-hf", 0.2m },
-        { "microsoft/WizardLM-2-8x22B", 1.2m },
-        { "databricks/dbrx-instruct", 1.2m },
-        { "allenai/OLMo-7B-Instruct", 0.2m },
-        { "deepseek-ai/deepseek-llm-67b-chat", 0.9m },
-        { "google/gemma-7b-it", 0.2m },
-        { "google/gemma-2b-it", 0.1m },
-        { "NousResearch/Nous-Hermes-2-Mistral-7B-DPO", 0.2m },
-        { "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT", 0.6m },
-        { "NousResearch/Nous-Hermes-2-Yi-34B", 0.8m },
-        { "codellama/CodeLlama-70b-Instruct-hf", 0.9m },
-        { "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO", 0.6m },
-        { "snorkelai/Snorkel-Mistral-PairRM-DPO", 0.2m },
-        { "deepseek-ai/deepseek-coder-33b-instruct", 0.8m },
-        { "zero-one-ai/Yi-34B-Chat", 0.8m },
-        { "NousResearch/Nous-Hermes-Llama2-13b", 0.3m },
-        { "NousResearch/Nous-Hermes-llama-2-7b", 0.2m },
-        { "togethercomputer/Llama-2-7B-32K-Instruct", 0.2m },
-        { "meta-llama/Llama-2-70b-chat-hf", 0.9m },
-        { "meta-llama/Llama-2-13b-chat-hf", 0.22m },
-        { "meta-llama/Llama-2-7b-chat-hf", 0.2m },
-        { "codellama/CodeLlama-13b-Instruct-hf", 0.22m },
-        { "codellama/CodeLlama-34b-Instruct-hf", 0.78m },
-        { "codellama/CodeLlama-7b-Instruct-hf", 0.2m },
-        { "NousResearch/Nous-Capybara-7B-V1p9", 0.2m },
-        { "teknium/OpenHermes-2p5-Mistral-7B", 0.2m },
-        { "Open-Orca/Mistral-7B-OpenOrca", 0.2m },
-        { "teknium/OpenHermes-2-Mistral-7B", 0.2m },
-        { "Austism/chronos-hermes-13b", 0.3m },
-        { "garage-bAInd/Platypus2-70B-instruct", 0.9m },
-        { "Gryphe/MythoMax-L2-13b", 0.3m },
-        { "togethercomputer/alpaca-7b", 0.2m },
-        { "WizardLM/WizardLM-13B-V1.2", 0.2m },
-        { "upstage/SOLAR-10.7B-Instruct-v1.0", 0.3m },
-        { "OpenAssistant/llama2-70b-oasst-sft-v10", 0.9m },
-        { "openchat/openchat-3.5-1210", 0.2m },
-        { "Qwen/Qwen1.5-7B-Chat", 0.2m },
-        { "Qwen/Qwen1.5-14B-Chat", 0.3m },
-        { "Qwen/Qwen1.5-1.8B-Chat", 0.1m },
-        { "cognitivecomputations/dolphin-2.5-mixtral-8x7b", 0.6m },
-        { "mistralai/Mixtral-8x22B-Instruct-v0.1", 1.2m },
-        { "lmsys/vicuna-13b-v1.5", 0.3m },
-        { "Qwen/Qwen1.5-0.5B-Chat", 0.1m },
-        { "Qwen/Qwen1.5-4B-Chat", 0.1m },
-        { "mistralai/Mistral-7B-Instruct-v0.1", 0.2m },
-        { "mistralai/Mistral-7B-Instruct-v0.2", 0.2m },
-        { "togethercomputer/Pythia-Chat-Base-7B", 0.2m },
-        { "Qwen/Qwen1.5-32B-Chat", 0.8m },
-        { "Qwen/Qwen1.5-72B-Chat", 0.9m },
-        { "mistralai/Mistral-7B-Instruct-v0.3", 0.2m },
-        { "Qwen/Qwen1.5-110B-Chat", 1.8m },
-        { "mistralai/Mixtral-8x7B-Instruct-v0.1", 0.6m },
-    };
+    
+    public string Id => ProviderIds.TogetherAi;
     
     public async Task<CompletionResponse> CompleteAsync(
         CompletionRequest request, 
         CancellationToken cancellationToken)
     {
-        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
+        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
         {
             return new CompletionResponse
             {
@@ -145,58 +481,15 @@ internal class TogetherAiCompletionProvider(
         var client = httpClientFactory.CreateClient(ProviderIds.TogetherAi);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-        var togetherAiInput = inputMapper.Map(request.Input) as TogetherAiCompletionInput;
-        if (togetherAiInput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-            };
-        }
+        var togetherAiInput = PrepareInput(request);
+        var requestJson = RoutifyJsonSerializer.Serialize(togetherAiInput);
+        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        if (!string.IsNullOrWhiteSpace(request.Model))
-            togetherAiInput.Model = request.Model;
-
-        if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
-            && !string.IsNullOrWhiteSpace(systemPrompt))
-        {
-            togetherAiInput.Messages.Insert(0, new TogetherAiCompletionMessageInput
-            {
-                Content = systemPrompt,
-                Role = "system"
-            });
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
-            && !string.IsNullOrWhiteSpace(temperatureString) 
-            && float.TryParse(temperatureString, out var temperature))
-        {
-            togetherAiInput.Temperature = temperature;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString) 
-            && !string.IsNullOrWhiteSpace(maxTokensString) 
-            && int.TryParse(maxTokensString, out var maxTokens))
-        {
-            togetherAiInput.MaxTokens = maxTokens;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("frequencyPenalty", out var frequencyPenaltyString) 
-            && !string.IsNullOrWhiteSpace(frequencyPenaltyString) 
-            && float.TryParse(frequencyPenaltyString, out var frequencyPenalty))
-        {
-            togetherAiInput.FrequencyPenalty = frequencyPenalty;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("presencePenalty", out var presencePenaltyString) 
-            && !string.IsNullOrWhiteSpace(presencePenaltyString) 
-            && float.TryParse(presencePenaltyString, out var presencePenalty))
-        {
-            togetherAiInput.PresencePenalty = presencePenalty;
-        }
-        
-        var response = await client.PostAsJsonAsync("chat/completions", togetherAiInput, cancellationToken);
+        var response = await client.PostAsync("chat/completions", requestContent, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        
+        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
+        var responseLog = response.ToResponseLog(responseBody);
         
         if (!response.IsSuccessStatusCode)
         {
@@ -204,15 +497,19 @@ internal class TogetherAiCompletionProvider(
             {
                 StatusCode = (int)response.StatusCode,
                 Error = responseBody,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
-        var responseOutput = JsonSerializer.Deserialize<TogetherAiCompletionOutput>(responseBody);
+        var responseOutput = RoutifyJsonSerializer.Deserialize<TogetherAiCompletionOutput>(responseBody);
         if (responseOutput == null)
         {
             return new CompletionResponse
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
@@ -224,34 +521,78 @@ internal class TogetherAiCompletionProvider(
             InputTokens = usage.PromptTokens,
             OutputTokens = usage.CompletionTokens,
             Output = responseOutput,
-            InputCost = CalculateInputCost(responseOutput.Model, usage.PromptTokens),
-            OutputCost = CalculateOutputCost(responseOutput.Model, usage.CompletionTokens)
+            RequestLog = requestLog,
+            ResponseLog = responseLog
         };
+        
+        if (Models.TryGetValue(responseOutput.Model, out var model))
+        {
+            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
+            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
+        }
 
         return completionResponse;
     }
-    
-    private static decimal CalculateInputCost(
-        string model,
-        int tokens)
+
+    private static TogetherAiCompletionInput PrepareInput(
+        CompletionRequest request)
     {
-        if (ModelInputCosts.TryGetValue(model, out var cost))
+        var togetherAiInput = TogetherAiCompletionInputMapper.Map(request.Input);
+        
+        if (!string.IsNullOrWhiteSpace(request.RouteProvider.Model))
+            togetherAiInput.Model = request.RouteProvider.Model;
+
+        if (request.RouteProvider.Attrs.TryGetValue("systemPrompt", out var systemPrompt)
+            && !string.IsNullOrWhiteSpace(systemPrompt))
         {
-            return cost / 1000000 * tokens;
+            togetherAiInput.Messages.Insert(0, new TogetherAiCompletionMessageInput
+            {
+                Content = systemPrompt,
+                Role = "system"
+            });
         }
 
-        return 0;
+        if (request.RouteProvider.Attrs.TryGetValue("temperature", out var temperatureString) 
+            && !string.IsNullOrWhiteSpace(temperatureString) 
+            && float.TryParse(temperatureString, out var temperature))
+        {
+            togetherAiInput.Temperature = temperature;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("maxTokens", out var maxTokensString) 
+            && !string.IsNullOrWhiteSpace(maxTokensString) 
+            && int.TryParse(maxTokensString, out var maxTokens))
+        {
+            togetherAiInput.MaxTokens = maxTokens;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("frequencyPenalty", out var frequencyPenaltyString) 
+            && !string.IsNullOrWhiteSpace(frequencyPenaltyString) 
+            && float.TryParse(frequencyPenaltyString, out var frequencyPenalty))
+        {
+            togetherAiInput.FrequencyPenalty = frequencyPenalty;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("presencePenalty", out var presencePenaltyString) 
+            && !string.IsNullOrWhiteSpace(presencePenaltyString) 
+            && float.TryParse(presencePenaltyString, out var presencePenalty))
+        {
+            togetherAiInput.PresencePenalty = presencePenalty;
+        }
+
+        return togetherAiInput;
+    }
+    
+    public ICompletionInput? ParseInput(
+        string input)
+    {
+        return RoutifyJsonSerializer.Deserialize<TogetherAiCompletionInput>(input);
     }
 
-    private static decimal CalculateOutputCost(
-        string model,
-        int tokens)
+    public string SerializeOutput(
+        ICompletionOutput output)
     {
-        if (ModelOutputCosts.TryGetValue(model, out var cost))
-        {
-            return cost / 1000000 * tokens;
-        }
-
-        return 0;
+        var openAiOutput = TogetherAiCompletionOutputMapper.Map(output);
+        return RoutifyJsonSerializer.Serialize(openAiOutput);
     }
 }

@@ -14,8 +14,5 @@ internal static class DependencyInjection
         });
 
         services.AddKeyedScoped<ICompletionProvider, AnthropicCompletionProvider>(ProviderIds.Anthropic);
-        services.AddKeyedScoped<ICompletionInputMapper, AnthropicCompletionInputMapper>(ProviderIds.Anthropic);
-        services.AddKeyedScoped<ICompletionOutputMapper, AnthropicCompletionOutputMapper>(ProviderIds.Anthropic);
-        services.AddKeyedScoped<ICompletionSerializer, AnthropicCompletionSerializer>(ProviderIds.Anthropic);
     }
 }

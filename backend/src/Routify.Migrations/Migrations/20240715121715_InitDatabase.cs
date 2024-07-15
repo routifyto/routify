@@ -44,10 +44,12 @@ namespace Routify.Migrations.Migrations
                     app_provider_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     route_provider_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     api_key_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    session_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
-                    request_body = table.Column<string>(type: "text", nullable: false),
-                    response_status_code = table.Column<int>(type: "integer", nullable: false),
-                    response_body = table.Column<string>(type: "text", nullable: false),
+                    consumer_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    session_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    gateway_request = table.Column<string>(type: "jsonb", nullable: false),
+                    provider_request = table.Column<string>(type: "jsonb", nullable: true),
+                    gateway_response = table.Column<string>(type: "jsonb", nullable: true),
+                    provider_response = table.Column<string>(type: "jsonb", nullable: true),
                     input_tokens = table.Column<int>(type: "integer", nullable: false),
                     output_tokens = table.Column<int>(type: "integer", nullable: false),
                     input_cost = table.Column<decimal>(type: "numeric", nullable: false),
@@ -81,6 +83,40 @@ namespace Routify.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "routify_api_keys",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    app_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    can_use_gateway = table.Column<bool>(type: "boolean", nullable: false),
+                    role = table.Column<int>(type: "integer", nullable: true),
+                    prefix = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    hash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    salt = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    suffix = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    algorithm = table.Column<int>(type: "integer", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_by = table.Column<string>(type: "text", nullable: false),
+                    updated_by = table.Column<string>(type: "text", nullable: true),
+                    version_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_routify_api_keys", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_routify_api_keys_routify_apps_app_id",
+                        column: x => x.app_id,
+                        principalTable: "routify_apps",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "routify_app_providers",
                 columns: table => new
                 {
@@ -103,6 +139,33 @@ namespace Routify.Migrations.Migrations
                     table.PrimaryKey("PK_routify_app_providers", x => x.id);
                     table.ForeignKey(
                         name: "FK_routify_app_providers_routify_apps_app_id",
+                        column: x => x.app_id,
+                        principalTable: "routify_apps",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "routify_consumers",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    app_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    alias = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    created_by = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    updated_by = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    version_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_routify_consumers", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_routify_consumers_routify_apps_app_id",
                         column: x => x.app_id,
                         principalTable: "routify_apps",
                         principalColumn: "id",
@@ -213,6 +276,11 @@ namespace Routify.Migrations.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_routify_api_keys_app_id",
+                table: "routify_api_keys",
+                column: "app_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_routify_app_providers_app_id",
                 table: "routify_app_providers",
                 column: "app_id");
@@ -232,6 +300,16 @@ namespace Routify.Migrations.Migrations
                 table: "routify_app_users",
                 columns: new[] { "user_id", "app_id" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_routify_completion_logs_app_id",
+                table: "routify_completion_logs",
+                column: "app_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_routify_consumers_app_id",
+                table: "routify_consumers",
+                column: "app_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_routify_route_providers_app_id",
@@ -264,10 +342,16 @@ namespace Routify.Migrations.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "routify_api_keys");
+
+            migrationBuilder.DropTable(
                 name: "routify_app_users");
 
             migrationBuilder.DropTable(
                 name: "routify_completion_logs");
+
+            migrationBuilder.DropTable(
+                name: "routify_consumers");
 
             migrationBuilder.DropTable(
                 name: "routify_route_providers");

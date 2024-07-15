@@ -18,7 +18,7 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-export function parseApiError(error: unknown) {
+export function parseApiError(error: unknown): ApiErrorOutput {
   if (isAxiosError(error) && error.response) {
     if (
       error.response.data &&

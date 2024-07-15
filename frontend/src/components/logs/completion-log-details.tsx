@@ -1,8 +1,14 @@
 import React from 'react';
 import { CompletionLogOutput } from '@/types/logs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { NavLink } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { cn, formatJson } from '@/lib/utils';
 import { useApp } from '@/contexts/app';
 import { providers } from '@/types/providers';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -157,7 +163,11 @@ export function CompletionLogDetails({
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Request</CardTitle>
+              <CardTitle>Original request</CardTitle>
+              <CardDescription className="flex flex-row gap-2">
+                <span>{completionLog.gatewayRequest.method}</span>
+                <span>{completionLog.gatewayRequest.url}</span>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <SyntaxHighlighter
@@ -165,13 +175,34 @@ export function CompletionLogDetails({
                 language="json"
                 style={docco}
               >
-                {completionLog.requestBody}
+                {formatJson(completionLog.gatewayRequest?.body)}
+              </SyntaxHighlighter>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Provider request</CardTitle>
+              <CardDescription className="flex flex-row gap-2">
+                <span>{completionLog.providerRequest?.method}</span>
+                <span>{completionLog.providerRequest?.url}</span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SyntaxHighlighter
+                className="rounded-md bg-white p-3 text-sm"
+                language="json"
+                style={docco}
+              >
+                {formatJson(completionLog.providerRequest?.body)}
               </SyntaxHighlighter>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle>Response</CardTitle>
+              <CardDescription>
+                {completionLog.gatewayResponse?.statusCode}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <SyntaxHighlighter
@@ -179,7 +210,7 @@ export function CompletionLogDetails({
                 language="json"
                 style={docco}
               >
-                {completionLog.responseBody}
+                {formatJson(completionLog.gatewayResponse?.body)}
               </SyntaxHighlighter>
             </CardContent>
           </Card>

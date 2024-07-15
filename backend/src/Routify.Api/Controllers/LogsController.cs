@@ -142,9 +142,36 @@ public class LogsController(
             RouteProviderId = completionLog.RouteProviderId,
             ApiKeyId = completionLog.ApiKeyId,
             SessionId = completionLog.SessionId,
-            RequestBody = completionLog.RequestBody,
-            ResponseStatusCode = completionLog.ResponseStatusCode,
-            ResponseBody = completionLog.ResponseBody,
+            ConsumerId = completionLog.ConsumerId,
+            GatewayRequest = new RequestLogOutput
+                {
+                    Url = completionLog.GatewayRequest.Url,
+                    Method = completionLog.GatewayRequest.Method,
+                    Headers = completionLog.GatewayRequest.Headers,
+                    Body = completionLog.GatewayRequest.Body
+                },
+            ProviderRequest = completionLog.ProviderRequest != null ?
+                new RequestLogOutput
+                {
+                    Url = completionLog.ProviderRequest.Url,
+                    Method = completionLog.ProviderRequest.Method,
+                    Headers = completionLog.ProviderRequest.Headers,
+                    Body = completionLog.ProviderRequest.Body
+                } : null,
+            GatewayResponse = completionLog.GatewayResponse != null ?
+                new ResponseLogOutput
+                {
+                    StatusCode = completionLog.GatewayResponse.StatusCode,
+                    Headers = completionLog.GatewayResponse.Headers,
+                    Body = completionLog.GatewayResponse.Body
+                } : null,
+            ProviderResponse = completionLog.ProviderResponse != null ?
+                new ResponseLogOutput
+                {
+                    StatusCode = completionLog.ProviderResponse.StatusCode,
+                    Headers = completionLog.ProviderResponse.Headers,
+                    Body = completionLog.ProviderResponse.Body
+                } : null,
             InputTokens = completionLog.InputTokens,
             OutputTokens = completionLog.OutputTokens,
             InputCost = completionLog.InputCost,

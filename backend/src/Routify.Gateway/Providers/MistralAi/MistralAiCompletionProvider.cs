@@ -1,41 +1,76 @@
 using System.Net;
-using System.Text.Json;
+using System.Text;
 using Routify.Core.Constants;
+using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Extensions;
 using Routify.Gateway.Providers.MistralAi.Models;
 
 namespace Routify.Gateway.Providers.MistralAi;
 
 internal class MistralAiCompletionProvider(
-    IHttpClientFactory httpClientFactory,
-    [FromKeyedServices(ProviderIds.MistralAi)] ICompletionInputMapper inputMapper) 
+    IHttpClientFactory httpClientFactory)
     : ICompletionProvider
 {
-    private static readonly Dictionary<string, decimal> ModelInputCosts = new()
+    private static readonly Dictionary<string, CompletionModel> Models = new()
     {
-        { "open-mistral-7b", 0.25m },
-        { "open-mixtral-8x7b", 0.7m },
-        { "open-mixtral-8x22b", 2m },
-        { "mistral-small-2402", 1m },
-        { "codestral-2405", 1m },
-        { "mistral-large-2402", 4m },
+        {
+            "open-mistral-7b", new CompletionModel
+            {
+                Id = "open-mistral-7b",
+                InputCost = 0.25m,
+                OutputCost = 1m
+            }
+        },
+        {
+            "open-mixtral-8x7b", new CompletionModel
+            {
+                Id = "open-mixtral-8x7b",
+                InputCost = 0.7m,
+                OutputCost = 0.7m
+            }
+        },
+        {
+            "open-mixtral-8x22b", new CompletionModel
+            {
+                Id = "open-mixtral-8x22b",
+                InputCost = 2m,
+                OutputCost = 6m
+            }
+        },
+        {
+            "mistral-small-2402", new CompletionModel
+            {
+                Id = "mistral-small-2402",
+                InputCost = 1m,
+                OutputCost = 3m
+            }
+        },
+        {
+            "codestral-2405", new CompletionModel
+            {
+                Id = "codestral-2405",
+                InputCost = 1m,
+                OutputCost = 3m
+            }
+        },
+        {
+            "mistral-large-2402", new CompletionModel
+            {
+                Id = "mistral-large-2402",
+                InputCost = 4m,
+                OutputCost = 12m
+            }
+        }
     };
 
-    private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
-    {
-        { "open-mistral-7b", 1m },
-        { "open-mixtral-8x7b", 0.7m },
-        { "open-mixtral-8x22b", 6m },
-        { "mistral-small-2402", 3m },
-        { "codestral-2405", 3m },
-        { "mistral-large-2402", 12m },
-    };
+    public string Id => ProviderIds.MistralAi;
     
     public async Task<CompletionResponse> CompleteAsync(
         CompletionRequest request, 
         CancellationToken cancellationToken)
     {
-        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
+        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
         {
             return new CompletionResponse
             {
@@ -46,44 +81,15 @@ internal class MistralAiCompletionProvider(
         var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-        var mistralAiInput = inputMapper.Map(request.Input) as MistralAiCompletionInput;
-        if (mistralAiInput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-            };
-        }
+        var mistralAiInput = PrepareInput(request);
+        var requestJson = RoutifyJsonSerializer.Serialize(mistralAiInput);
+        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        if (!string.IsNullOrWhiteSpace(request.Model))
-            mistralAiInput.Model = request.Model;
-
-        if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
-            && !string.IsNullOrWhiteSpace(systemPrompt))
-        {
-            mistralAiInput.Messages.Insert(0, new MistralAiCompletionMessageInput
-            {
-                Content = systemPrompt,
-                Role = "system"
-            });
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
-            && !string.IsNullOrWhiteSpace(temperatureString) 
-            && float.TryParse(temperatureString, out var temperature))
-        {
-            mistralAiInput.Temperature = temperature;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString) 
-            && !string.IsNullOrWhiteSpace(maxTokensString) 
-            && int.TryParse(maxTokensString, out var maxTokens))
-        {
-            mistralAiInput.MaxTokens = maxTokens;
-        }
-
-        var response = await client.PostAsJsonAsync("chat/completions", mistralAiInput, cancellationToken);
+        var response = await client.PostAsync("chat/completions", requestContent, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        
+        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
+        var responseLog = response.ToResponseLog(responseBody);
         
         if (!response.IsSuccessStatusCode)
         {
@@ -91,15 +97,19 @@ internal class MistralAiCompletionProvider(
             {
                 StatusCode = (int)response.StatusCode,
                 Error = responseBody,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
-        var responseOutput = JsonSerializer.Deserialize<MistralAiCompletionOutput>(responseBody);
+        var responseOutput = RoutifyJsonSerializer.Deserialize<MistralAiCompletionOutput>(responseBody);
         if (responseOutput == null)
         {
             return new CompletionResponse
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
@@ -111,34 +121,63 @@ internal class MistralAiCompletionProvider(
             InputTokens = usage.PromptTokens,
             OutputTokens = usage.CompletionTokens,
             Output = responseOutput,
-            InputCost = CalculateInputCost(responseOutput.Model, usage.PromptTokens),
-            OutputCost = CalculateOutputCost(responseOutput.Model, usage.CompletionTokens)
+            RequestLog = requestLog,
+            ResponseLog = responseLog
         };
+        
+        if (Models.TryGetValue(responseOutput.Model, out var model))
+        {
+            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
+            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
+        }
 
         return completionResponse;
     }
-    
-    private static decimal CalculateInputCost(
-        string model,
-        int tokens)
+
+    private static MistralAiCompletionInput PrepareInput(
+        CompletionRequest request)
     {
-        if (ModelInputCosts.TryGetValue(model, out var cost))
+        var mistralAiInput = MistralAiCompletionInputMapper.Map(request.Input);
+        if (!string.IsNullOrWhiteSpace(request.RouteProvider.Model))
+            mistralAiInput.Model = request.RouteProvider.Model;
+
+        if (request.RouteProvider.Attrs.TryGetValue("systemPrompt", out var systemPrompt)
+            && !string.IsNullOrWhiteSpace(systemPrompt))
         {
-            return cost / 1000000 * tokens;
+            mistralAiInput.Messages.Insert(0, new MistralAiCompletionMessageInput
+            {
+                Content = systemPrompt,
+                Role = "system"
+            });
         }
 
-        return 0;
+        if (request.RouteProvider.Attrs.TryGetValue("temperature", out var temperatureString) 
+            && !string.IsNullOrWhiteSpace(temperatureString) 
+            && float.TryParse(temperatureString, out var temperature))
+        {
+            mistralAiInput.Temperature = temperature;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("maxTokens", out var maxTokensString) 
+            && !string.IsNullOrWhiteSpace(maxTokensString) 
+            && int.TryParse(maxTokensString, out var maxTokens))
+        {
+            mistralAiInput.MaxTokens = maxTokens;
+        }
+        
+        return mistralAiInput;
+    }
+    
+    public ICompletionInput? ParseInput(
+        string input)
+    {
+        return RoutifyJsonSerializer.Deserialize<MistralAiCompletionInput>(input);
     }
 
-    private static decimal CalculateOutputCost(
-        string model,
-        int tokens)
+    public string SerializeOutput(
+        ICompletionOutput output)
     {
-        if (ModelOutputCosts.TryGetValue(model, out var cost))
-        {
-            return cost / 1000000 * tokens;
-        }
-
-        return 0;
+        var openAiOutput = MistralAiCompletionOutputMapper.Map(output);
+        return RoutifyJsonSerializer.Serialize(openAiOutput);
     }
 }

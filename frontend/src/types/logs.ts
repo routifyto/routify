@@ -5,6 +5,19 @@ export type LogRouteOutput = {
   path: string;
 };
 
+export type RequestLogOutput = {
+  url?: string | null;
+  method?: string | null;
+  headers?: Record<string, string> | null;
+  body?: string | null;
+};
+
+export type ResponseLogOutput = {
+  statusCode: number;
+  headers?: Record<string, string> | null;
+  body?: string | null;
+};
+
 export type LogAppProviderOutput = {
   id: string;
   name: string;
@@ -36,9 +49,7 @@ export type CompletionLogOutput = {
   routeProviderId: string;
   apiKeyId: string;
   sessionId: string | null;
-  requestBody: string;
-  responseStatusCode: number;
-  responseBody: string;
+  consumerId: string | null;
   inputTokens: number;
   outputTokens: number;
   inputCost: number;
@@ -46,6 +57,11 @@ export type CompletionLogOutput = {
   startedAt: string;
   endedAt: string;
   duration: number;
+
+  gatewayRequest: RequestLogOutput;
+  providerRequest: RequestLogOutput | null;
+  gatewayResponse: ResponseLogOutput | null;
+  providerResponse: ResponseLogOutput | null;
 
   route: LogRouteOutput | null;
   appProvider: LogAppProviderOutput | null;

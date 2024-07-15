@@ -1,37 +1,60 @@
 using System.Net;
-using System.Text.Json;
+using System.Text;
 using Routify.Core.Constants;
+using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Extensions;
 using Routify.Gateway.Providers.Anthropic.Models;
 
 namespace Routify.Gateway.Providers.Anthropic;
 
 internal class AnthropicCompletionProvider(
-    IHttpClientFactory httpClientFactory,
-    [FromKeyedServices(ProviderIds.Anthropic)] ICompletionInputMapper inputMapper)
+    IHttpClientFactory httpClientFactory)
     : ICompletionProvider
 {
-    private static readonly Dictionary<string, decimal> ModelInputCosts = new()
+    private static readonly Dictionary<string, CompletionModel> Models = new()
     {
-        { "claude-3-5-sonnet-20240620", 3m },
-        { "claude-3-opus-20240229", 15m },
-        { "claude-3-sonnet-20240229", 3m },
-        { "claude-3-haiku-20240307", 0.25m },
+        {
+            "claude-3-5-sonnet-20240620", new CompletionModel
+            {
+                Id = "claude-3-5-sonnet-20240620",
+                InputCost = 3m,
+                OutputCost = 15m,
+            }
+        },
+        {
+            "claude-3-opus-20240229", new CompletionModel
+            {
+                Id = "claude-3-opus-20240229",
+                InputCost = 15m,
+                OutputCost = 75m,
+            }
+        },
+        {
+            "claude-3-sonnet-20240229", new CompletionModel
+            {
+                Id = "claude-3-sonnet-20240229",
+                InputCost = 3m,
+                OutputCost = 5m,
+            }
+        },
+        {
+            "claude-3-haiku-20240307", new CompletionModel
+            {
+                Id = "claude-3-haiku-20240307",
+                InputCost = 0.25m,
+                OutputCost = 1.25m,
+            }
+        }
     };
 
-    private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
-    {
-        { "claude-3-5-sonnet-20240620", 15m },
-        { "claude-3-opus-20240229", 75m },
-        { "claude-3-sonnet-20240229", 5m },
-        { "claude-3-haiku-20240307", 1.25m },
-    };
-
+    public string Id => ProviderIds.Anthropic;
+    
     public async Task<CompletionResponse> CompleteAsync(
         CompletionRequest request,
         CancellationToken cancellationToken)
     {
-        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
+        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
         {
             return new CompletionResponse
             {
@@ -39,43 +62,19 @@ internal class AnthropicCompletionProvider(
             };
         }
 
-        var client = httpClientFactory.CreateClient(ProviderIds.Anthropic);
+        var client = httpClientFactory.CreateClient(Id);
         client.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
-        var anthropicInput = inputMapper.Map(request.Input) as AnthropicCompletionInput;
-        if (anthropicInput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-            };
-        }
 
-        if (!string.IsNullOrWhiteSpace(request.Model))
-            anthropicInput.Model = request.Model;
-
-        if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
-            && !string.IsNullOrWhiteSpace(systemPrompt))
-        {
-            anthropicInput.System = systemPrompt;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString)
-            && !string.IsNullOrWhiteSpace(temperatureString)
-            && float.TryParse(temperatureString, out var temperature))
-        {
-            anthropicInput.Temperature = temperature;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString)
-            && !string.IsNullOrWhiteSpace(maxTokensString)
-            && int.TryParse(maxTokensString, out var maxTokens))
-        {
-            anthropicInput.MaxTokens = maxTokens;
-        }
-
-        var response = await client.PostAsJsonAsync("messages", anthropicInput, cancellationToken);
+        var anthropicInput = PrepareInput(request);
+        var requestJson = RoutifyJsonSerializer.Serialize(anthropicInput);
+        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
+        
+        var response = await client.PostAsync("messages", requestContent, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
+        
+        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
+        var responseLog = response.ToResponseLog(responseBody);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -83,15 +82,19 @@ internal class AnthropicCompletionProvider(
             {
                 StatusCode = (int)response.StatusCode,
                 Error = responseBody,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
-        var responseOutput = JsonSerializer.Deserialize<AnthropicCompletionOutput>(responseBody);
+        var responseOutput = RoutifyJsonSerializer.Deserialize<AnthropicCompletionOutput>(responseBody);
         if (responseOutput == null)
         {
             return new CompletionResponse
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
@@ -103,34 +106,60 @@ internal class AnthropicCompletionProvider(
             InputTokens = usage.InputTokens,
             OutputTokens = usage.OutputTokens,
             Output = responseOutput,
-            InputCost = CalculateInputCost(responseOutput.Model, usage.InputTokens),
-            OutputCost = CalculateOutputCost(responseOutput.Model, usage.OutputTokens)
+            RequestLog = requestLog,
+            ResponseLog = responseLog
         };
+        
+        if (Models.TryGetValue(responseOutput.Model, out var model))
+        {
+            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.InputTokens;
+            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.OutputTokens;
+        }
 
         return completionResponse;
     }
 
-    private static decimal CalculateInputCost(
-        string model,
-        int tokens)
+    private static AnthropicCompletionInput PrepareInput(
+        CompletionRequest request)
     {
-        if (ModelInputCosts.TryGetValue(model, out var cost))
+        
+        var anthropicInput = AnthropicCompletionInputMapper.Map(request.Input);
+        if (!string.IsNullOrWhiteSpace(request.RouteProvider.Model))
+            anthropicInput.Model = request.RouteProvider.Model;
+
+        if (request.RouteProvider.Attrs.TryGetValue("systemPrompt", out var systemPrompt)
+            && !string.IsNullOrWhiteSpace(systemPrompt))
         {
-            return cost / 1000000 * tokens;
+            anthropicInput.System = systemPrompt;
         }
 
-        return 0;
+        if (request.RouteProvider.Attrs.TryGetValue("temperature", out var temperatureString)
+            && !string.IsNullOrWhiteSpace(temperatureString)
+            && float.TryParse(temperatureString, out var temperature))
+        {
+            anthropicInput.Temperature = temperature;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("maxTokens", out var maxTokensString)
+            && !string.IsNullOrWhiteSpace(maxTokensString)
+            && int.TryParse(maxTokensString, out var maxTokens))
+        {
+            anthropicInput.MaxTokens = maxTokens;
+        }
+        
+        return anthropicInput;
+    }
+    
+    public ICompletionInput? ParseInput(
+        string input)
+    {
+        return RoutifyJsonSerializer.Deserialize<AnthropicCompletionInput>(input);
     }
 
-    private static decimal CalculateOutputCost(
-        string model,
-        int tokens)
+    public string SerializeOutput(
+        ICompletionOutput output)
     {
-        if (ModelOutputCosts.TryGetValue(model, out var cost))
-        {
-            return cost / 1000000 * tokens;
-        }
-
-        return 0;
+        var openAiOutput = AnthropicCompletionOutputMapper.Map(output);
+        return RoutifyJsonSerializer.Serialize(openAiOutput);
     }
 }

@@ -1,10 +1,11 @@
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
+using Routify.Data.Common;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Services;
 
 namespace Routify.Gateway.Handlers;
@@ -14,14 +15,6 @@ internal class CompletionHandler(
     LogService logService)
     : IRequestHandler
 {
-    private static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-    
     public async Task HandleAsync(
         RequestContext context,
         CancellationToken cancellationToken)
@@ -33,100 +26,92 @@ internal class CompletionHandler(
             RouteId = context.Route.Id,
             Path = context.Route.Path,
             StartedAt = DateTime.UtcNow,
-            ApiKeyId = context.ApiKey.Id
+            ApiKeyId = context.ApiKey.Id,
+            ConsumerId = context.Consumer?.Id,
+            GatewayRequest = context.HttpContext.Request.ToRequestLog(),
         };
-        
+
         try
         {
             var httpContext = context.HttpContext;
             var request = httpContext.Request;
-            
-            var serializer = serviceProvider.GetKeyedService<ICompletionSerializer>(ProviderIds.OpenAi);
-            if (serializer == null)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                return;
-            }
-            
+
             var requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
-            var input = serializer.Parse(requestBody);
+            log.GatewayRequest.Body = requestBody;
+
+            var schemaProvider = serviceProvider.GetKeyedService<ICompletionProvider>(ProviderIds.OpenAi);
+            if (schemaProvider == null)
+                throw new GatewayException(HttpStatusCode.NotImplemented);
+
+            var input = schemaProvider.ParseInput(requestBody);
             if (input == null)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return;
-            }
-            
+                throw new GatewayException(HttpStatusCode.BadRequest);
+
             var routeProvider = context.Route.Providers.FirstOrDefault();
             if (routeProvider == null)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                return;
-            }
-            
+                throw new GatewayException(HttpStatusCode.NotImplemented);
+
             var appProvider = context.App.GetProviderById(routeProvider.AppProviderId);
             if (appProvider == null)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                return;
-            }
-            
+                throw new GatewayException(HttpStatusCode.NotImplemented);
+
             var completionProvider = serviceProvider.GetKeyedService<ICompletionProvider>(appProvider.Provider);
             if (completionProvider == null)
-            {
-                httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                return;
-            }
+                throw new GatewayException(HttpStatusCode.NotImplemented);
 
-            var completionRequest = new CompletionRequest
-            {
-                Timeout = 10,
-                Input = input,
-                AppProviderAttrs = appProvider.Attrs,
-                RouteProviderAttrs = routeProvider.Attrs,
-                Model = routeProvider.Model
-            };
-            
-            var completionResponse = await completionProvider.CompleteAsync(completionRequest, cancellationToken);
-        
-            log.RequestBody = requestBody;
             log.AppProviderId = appProvider.Id;
             log.RouteProviderId = routeProvider.Id;
             log.Provider = appProvider.Provider;
+            
+            var completionRequest = new CompletionRequest
+            {
+                Input = input,
+                AppProvider = appProvider,
+                RouteProvider = routeProvider,
+            };
+
+            var completionResponse = await completionProvider.CompleteAsync(completionRequest, cancellationToken);
+            var responseBody = string.Empty;
+            if (completionResponse.Output != null)
+            {
+                responseBody = schemaProvider.SerializeOutput(completionResponse.Output);
+            }
+            else if (string.IsNullOrWhiteSpace(completionResponse.Error))
+            {
+                responseBody = completionResponse.Error;
+            }
+            
             log.Model = completionResponse.Model;
-            log.ResponseStatusCode = completionResponse.StatusCode;
             log.InputTokens = completionResponse.InputTokens;
             log.OutputTokens = completionResponse.OutputTokens;
             log.InputCost = completionResponse.InputCost;
             log.OutputCost = completionResponse.OutputCost;
+            log.ProviderRequest = completionResponse.RequestLog;
+            log.ProviderResponse = completionResponse.ResponseLog;
+            
+            log.GatewayResponse = new ResponseLog
+            {
+                StatusCode = completionResponse.StatusCode,
+                Body = responseBody ?? string.Empty,
+                Headers = context.HttpContext.Response.GetHeaders()
+            };
             
             context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
-            if (completionResponse.Output != null)
+            context.HttpContext.Response.ContentType = "application/json";
+            await context.HttpContext.Response.WriteAsync(responseBody ?? string.Empty, cancellationToken);
+        }
+        catch (GatewayException ex)
+        {
+            context.HttpContext.Response.StatusCode = (int)ex.StatusCode;
+            if (!string.IsNullOrWhiteSpace(ex.Body))
             {
-                var outputMapper = serviceProvider.GetKeyedService<ICompletionOutputMapper>(ProviderIds.OpenAi);
-                if (outputMapper == null)
-                {
-                    httpContext.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-                    return;
-                }
-                
-                var responseOutput = outputMapper.Map(completionResponse.Output);
-                var responseBody = serializer.Serialize(responseOutput, Options);
-                log.ResponseBody = responseBody;
                 context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.WriteAsync(responseBody, cancellationToken);    
+                await context.HttpContext.Response.WriteAsync(ex.Body, cancellationToken);
             }
-            else if (completionResponse.Error != null)
-            {
-                log.ResponseBody = completionResponse.Error;
-                context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.WriteAsync(completionResponse.Error, cancellationToken);
-            }
-            else
-            {
-                log.ResponseBody = string.Empty;
-                context.HttpContext.Response.ContentType = "application/json";
-                await context.HttpContext.Response.WriteAsync(string.Empty, cancellationToken);
-            }
+        }
+        catch (Exception)
+        {
+            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }
         finally
         {

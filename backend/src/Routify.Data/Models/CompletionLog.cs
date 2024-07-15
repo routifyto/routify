@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Routify.Core.Utils;
+using Routify.Data.Common;
 
 namespace Routify.Data.Models;
 
@@ -13,12 +15,14 @@ public class CompletionLog
     public string? AppProviderId { get; set; }
     public string? RouteProviderId { get; set; } = null!;
     public string ApiKeyId { get; set; } = null!;
+    public string? ConsumerId { get; set; }
     public string? SessionId { get; set; }
+
+    public RequestLog GatewayRequest { get; set; } = null!;
+    public RequestLog? ProviderRequest { get; set; }
     
-    public string RequestBody { get; set; } = null!;
-    
-    public int ResponseStatusCode { get; set; }
-    public string ResponseBody { get; set; } = null!;
+    public ResponseLog? GatewayResponse { get; set; }
+    public ResponseLog? ProviderResponse { get; set; }
     
     public int InputTokens { get; set; }
     public int OutputTokens { get; set; }
@@ -80,18 +84,39 @@ public class CompletionLog
 
             entity.Property(e => e.SessionId)
                 .HasColumnName("session_id")
-                .HasMaxLength(30);
+                .HasMaxLength(100);
+            
+            entity.Property(e => e.ConsumerId)
+                .HasColumnName("consumer_id")
+                .HasMaxLength(100);
 
-            entity.Property(e => e.RequestBody)
-                .HasColumnName("request_body")
-                .IsRequired();
+            entity.Property(e => e.GatewayRequest)
+                .HasColumnName("gateway_request")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<RequestLog>(v) ?? new RequestLog());
 
-            entity.Property(e => e.ResponseStatusCode)
-                .HasColumnName("response_status_code");
+            entity.Property(e => e.GatewayResponse)
+                .HasColumnName("gateway_response")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<ResponseLog>(v));
 
-            entity.Property(e => e.ResponseBody)
-                .HasColumnName("response_body")
-                .IsRequired();
+            entity.Property(e => e.ProviderRequest)
+                .HasColumnName("provider_request")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<RequestLog>(v));
+            
+            entity.Property(e => e.ProviderResponse)
+                .HasColumnName("provider_response")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<ResponseLog>(v));
 
             entity.Property(e => e.InputTokens)
                 .HasColumnName("input_tokens");
@@ -113,6 +138,8 @@ public class CompletionLog
 
             entity.Property(e => e.Duration)
                 .HasColumnName("duration");
+            
+            entity.HasIndex(e => e.AppId);
         });
     }
 }

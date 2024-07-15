@@ -7,14 +7,14 @@ using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.Cohere;
 
-internal class CohereCompletionInputMapper : ICompletionInputMapper
+internal class CohereCompletionInputMapper
 {
-    public ICompletionInput Map(
+    public static CohereCompletionInput Map(
         ICompletionInput input)
     {
         return input switch
         {
-            CohereCompletionInput _ => input,
+            CohereCompletionInput cohereCompletionInput => cohereCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),

@@ -9,4 +9,5 @@ internal record RequestContext
     public AppData App { get; set; } = null!;
     public RouteData Route { get; set; } = null!;
     public ApiKeyData ApiKey { get; set; } = null!;
+    public ConsumerData? Consumer { get; set; }
 }

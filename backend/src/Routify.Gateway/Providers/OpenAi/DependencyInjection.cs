@@ -14,8 +14,5 @@ internal static class DependencyInjection
         });
 
         services.AddKeyedScoped<ICompletionProvider, OpenAiCompletionProvider>(ProviderIds.OpenAi);
-        services.AddKeyedScoped<ICompletionInputMapper, OpenAiCompletionInputMapper>(ProviderIds.OpenAi);
-        services.AddKeyedScoped<ICompletionOutputMapper, OpenAiCompletionOutputMapper>(ProviderIds.OpenAi);
-        services.AddKeyedScoped<ICompletionSerializer, OpenAiCompletionSerializer>(ProviderIds.OpenAi);
     }
 }

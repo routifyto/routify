@@ -14,8 +14,5 @@ internal static class DependencyInjection
         });
 
         services.AddKeyedScoped<ICompletionProvider, TogetherAiCompletionProvider>(ProviderIds.TogetherAi);
-        services.AddKeyedScoped<ICompletionInputMapper, TogetherAiCompletionInputMapper>(ProviderIds.TogetherAi);
-        services.AddKeyedScoped<ICompletionOutputMapper, TogetherAiCompletionOutputMapper>(ProviderIds.TogetherAi);
-        services.AddKeyedScoped<ICompletionSerializer, TogetherAiCompletionSerializer>(ProviderIds.TogetherAi);
     }
 }

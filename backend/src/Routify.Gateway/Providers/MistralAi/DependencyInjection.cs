@@ -14,8 +14,5 @@ internal static class DependencyInjection
         });
 
         services.AddKeyedScoped<ICompletionProvider, MistralAiCompletionProvider>(ProviderIds.MistralAi);
-        services.AddKeyedScoped<ICompletionInputMapper, MistralAiCompletionInputMapper>(ProviderIds.MistralAi);
-        services.AddKeyedScoped<ICompletionOutputMapper, MistralAiCompletionOutputMapper>(ProviderIds.MistralAi);
-        services.AddKeyedScoped<ICompletionSerializer, MistralAiCompletionSerializer>(ProviderIds.MistralAi);
     }
 }

@@ -1,41 +1,76 @@
 using System.Net;
-using System.Text.Json;
+using System.Text;
 using Routify.Core.Constants;
+using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Extensions;
 using Routify.Gateway.Providers.Cohere.Models;
 
 namespace Routify.Gateway.Providers.Cohere;
 
 internal class CohereCompletionProvider(
-    IHttpClientFactory httpClientFactory,
-    [FromKeyedServices(ProviderIds.OpenAi)] ICompletionInputMapper inputMapper) 
+    IHttpClientFactory httpClientFactory) 
     : ICompletionProvider
 {
-    private static readonly Dictionary<string, decimal> ModelInputCosts = new()
+    private static readonly Dictionary<string, CompletionModel> Models = new()
     {
-        { "command-r-plus", 3m },
-        { "command-r", 0.5m },
-        { "command", 0m },
-        { "command-nightly", 0m },
-        { "command-light", 0m },
-        { "command-light-nightly", 0m },
+        {
+            "command-r-plus", new CompletionModel
+            {
+                Id = "command-r-plus",
+                InputCost = 3m,
+                OutputCost = 15m
+            }
+        },
+        {
+            "command-r", new CompletionModel
+            {
+                Id = "command-r",
+                InputCost = 0.5m,
+                OutputCost = 1.5m
+            }
+        },
+        {
+            "command", new CompletionModel
+            {
+                Id = "command",
+                InputCost = 0m,
+                OutputCost = 0m
+            }
+        },
+        {
+            "command-nightly", new CompletionModel
+            {
+                Id = "command-nightly",
+                InputCost = 0m,
+                OutputCost = 0m
+            }
+        },
+        {
+            "command-light", new CompletionModel
+            {
+                Id = "command-light",
+                InputCost = 0m,
+                OutputCost = 0m
+            }
+        },
+        {
+            "command-light-nightly", new CompletionModel
+            {
+                Id = "command-light-nightly",
+                InputCost = 0m,
+                OutputCost = 0m
+            }
+        }
     };
-
-    private static readonly Dictionary<string, decimal> ModelOutputCosts = new()
-    {
-        { "command-r-plus", 15m },
-        { "command-r", 1.5m },
-        { "command", 0m },
-        { "command-nightly", 0m },
-        { "command-light", 0m },
-        { "command-light-nightly", 0m },
-    };
+    
+    public string Id => ProviderIds.Cohere;
     
     public async Task<CompletionResponse> CompleteAsync(
         CompletionRequest request, 
         CancellationToken cancellationToken)
     {
-        if (!request.AppProviderAttrs.TryGetValue("apiKey", out var apiKey))
+        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
         {
             return new CompletionResponse
             {
@@ -46,84 +81,47 @@ internal class CohereCompletionProvider(
         var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-        var cohereAiInput = inputMapper.Map(request.Input) as CohereCompletionInput;
-        if (cohereAiInput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-            };
-        }
+        var cohereInput = PrepareInput(request);
+        var requestJson = RoutifyJsonSerializer.Serialize(cohereInput);
+        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        if (!string.IsNullOrWhiteSpace(request.Model))
-            cohereAiInput.Model = request.Model;
-
-        if (!request.RouteProviderAttrs.TryGetValue("systemPrompt", out var systemPrompt)
-            && !string.IsNullOrWhiteSpace(systemPrompt))
-        {
-            cohereAiInput.ChatHistory.Insert(0, new CohereCompletionMessageInput
-            {
-                Message = systemPrompt,
-                Role = "SYSTEM"
-            });
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("temperature", out var temperatureString) 
-            && !string.IsNullOrWhiteSpace(temperatureString) 
-            && float.TryParse(temperatureString, out var temperature))
-        {
-            cohereAiInput.Temperature = temperature;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("maxTokens", out var maxTokensString) 
-            && !string.IsNullOrWhiteSpace(maxTokensString) 
-            && int.TryParse(maxTokensString, out var maxTokens))
-        {
-            cohereAiInput.MaxTokens = maxTokens;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("frequencyPenalty", out var frequencyPenaltyString) 
-            && !string.IsNullOrWhiteSpace(frequencyPenaltyString) 
-            && float.TryParse(frequencyPenaltyString, out var frequencyPenalty))
-        {
-            cohereAiInput.FrequencyPenalty = frequencyPenalty;
-        }
-
-        if (request.RouteProviderAttrs.TryGetValue("presencePenalty", out var presencePenaltyString) 
-            && !string.IsNullOrWhiteSpace(presencePenaltyString) 
-            && float.TryParse(presencePenaltyString, out var presencePenalty))
-        {
-            cohereAiInput.PresencePenalty = presencePenalty;
-        }
-        
-        var response = await client.PostAsJsonAsync("chat", cohereAiInput, cancellationToken);
+        var response = await client.PostAsync("chat", requestContent, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
+        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
+        var responseLog = response.ToResponseLog(responseBody);
+        
         if (!response.IsSuccessStatusCode)
         {
             return new CompletionResponse
             {
                 StatusCode = (int)response.StatusCode,
                 Error = responseBody,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
-        var responseOutput = JsonSerializer.Deserialize<CohereCompletionOutput>(responseBody);
+        var responseOutput = RoutifyJsonSerializer.Deserialize<CohereCompletionOutput>(responseBody);
         if (responseOutput == null)
         {
             return new CompletionResponse
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
+                RequestLog = requestLog,
+                ResponseLog = responseLog
             };
         }
 
         var usage = responseOutput.Meta?.BilledUnits;
-        var model = cohereAiInput.Model;
+        var model = cohereInput.Model;
         var completionResponse = new CompletionResponse
         {
             StatusCode = (int)response.StatusCode,
-            Model = cohereAiInput.Model,
-            Output = responseOutput
+            Model = cohereInput.Model,
+            Output = responseOutput,
+            RequestLog = requestLog,
+            ResponseLog = responseLog
         };
 
         if (string.IsNullOrWhiteSpace(model) || usage == null) 
@@ -131,33 +129,75 @@ internal class CohereCompletionProvider(
         
         completionResponse.InputTokens = usage.InputTokens;
         completionResponse.OutputTokens = usage.OutputTokens;
-        completionResponse.InputCost = CalculateInputCost(model, usage.InputTokens);
-        completionResponse.OutputCost = CalculateOutputCost(model, usage.OutputTokens);
+        
+        if (Models.TryGetValue(model, out var modelData))
+        {
+            completionResponse.InputCost = modelData.InputCost / modelData.InputCostUnit * usage.InputTokens;
+            completionResponse.OutputCost = modelData.OutputCost / modelData.OutputCostUnit * usage.OutputTokens;
+        }
 
         return completionResponse;
     }
-    
-    private static decimal CalculateInputCost(
-        string model,
-        int tokens)
+
+    private static CohereCompletionInput PrepareInput(
+        CompletionRequest request)
     {
-        if (ModelInputCosts.TryGetValue(model, out var cost))
+        var cohereInput = CohereCompletionInputMapper.Map(request.Input);
+        
+        if (!string.IsNullOrWhiteSpace(request.RouteProvider.Model))
+            cohereInput.Model = request.RouteProvider.Model;
+
+        if (request.RouteProvider.Attrs.TryGetValue("systemPrompt", out var systemPrompt)
+            && !string.IsNullOrWhiteSpace(systemPrompt))
         {
-            return cost / 1000000 * tokens;
+            cohereInput.ChatHistory.Insert(0, new CohereCompletionMessageInput
+            {
+                Message = systemPrompt,
+                Role = "SYSTEM"
+            });
         }
 
-        return 0;
+        if (request.RouteProvider.Attrs.TryGetValue("temperature", out var temperatureString) 
+            && !string.IsNullOrWhiteSpace(temperatureString) 
+            && float.TryParse(temperatureString, out var temperature))
+        {
+            cohereInput.Temperature = temperature;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("maxTokens", out var maxTokensString) 
+            && !string.IsNullOrWhiteSpace(maxTokensString) 
+            && int.TryParse(maxTokensString, out var maxTokens))
+        {
+            cohereInput.MaxTokens = maxTokens;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("frequencyPenalty", out var frequencyPenaltyString) 
+            && !string.IsNullOrWhiteSpace(frequencyPenaltyString) 
+            && float.TryParse(frequencyPenaltyString, out var frequencyPenalty))
+        {
+            cohereInput.FrequencyPenalty = frequencyPenalty;
+        }
+
+        if (request.RouteProvider.Attrs.TryGetValue("presencePenalty", out var presencePenaltyString) 
+            && !string.IsNullOrWhiteSpace(presencePenaltyString) 
+            && float.TryParse(presencePenaltyString, out var presencePenalty))
+        {
+            cohereInput.PresencePenalty = presencePenalty;
+        }
+
+        return cohereInput;
+    }
+    
+    public ICompletionInput? ParseInput(
+        string input)
+    {
+        return RoutifyJsonSerializer.Deserialize<CohereCompletionInput>(input);
     }
 
-    private static decimal CalculateOutputCost(
-        string model,
-        int tokens)
+    public string SerializeOutput(
+        ICompletionOutput output)
     {
-        if (ModelOutputCosts.TryGetValue(model, out var cost))
-        {
-            return cost / 1000000 * tokens;
-        }
-
-        return 0;
+        var openAiOutput = CohereCompletionOutputMapper.Map(output);
+        return RoutifyJsonSerializer.Serialize(openAiOutput);
     }
 }

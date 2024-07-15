@@ -12,8 +12,8 @@ using Routify.Data;
 namespace Routify.Migrations.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240714175251_CreateConsumersTable")]
-    partial class CreateConsumersTable
+    [Migration("20240715121715_InitDatabase")]
+    partial class InitDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -328,6 +328,11 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("app_provider_id");
 
+                    b.Property<string>("ConsumerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("consumer_id");
+
                     b.Property<double>("Duration")
                         .HasColumnType("double precision")
                         .HasColumnName("duration");
@@ -335,6 +340,15 @@ namespace Routify.Migrations.Migrations
                     b.Property<DateTime>("EndedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ended_at");
+
+                    b.Property<string>("GatewayRequest")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("gateway_request");
+
+                    b.Property<string>("GatewayResponse")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("gateway_response");
 
                     b.Property<decimal>("InputCost")
                         .HasColumnType("numeric")
@@ -368,19 +382,13 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("provider");
 
-                    b.Property<string>("RequestBody")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("request_body");
+                    b.Property<string>("ProviderRequest")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("provider_request");
 
-                    b.Property<string>("ResponseBody")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("response_body");
-
-                    b.Property<int>("ResponseStatusCode")
-                        .HasColumnType("integer")
-                        .HasColumnName("response_status_code");
+                    b.Property<string>("ProviderResponse")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("provider_response");
 
                     b.Property<string>("RouteId")
                         .IsRequired()
@@ -395,8 +403,8 @@ namespace Routify.Migrations.Migrations
                         .HasColumnName("route_provider_id");
 
                     b.Property<string>("SessionId")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("session_id");
 
                     b.Property<DateTime>("StartedAt")
@@ -404,6 +412,8 @@ namespace Routify.Migrations.Migrations
                         .HasColumnName("started_at");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppId");
 
                     b.ToTable("routify_completion_logs", (string)null);
                 });

@@ -1,6 +1,6 @@
 namespace Routify.Api.Models.LogModels;
 
-public class CompletionLogOutput
+public record CompletionLogOutput
 {
     public string Id { get; set; } = null!;
     public string RouteId { get; set; } = null!;
@@ -11,11 +11,13 @@ public class CompletionLogOutput
     public string? RouteProviderId { get; set; } = null!;
     public string ApiKeyId { get; set; } = null!;
     public string? SessionId { get; set; }
+    public string? ConsumerId { get; set; }
     
-    public string RequestBody { get; set; } = null!;
+    public RequestLogOutput? GatewayRequest { get; set; }
+    public RequestLogOutput? ProviderRequest { get; set; }
     
-    public int ResponseStatusCode { get; set; }
-    public string ResponseBody { get; set; } = null!;
+    public ResponseLogOutput? GatewayResponse { get; set; }
+    public ResponseLogOutput? ProviderResponse { get; set; }
     
     public int InputTokens { get; set; }
     public int OutputTokens { get; set; }

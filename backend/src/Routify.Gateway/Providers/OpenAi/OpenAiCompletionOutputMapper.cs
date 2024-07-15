@@ -6,14 +6,14 @@ using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.OpenAi;
 
-internal class OpenAiCompletionOutputMapper : ICompletionOutputMapper
+internal class OpenAiCompletionOutputMapper
 {
-    public ICompletionOutput Map(
+    public static OpenAiCompletionOutput Map(
         ICompletionOutput output)
     {
         return output switch
         {
-            OpenAiCompletionOutput _ => output,
+            OpenAiCompletionOutput openAiCompletionOutput => openAiCompletionOutput,
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),

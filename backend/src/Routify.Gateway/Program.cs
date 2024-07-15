@@ -1,5 +1,6 @@
 using Routify.Data.Enums;
 using Routify.Gateway.Abstractions;
+using Routify.Gateway.Extensions;
 using Routify.Gateway.Handlers;
 using Routify.Gateway.Providers.Anthropic;
 using Routify.Gateway.Providers.MistralAi;
@@ -79,6 +80,10 @@ app.MapPost("/{appId}/{*path}", async (
         Route = routeData,
         ApiKey = apiKey
     };
+
+    var consumerHeader = httpContext.Request.GetConsumer();
+    if (!string.IsNullOrWhiteSpace(consumerHeader))
+        context.Consumer = appData.GetConsumer(consumerHeader);
 
     var handler = serviceProvider.GetRequiredKeyedService<IRequestHandler>(routeData.Type);
     await handler.HandleAsync(context, cancellationToken);

@@ -14,3 +14,15 @@ export function hashCode(str: string) {
   }
   return hash;
 }
+
+export function formatJson(json?: string | null) {
+  if (!json) {
+    return null;
+  }
+
+  try {
+    return JSON.stringify(JSON.parse(json), null, 2);
+  } catch (error) {
+    return json;
+  }
+}

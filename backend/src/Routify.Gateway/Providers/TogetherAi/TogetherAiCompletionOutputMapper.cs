@@ -4,14 +4,14 @@ using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.TogetherAi;
 
-internal class TogetherAiCompletionOutputMapper : ICompletionOutputMapper
+internal class TogetherAiCompletionOutputMapper
 {
-    public ICompletionOutput Map(
+    public static TogetherAiCompletionOutput Map(
         ICompletionOutput output)
     {
         return output switch
         {
-            TogetherAiCompletionOutput _ => output,
+            TogetherAiCompletionOutput togetherAiCompletionOutput => togetherAiCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
