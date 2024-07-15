@@ -10,7 +10,7 @@ import { AnyscaleAppProviderAttrsForm } from '@/components/app-providers/attrs/a
 import { GoogleAppProviderAttrsForm } from '@/components/app-providers/attrs/google-app-provider-attrs-form';
 import { CohereAppProviderAttrsForm } from '@/components/app-providers/attrs/cohere-app-provider-attrs-form';
 import { TogetherAiAppProviderAttrsForm } from '@/components/app-providers/attrs/together-ai-app-provider-attrs-form';
-import { WorkersAiAppProviderAttrsForm } from '@/components/app-providers/attrs/workers-ai-app-provider-attrs-form';
+import { CloudflareAppProviderAttrsForm } from '@/components/app-providers/attrs/cloudflare-app-provider-attrs-form';
 import { AzureOpenaiAppProviderAttrsForm } from '@/components/app-providers/attrs/azure-openai-app-provider-attrs-form';
 import { BedrockAppProviderAttrsForm } from '@/components/app-providers/attrs/bedrock-app-provider-attrs-form';
 import { GroqAppProviderAttrsForm } from '@/components/app-providers/attrs/groq-app-provider-attrs-form';
@@ -28,7 +28,7 @@ export function AppProviderAttrsForm() {
     .with('google', () => <GoogleAppProviderAttrsForm />)
     .with('cohere', () => <CohereAppProviderAttrsForm />)
     .with('together-ai', () => <TogetherAiAppProviderAttrsForm />)
-    .with('workers-ai', () => <WorkersAiAppProviderAttrsForm />)
+    .with('cloudflare', () => <CloudflareAppProviderAttrsForm />)
     .with('azure-openai', () => <AzureOpenaiAppProviderAttrsForm />)
     .with('bedrock', () => <BedrockAppProviderAttrsForm />)
     .with('perplexity-ai', () => <PerplexityAiAppProviderAttrsForm />)

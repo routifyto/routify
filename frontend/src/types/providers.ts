@@ -658,7 +658,7 @@ export const providers: Provider[] = [
     id: 'cloudflare',
     name: 'Cloudflare WorkersAI',
     description: 'Description coming soon.',
-    logo: '/providers/workers-ai.png',
+    logo: '/providers/cloudflare.png',
     models: [
       {
         id: 'llama-2-7b-chat-fp16',
