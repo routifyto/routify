@@ -1,6 +1,7 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cohere.Models;
+using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -19,6 +20,7 @@ internal class CohereCompletionOutputMapper
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
+            GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
@@ -106,6 +108,31 @@ internal class CohereCompletionOutputMapper
     
     private static CohereCompletionOutput MapMistralAiCompletionOutput(
         MistralAiCompletionOutput output)
+    {
+        var choice = output.Choices.FirstOrDefault();
+        return new CohereCompletionOutput
+        {
+            GenerationId = output.Id,
+            Text = choice?.Message?.Content ?? string.Empty,
+            FinishReason = choice?.FinishReason,
+            Meta = new CohereCompletionMetaOutput
+            {
+                BilledUnits = new CohereCompletionBilledUnitsMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+                Tokens = new CohereCompletionTokensMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+            }
+        };
+    }
+    
+    private static CohereCompletionOutput MapGroqCompletionOutput(
+        GroqCompletionOutput output)
     {
         var choice = output.Choices.FirstOrDefault();
         return new CohereCompletionOutput

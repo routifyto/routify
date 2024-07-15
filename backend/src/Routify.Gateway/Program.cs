@@ -3,6 +3,8 @@ using Routify.Gateway.Abstractions;
 using Routify.Gateway.Extensions;
 using Routify.Gateway.Handlers;
 using Routify.Gateway.Providers.Anthropic;
+using Routify.Gateway.Providers.Cohere;
+using Routify.Gateway.Providers.Groq;
 using Routify.Gateway.Providers.MistralAi;
 using Routify.Gateway.Providers.OpenAi;
 using Routify.Gateway.Providers.TogetherAi;
@@ -30,6 +32,8 @@ builder.Services.AddOpenAi();
 builder.Services.AddTogetherAi();
 builder.Services.AddAnthropic();
 builder.Services.AddMistralAi();
+builder.Services.AddCohere();
+builder.Services.AddGroq();
 
 //inject api http client
 builder.Services.AddHttpClient("api",client =>

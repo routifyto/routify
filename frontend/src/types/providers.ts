@@ -687,6 +687,37 @@ export const providers: Provider[] = [
     name: 'Groq',
     description: 'Description coming soon.',
     logo: '/providers/groq.png',
-    models: [],
+    models: [
+      {
+        id: 'llama3-8b-8192',
+        name: 'llama3-8b-8192',
+        description: 'Description coming soon..',
+        contextWindow: 8192,
+      },
+      {
+        id: 'llama3-70b-8192',
+        name: 'llama3-70b-8192',
+        description: 'Description coming soon..',
+        contextWindow: 8192,
+      },
+      {
+        id: 'mixtral-8x7b-32768',
+        name: 'mixtral-8x7b-32768',
+        description: 'Description coming soon..',
+        contextWindow: 32768,
+      },
+      {
+        id: 'gemma-7b-it',
+        name: 'gemma-7b-it',
+        description: 'Description coming soon..',
+        contextWindow: 8192,
+      },
+      {
+        id: 'gemma2-9b-it',
+        name: 'gemma2-9b-it',
+        description: 'Description coming soon..',
+        contextWindow: 8192,
+      },
+    ],
   },
 ];

@@ -5,7 +5,7 @@ namespace Routify.Gateway.Providers.Cohere;
 
 internal static class DependencyInjection
 {
-    public static void AddOpenAi(
+    public static void AddCohere(
         this IServiceCollection services)
     {
         services.AddHttpClient(ProviderIds.Cohere, client =>

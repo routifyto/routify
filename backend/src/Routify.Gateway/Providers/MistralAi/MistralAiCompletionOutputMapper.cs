@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -17,6 +18,7 @@ internal class MistralAiCompletionOutputMapper
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
+            GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
@@ -116,6 +118,37 @@ internal class MistralAiCompletionOutputMapper
                 CompletionTokens = output.Usage.OutputTokens,
                 PromptTokens = output.Usage.InputTokens,
                 TotalTokens = output.Usage.InputTokens + output.Usage.OutputTokens
+            }
+        };
+    }
+    
+    private static MistralAiCompletionOutput MapGroqCompletionOutput(
+        GroqCompletionOutput output)
+    {
+        return new MistralAiCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model,
+            Object = output.Object,
+            Created = output.Created,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new MistralAiCompletionMessageOutput
+                    {
+                        Role = choice.Message.Role,
+                        Content = choice.Message.Content
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new MistralAiCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
             }
         };
     }

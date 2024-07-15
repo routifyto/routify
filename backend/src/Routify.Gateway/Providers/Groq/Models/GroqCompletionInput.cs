@@ -1,15 +1,15 @@
 using System.Text.Json.Serialization;
 using Routify.Gateway.Abstractions;
 
-namespace Routify.Gateway.Providers.OpenAi.Models;
+namespace Routify.Gateway.Providers.Groq.Models;
 
-internal record OpenAiCompletionInput : ICompletionInput
+internal record GroqCompletionInput : ICompletionInput
 {
     [JsonPropertyName("model")]
     public string? Model { get; set; }
     
     [JsonPropertyName("messages")]
-    public List<OpenAiCompletionMessageInput> Messages { get; set; } = null!;
+    public List<GroqCompletionMessageInput> Messages { get; set; } = null!;
     
     [JsonPropertyName("top_p")]
     public float? TopP { get; set; }
@@ -34,12 +34,6 @@ internal record OpenAiCompletionInput : ICompletionInput
     
     [JsonPropertyName("seed")]
     public long? Seed { get; set; }
-    
-    [JsonPropertyName("logprobs")]
-    public bool? Logprobs { get; set; }
-    
-    [JsonPropertyName("top_logprobs")]
-    public int? TopLogprobs { get; set; }
     
     [JsonPropertyName("user")]
     public string? User { get; set; }

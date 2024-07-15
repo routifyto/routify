@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -17,6 +18,7 @@ internal class AnthropicCompletionInputMapper
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
+            GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -87,6 +89,38 @@ internal class AnthropicCompletionInputMapper
     
     private static AnthropicCompletionInput MapMistralAiCompletionInput(
         MistralAiCompletionInput input)
+    {
+        var systemMessages = input
+            .Messages
+            .Where(message => message.Role == "system")
+            .ToList();
+        
+        var systemPrompt = string.Join("\n", systemMessages.Select(message => message.Content));
+        
+        var otherMessages = input
+            .Messages
+            .Where(message => message.Role != "system")
+            .ToList();
+        
+        return new AnthropicCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = otherMessages
+                .Select(message => new AnthropicCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList(),
+            System = systemPrompt,
+        };
+    }
+    
+    private static AnthropicCompletionInput MapGroqCompletionInput(
+        GroqCompletionInput input)
     {
         var systemMessages = input
             .Messages
