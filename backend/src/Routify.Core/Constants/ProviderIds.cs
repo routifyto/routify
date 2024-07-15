@@ -9,7 +9,7 @@ public static class ProviderIds
     public const string Google = "google";
     public const string Cohere = "cohere";
     public const string TogetherAi = "together-ai";
-    public const string WorkersAi = "workers-ai";
+    public const string Cloudflare = "cloudflare";
     public const string AzureOpenAi = "azure-openai";
     public const string Bedrock = "bedrock";
     public const string PerplexityAi = "perplexity-ai";

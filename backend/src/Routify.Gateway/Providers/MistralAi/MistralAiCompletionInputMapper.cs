@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
@@ -19,6 +20,7 @@ internal class MistralAiCompletionInputMapper
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
+            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -96,6 +98,26 @@ internal class MistralAiCompletionInputMapper
     
     private static MistralAiCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
+    {
+        return new MistralAiCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = input
+                .Messages
+                .Select(message => new MistralAiCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
+    private static MistralAiCompletionInput MapCloudflareCompletionInput(
+        CloudflareCompletionInput input)
     {
         return new MistralAiCompletionInput
         {

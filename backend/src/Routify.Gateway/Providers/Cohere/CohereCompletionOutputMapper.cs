@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
@@ -21,6 +22,7 @@ internal class CohereCompletionOutputMapper
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
+            CloudflareCompletionOutput cloudflareCompletionOutput => MapOpenAiCompletionOutput(cloudflareCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
@@ -133,6 +135,31 @@ internal class CohereCompletionOutputMapper
     
     private static CohereCompletionOutput MapGroqCompletionOutput(
         GroqCompletionOutput output)
+    {
+        var choice = output.Choices.FirstOrDefault();
+        return new CohereCompletionOutput
+        {
+            GenerationId = output.Id,
+            Text = choice?.Message?.Content ?? string.Empty,
+            FinishReason = choice?.FinishReason,
+            Meta = new CohereCompletionMetaOutput
+            {
+                BilledUnits = new CohereCompletionBilledUnitsMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+                Tokens = new CohereCompletionTokensMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+            }
+        };
+    }
+    
+    private static CohereCompletionOutput MapOpenAiCompletionOutput(
+        CloudflareCompletionOutput output)
     {
         var choice = output.Choices.FirstOrDefault();
         return new CohereCompletionOutput

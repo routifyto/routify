@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
@@ -21,6 +22,7 @@ internal class CohereCompletionInputMapper
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
+            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -160,6 +162,38 @@ internal class CohereCompletionInputMapper
     
     private static CohereCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
+    {
+        var lastMessage = input.Messages.LastOrDefault();
+        var chatHistory = new List<CohereCompletionMessageInput>();
+        if (input.Messages.Count > 1)
+        {
+            var otherMessages = input.Messages.Take(input.Messages.Count - 1);
+            var cohereMessages = otherMessages
+                .Select(message => new CohereCompletionMessageInput
+                {
+                    Message = message.Content,
+                    Role = MapCohereRole(message.Role)
+                });
+            
+            chatHistory.AddRange(cohereMessages);
+        }
+        
+        return new CohereCompletionInput
+        {
+            Model = input.Model,
+            P = input.TopP,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            ChatHistory = chatHistory,
+            Message = lastMessage?.Content,
+            Seed = input.Seed
+        };
+    }
+    
+    private static CohereCompletionInput MapCloudflareCompletionInput(
+        CloudflareCompletionInput input)
     {
         var lastMessage = input.Messages.LastOrDefault();
         var chatHistory = new List<CohereCompletionMessageInput>();

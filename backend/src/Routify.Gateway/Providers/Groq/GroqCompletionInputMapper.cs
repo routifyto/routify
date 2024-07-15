@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
@@ -19,6 +20,7 @@ internal class GroqCompletionInputMapper
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
+            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -113,6 +115,32 @@ internal class GroqCompletionInputMapper
             TopP = input.TopP,
             MaxTokens = input.MaxTokens,
             Temperature = input.Temperature,
+            Messages = input
+                .Messages
+                .Select(message => new GroqCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
+    private static GroqCompletionInput MapCloudflareCompletionInput(
+        CloudflareCompletionInput input)
+    {
+        return new GroqCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            N = input.N,
+            Stop = input.Stop,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Seed = input.Seed,
+            User = input.User,
             Messages = input
                 .Messages
                 .Select(message => new GroqCompletionMessageInput

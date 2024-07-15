@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
@@ -19,6 +20,7 @@ internal class AnthropicCompletionInputMapper
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
+            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -121,6 +123,38 @@ internal class AnthropicCompletionInputMapper
     
     private static AnthropicCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
+    {
+        var systemMessages = input
+            .Messages
+            .Where(message => message.Role == "system")
+            .ToList();
+        
+        var systemPrompt = string.Join("\n", systemMessages.Select(message => message.Content));
+        
+        var otherMessages = input
+            .Messages
+            .Where(message => message.Role != "system")
+            .ToList();
+        
+        return new AnthropicCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = otherMessages
+                .Select(message => new AnthropicCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList(),
+            System = systemPrompt,
+        };
+    }
+    
+    private static AnthropicCompletionInput MapCloudflareCompletionInput(
+        CloudflareCompletionInput input)
     {
         var systemMessages = input
             .Messages
