@@ -1,18 +1,18 @@
 using Routify.Core.Constants;
 using Routify.Gateway.Abstractions;
 
-namespace Routify.Gateway.Providers.MistralAi;
+namespace Routify.Gateway.Providers.Mistral;
 
 internal static class DependencyInjection
 {
-    public static void AddMistralAi(
+    public static void AddMistral(
         this IServiceCollection services)
     {
-        services.AddHttpClient(ProviderIds.MistralAi, client =>
+        services.AddHttpClient(ProviderIds.Mistral, client =>
         {
             client.BaseAddress = new Uri("https://api.mistral.ai/v1/");
         });
 
-        services.AddKeyedScoped<ICompletionProvider, MistralAiCompletionProvider>(ProviderIds.MistralAi);
+        services.AddKeyedScoped<ICompletionProvider, MistralCompletionProvider>(ProviderIds.Mistral);
     }
 }

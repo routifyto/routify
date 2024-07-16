@@ -1,15 +1,15 @@
 using System.Text.Json.Serialization;
 using Routify.Gateway.Abstractions;
 
-namespace Routify.Gateway.Providers.MistralAi.Models;
+namespace Routify.Gateway.Providers.Mistral.Models;
 
-internal record MistralAiCompletionInput : ICompletionInput
+internal record MistralCompletionInput : ICompletionInput
 {
     [JsonPropertyName("model")]
     public string? Model { get; set; }
     
     [JsonPropertyName("messages")]
-    public List<MistralAiCompletionMessageInput> Messages { get; set; } = null!;
+    public List<MistralCompletionMessageInput> Messages { get; set; } = null!;
     
     [JsonPropertyName("temperature")]
     public float? Temperature { get; set; }

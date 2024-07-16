@@ -2,21 +2,21 @@ using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
-namespace Routify.Gateway.Providers.MistralAi;
+namespace Routify.Gateway.Providers.Mistral;
 
-internal class MistralAiCompletionOutputMapper
+internal class MistralCompletionOutputMapper
 {
-    public static MistralAiCompletionOutput Map(
+    public static MistralCompletionOutput Map(
         ICompletionOutput output)
     {
         return output switch
         {
-            MistralAiCompletionOutput mistralAiCompletionOutput => mistralAiCompletionOutput,
+            MistralCompletionOutput mistralAiCompletionOutput => mistralAiCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
@@ -27,10 +27,10 @@ internal class MistralAiCompletionOutputMapper
         };
     }
 
-    private static MistralAiCompletionOutput MapOpenAiCompletionOutput(
+    private static MistralCompletionOutput MapOpenAiCompletionOutput(
         OpenAiCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new MistralCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -38,10 +38,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new MistralCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new MistralCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -49,7 +49,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new MistralCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -58,10 +58,10 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapTogetherAiCompletionOutput(
+    private static MistralCompletionOutput MapTogetherAiCompletionOutput(
         TogetherAiCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new MistralCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -69,10 +69,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new MistralCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new MistralCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -80,7 +80,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new MistralCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -89,7 +89,7 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapAnthropicCompletionOutput(
+    private static MistralCompletionOutput MapAnthropicCompletionOutput(
         AnthropicCompletionOutput output)
     {
         var textContents = output
@@ -99,17 +99,17 @@ internal class MistralAiCompletionOutputMapper
         
         var text = string.Join(" ", textContents.Select(x => x.Text));
         
-        return new MistralAiCompletionOutput
+        return new MistralCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
             Object = output.Type,
             Created = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds(),
             Choices = [
-                new MistralAiCompletionChoiceOutput
+                new MistralCompletionChoiceOutput
                 {
                     Index = 0,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new MistralCompletionMessageOutput
                     {
                         Role = output.Role,
                         Content = text
@@ -117,7 +117,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = output.StopReason,
                 }
             ],
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new MistralCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.OutputTokens,
                 PromptTokens = output.Usage.InputTokens,
@@ -126,10 +126,10 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapGroqCompletionOutput(
+    private static MistralCompletionOutput MapGroqCompletionOutput(
         GroqCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new MistralCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -137,10 +137,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new MistralCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new MistralCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -148,7 +148,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new MistralCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -157,10 +157,10 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapCloudflareCompletionOutput(
+    private static MistralCompletionOutput MapCloudflareCompletionOutput(
         CloudflareCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new MistralCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -168,10 +168,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new MistralCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new MistralCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -179,7 +179,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new MistralCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -188,10 +188,10 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapPerplexityCompletionOutput(
+    private static MistralCompletionOutput MapPerplexityCompletionOutput(
         PerplexityCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new MistralCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -199,10 +199,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new MistralCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new MistralCompletionMessageOutput
                     {
                         Role = choice.Message?.Role ?? string.Empty,
                         Content = choice.Message?.Content
@@ -210,7 +210,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new MistralCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,

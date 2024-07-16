@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Providers.MistralAi.Models;
+namespace Routify.Gateway.Providers.Mistral.Models;
 
-internal record MistralAiCompletionMessageOutput
+internal record MistralCompletionMessageOutput
 {
     [JsonPropertyName("role")]
     public string Role { get; set; } = null!;

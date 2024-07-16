@@ -2,7 +2,7 @@ using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -20,7 +20,7 @@ internal class PerplexityCompletionInputMapper
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
-            MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
+            MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
             CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
@@ -103,7 +103,7 @@ internal class PerplexityCompletionInputMapper
     }
     
     private static PerplexityCompletionInput MapMistralAiCompletionInput(
-        MistralAiCompletionInput input)
+        MistralCompletionInput input)
     {
         return new PerplexityCompletionInput
         {

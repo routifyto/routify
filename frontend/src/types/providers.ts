@@ -130,10 +130,10 @@ export const providers: Provider[] = [
     ],
   },
   {
-    id: 'mistral-ai',
+    id: 'mistral',
     name: 'MistralAI',
     description: 'Description coming soon.',
-    logo: '/providers/mistral-ai.png',
+    logo: '/providers/mistral.png',
     models: [
       {
         id: 'open-mistral-7b',

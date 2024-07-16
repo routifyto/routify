@@ -3,7 +3,7 @@ using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -21,7 +21,7 @@ internal class CohereCompletionOutputMapper
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
-            MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
+            MistralCompletionOutput mistralCompletionOutput => MapMistralCompletionOutput(mistralCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             CloudflareCompletionOutput cloudflareCompletionOutput => MapOpenAiCompletionOutput(cloudflareCompletionOutput),
             PerplexityCompletionOutput perplexityCompletionOutput => MapPerplexityCompletionOutput(perplexityCompletionOutput),
@@ -110,8 +110,8 @@ internal class CohereCompletionOutputMapper
         };
     }
     
-    private static CohereCompletionOutput MapMistralAiCompletionOutput(
-        MistralAiCompletionOutput output)
+    private static CohereCompletionOutput MapMistralCompletionOutput(
+        MistralCompletionOutput output)
     {
         var choice = output.Choices.FirstOrDefault();
         return new CohereCompletionOutput

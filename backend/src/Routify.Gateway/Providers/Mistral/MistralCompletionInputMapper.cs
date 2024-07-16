@@ -2,21 +2,21 @@ using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
-namespace Routify.Gateway.Providers.MistralAi;
+namespace Routify.Gateway.Providers.Mistral;
 
-internal class MistralAiCompletionInputMapper
+internal class MistralCompletionInputMapper
 {
-    public static MistralAiCompletionInput Map(
+    public static MistralCompletionInput Map(
         ICompletionInput input)
     {
         return input switch
         {
-            MistralAiCompletionInput mistralAiCompletionInput => mistralAiCompletionInput,
+            MistralCompletionInput mistralAiCompletionInput => mistralAiCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
@@ -27,10 +27,10 @@ internal class MistralAiCompletionInputMapper
         };
     }
 
-    private static MistralAiCompletionInput MapOpenAiCompletionInput(
+    private static MistralCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
     {
-        return new MistralAiCompletionInput
+        return new MistralCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -38,7 +38,7 @@ internal class MistralAiCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new MistralAiCompletionMessageInput
+                .Select(message => new MistralCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -47,10 +47,10 @@ internal class MistralAiCompletionInputMapper
         };
     }
     
-    private static MistralAiCompletionInput MapTogetherAiCompletionInput(
+    private static MistralCompletionInput MapTogetherAiCompletionInput(
         TogetherAiCompletionInput input)
     {
-        return new MistralAiCompletionInput
+        return new MistralCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -58,7 +58,7 @@ internal class MistralAiCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new MistralAiCompletionMessageInput
+                .Select(message => new MistralCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -67,12 +67,12 @@ internal class MistralAiCompletionInputMapper
         };
     }
     
-    private static MistralAiCompletionInput MapAnthropicCompletionInput(
+    private static MistralCompletionInput MapAnthropicCompletionInput(
         AnthropicCompletionInput input)
     {
         var messages = input
             .Messages
-            .Select(message => new MistralAiCompletionMessageInput
+            .Select(message => new MistralCompletionMessageInput
             {
                 Content = message.Content,
                 Role = message.Role
@@ -81,14 +81,14 @@ internal class MistralAiCompletionInputMapper
 
         if (!string.IsNullOrWhiteSpace(input.System))
         {
-            messages.Insert(0, new MistralAiCompletionMessageInput
+            messages.Insert(0, new MistralCompletionMessageInput
             {
                 Content = input.System,
                 Role = "system"
             });
         }
         
-        return new MistralAiCompletionInput
+        return new MistralCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -98,10 +98,10 @@ internal class MistralAiCompletionInputMapper
         };
     }
     
-    private static MistralAiCompletionInput MapGroqCompletionInput(
+    private static MistralCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
     {
-        return new MistralAiCompletionInput
+        return new MistralCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -109,7 +109,7 @@ internal class MistralAiCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new MistralAiCompletionMessageInput
+                .Select(message => new MistralCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -118,10 +118,10 @@ internal class MistralAiCompletionInputMapper
         };
     }
     
-    private static MistralAiCompletionInput MapCloudflareCompletionInput(
+    private static MistralCompletionInput MapCloudflareCompletionInput(
         CloudflareCompletionInput input)
     {
-        return new MistralAiCompletionInput
+        return new MistralCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -129,7 +129,7 @@ internal class MistralAiCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new MistralAiCompletionMessageInput
+                .Select(message => new MistralCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -138,10 +138,10 @@ internal class MistralAiCompletionInputMapper
         };
     }
     
-    private static MistralAiCompletionInput MapPerplexityCompletionInput(
+    private static MistralCompletionInput MapPerplexityCompletionInput(
         PerplexityCompletionInput input)
     {
-        return new MistralAiCompletionInput
+        return new MistralCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -149,7 +149,7 @@ internal class MistralAiCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new MistralAiCompletionMessageInput
+                .Select(message => new MistralCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role

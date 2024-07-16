@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
 using Routify.Gateway.Abstractions;
 
-namespace Routify.Gateway.Providers.MistralAi.Models;
+namespace Routify.Gateway.Providers.Mistral.Models;
 
-internal record MistralAiCompletionOutput : ICompletionOutput
+internal record MistralCompletionOutput : ICompletionOutput
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = null!;
@@ -12,7 +12,7 @@ internal record MistralAiCompletionOutput : ICompletionOutput
     public string Object { get; set; } = null!;
     
     [JsonPropertyName("choices")]
-    public List<MistralAiCompletionChoiceOutput> Choices { get; set; } = null!;
+    public List<MistralCompletionChoiceOutput> Choices { get; set; } = null!;
     
     [JsonPropertyName("created")]
     public long Created { get; set; }
@@ -21,5 +21,5 @@ internal record MistralAiCompletionOutput : ICompletionOutput
     public string Model { get; set; } = null!;
     
     [JsonPropertyName("usage")]
-    public MistralAiCompletionUsageOutput Usage { get; set; } = null!;
+    public MistralCompletionUsageOutput Usage { get; set; } = null!;
 }

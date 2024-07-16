@@ -2,7 +2,7 @@ using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -19,7 +19,7 @@ internal class AnthropicCompletionOutputMapper
             AnthropicCompletionOutput anthropicCompletionOutput => anthropicCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
-            MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
+            MistralCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             CloudflareCompletionOutput cloudflareCompletionOutput => MapCloudflareCompletionOutput(cloudflareCompletionOutput),
             PerplexityCompletionOutput perplexityCompletionOutput => MapPerplexityCompletionOutput(perplexityCompletionOutput),
@@ -80,7 +80,7 @@ internal class AnthropicCompletionOutputMapper
     }
     
     private static AnthropicCompletionOutput MapMistralAiCompletionOutput(
-        MistralAiCompletionOutput output)
+        MistralCompletionOutput output)
     {
         var choice = output.Choices.FirstOrDefault();
         return new AnthropicCompletionOutput

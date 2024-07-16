@@ -4,7 +4,7 @@ public static class ProviderIds
 {
     public const string OpenAi = "openai";
     public const string Anthropic = "anthropic";
-    public const string MistralAi = "mistral-ai";
+    public const string Mistral = "mistral";
     public const string Anyscale = "anyscale";
     public const string Google = "google";
     public const string Cohere = "cohere";

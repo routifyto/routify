@@ -4,11 +4,11 @@ using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Extensions;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 
-namespace Routify.Gateway.Providers.MistralAi;
+namespace Routify.Gateway.Providers.Mistral;
 
-internal class MistralAiCompletionProvider(
+internal class MistralCompletionProvider(
     IHttpClientFactory httpClientFactory)
     : ICompletionProvider
 {
@@ -64,7 +64,7 @@ internal class MistralAiCompletionProvider(
         }
     };
 
-    public string Id => ProviderIds.MistralAi;
+    public string Id => ProviderIds.Mistral;
     
     public async Task<CompletionResponse> CompleteAsync(
         CompletionRequest request, 
@@ -102,7 +102,7 @@ internal class MistralAiCompletionProvider(
             };
         }
 
-        var responseOutput = RoutifyJsonSerializer.Deserialize<MistralAiCompletionOutput>(responseBody);
+        var responseOutput = RoutifyJsonSerializer.Deserialize<MistralCompletionOutput>(responseBody);
         if (responseOutput == null)
         {
             return new CompletionResponse
@@ -134,17 +134,17 @@ internal class MistralAiCompletionProvider(
         return completionResponse;
     }
 
-    private static MistralAiCompletionInput PrepareInput(
+    private static MistralCompletionInput PrepareInput(
         CompletionRequest request)
     {
-        var mistralAiInput = MistralAiCompletionInputMapper.Map(request.Input);
+        var mistralAiInput = MistralCompletionInputMapper.Map(request.Input);
         if (!string.IsNullOrWhiteSpace(request.RouteProvider.Model))
             mistralAiInput.Model = request.RouteProvider.Model;
 
         if (request.RouteProvider.Attrs.TryGetValue("systemPrompt", out var systemPrompt)
             && !string.IsNullOrWhiteSpace(systemPrompt))
         {
-            mistralAiInput.Messages.Insert(0, new MistralAiCompletionMessageInput
+            mistralAiInput.Messages.Insert(0, new MistralCompletionMessageInput
             {
                 Content = systemPrompt,
                 Role = "system"
@@ -171,13 +171,13 @@ internal class MistralAiCompletionProvider(
     public ICompletionInput? ParseInput(
         string input)
     {
-        return RoutifyJsonSerializer.Deserialize<MistralAiCompletionInput>(input);
+        return RoutifyJsonSerializer.Deserialize<MistralCompletionInput>(input);
     }
 
     public string SerializeOutput(
         ICompletionOutput output)
     {
-        var openAiOutput = MistralAiCompletionOutputMapper.Map(output);
+        var openAiOutput = MistralCompletionOutputMapper.Map(output);
         return RoutifyJsonSerializer.Serialize(openAiOutput);
     }
 }

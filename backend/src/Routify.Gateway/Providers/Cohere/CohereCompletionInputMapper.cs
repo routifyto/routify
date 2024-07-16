@@ -3,7 +3,7 @@ using Routify.Gateway.Providers.Anthropic.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
-using Routify.Gateway.Providers.MistralAi.Models;
+using Routify.Gateway.Providers.Mistral.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
@@ -21,7 +21,7 @@ internal class CohereCompletionInputMapper
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
-            MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
+            MistralCompletionInput mistralCompletionInput => MapMistralCompletionInput(mistralCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
             CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(perplexityCompletionInput),
@@ -132,8 +132,8 @@ internal class CohereCompletionInputMapper
         };
     }
     
-    private static CohereCompletionInput MapMistralAiCompletionInput(
-        MistralAiCompletionInput input)
+    private static CohereCompletionInput MapMistralCompletionInput(
+        MistralCompletionInput input)
     {
         var lastMessage = input.Messages.LastOrDefault();
         var chatHistory = new List<CohereCompletionMessageInput>();

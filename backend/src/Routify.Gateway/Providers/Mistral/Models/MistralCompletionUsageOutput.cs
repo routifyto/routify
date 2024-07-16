@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Providers.MistralAi.Models;
+namespace Routify.Gateway.Providers.Mistral.Models;
 
-internal record MistralAiCompletionUsageOutput
+internal record MistralCompletionUsageOutput
 {
     [JsonPropertyName("prompt_tokens")]
     public int PromptTokens { get; set; }

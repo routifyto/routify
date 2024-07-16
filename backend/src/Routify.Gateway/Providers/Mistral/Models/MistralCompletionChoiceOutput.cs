@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Providers.MistralAi.Models;
+namespace Routify.Gateway.Providers.Mistral.Models;
 
-internal record MistralAiCompletionChoiceOutput
+internal record MistralCompletionChoiceOutput
 {
     [JsonPropertyName("index")]
     public int? Index { get; set; }
@@ -11,5 +11,5 @@ internal record MistralAiCompletionChoiceOutput
     public string? FinishReason { get; set; }
     
     [JsonPropertyName("message")]
-    public MistralAiCompletionMessageOutput Message { get; set; } = null!;
+    public MistralCompletionMessageOutput Message { get; set; } = null!;
 }
