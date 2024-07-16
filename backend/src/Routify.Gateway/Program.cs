@@ -7,6 +7,7 @@ using Routify.Gateway.Providers.Cohere;
 using Routify.Gateway.Providers.Groq;
 using Routify.Gateway.Providers.MistralAi;
 using Routify.Gateway.Providers.OpenAi;
+using Routify.Gateway.Providers.Perplexity;
 using Routify.Gateway.Providers.TogetherAi;
 using Routify.Gateway.Services;
 
@@ -34,6 +35,7 @@ builder.Services.AddAnthropic();
 builder.Services.AddMistralAi();
 builder.Services.AddCohere();
 builder.Services.AddGroq();
+builder.Services.AddPerplexity();
 
 //inject api http client
 builder.Services.AddHttpClient("api",client =>

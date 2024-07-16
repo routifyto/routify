@@ -5,6 +5,7 @@ using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
+using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.Cohere;
@@ -23,6 +24,7 @@ internal class CohereCompletionOutputMapper
             MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             CloudflareCompletionOutput cloudflareCompletionOutput => MapOpenAiCompletionOutput(cloudflareCompletionOutput),
+            PerplexityCompletionOutput perplexityCompletionOutput => MapPerplexityCompletionOutput(perplexityCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
@@ -160,6 +162,31 @@ internal class CohereCompletionOutputMapper
     
     private static CohereCompletionOutput MapOpenAiCompletionOutput(
         CloudflareCompletionOutput output)
+    {
+        var choice = output.Choices.FirstOrDefault();
+        return new CohereCompletionOutput
+        {
+            GenerationId = output.Id,
+            Text = choice?.Message?.Content ?? string.Empty,
+            FinishReason = choice?.FinishReason,
+            Meta = new CohereCompletionMetaOutput
+            {
+                BilledUnits = new CohereCompletionBilledUnitsMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+                Tokens = new CohereCompletionTokensMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+            }
+        };
+    }
+    
+    private static CohereCompletionOutput MapPerplexityCompletionOutput(
+        PerplexityCompletionOutput output)
     {
         var choice = output.Choices.FirstOrDefault();
         return new CohereCompletionOutput

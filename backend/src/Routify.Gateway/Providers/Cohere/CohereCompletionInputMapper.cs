@@ -5,6 +5,7 @@ using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
+using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.Cohere;
@@ -23,6 +24,7 @@ internal class CohereCompletionInputMapper
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
             CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
+            PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(perplexityCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -221,6 +223,37 @@ internal class CohereCompletionInputMapper
             ChatHistory = chatHistory,
             Message = lastMessage?.Content,
             Seed = input.Seed
+        };
+    }
+    
+    private static CohereCompletionInput MapPerplexityCompletionInput(
+        PerplexityCompletionInput input)
+    {
+        var lastMessage = input.Messages.LastOrDefault();
+        var chatHistory = new List<CohereCompletionMessageInput>();
+        if (input.Messages.Count > 1)
+        {
+            var otherMessages = input.Messages.Take(input.Messages.Count - 1);
+            var cohereMessages = otherMessages
+                .Select(message => new CohereCompletionMessageInput
+                {
+                    Message = message.Content,
+                    Role = MapCohereRole(message.Role)
+                });
+            
+            chatHistory.AddRange(cohereMessages);
+        }
+        
+        return new CohereCompletionInput
+        {
+            Model = input.Model,
+            P = input.TopP,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            ChatHistory = chatHistory,
+            Message = lastMessage?.Content,
         };
     }
 

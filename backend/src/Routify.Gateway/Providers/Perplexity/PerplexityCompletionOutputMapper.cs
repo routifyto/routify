@@ -7,30 +7,30 @@ using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
-namespace Routify.Gateway.Providers.MistralAi;
+namespace Routify.Gateway.Providers.Perplexity;
 
-internal class MistralAiCompletionOutputMapper
+internal class PerplexityCompletionOutputMapper
 {
-    public static MistralAiCompletionOutput Map(
+    public static PerplexityCompletionOutput Map(
         ICompletionOutput output)
     {
         return output switch
         {
-            MistralAiCompletionOutput mistralAiCompletionOutput => mistralAiCompletionOutput,
+            PerplexityCompletionOutput perplexityCompletionOutput => perplexityCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
+            MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             CloudflareCompletionOutput cloudflareCompletionOutput => MapCloudflareCompletionOutput(cloudflareCompletionOutput),
-            PerplexityCompletionOutput perplexityCompletionOutput => MapPerplexityCompletionOutput(perplexityCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
 
-    private static MistralAiCompletionOutput MapOpenAiCompletionOutput(
+    private static PerplexityCompletionOutput MapOpenAiCompletionOutput(
         OpenAiCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new PerplexityCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -38,10 +38,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new PerplexityCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new PerplexityCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -49,7 +49,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new PerplexityCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -58,10 +58,10 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapTogetherAiCompletionOutput(
+    private static PerplexityCompletionOutput MapTogetherAiCompletionOutput(
         TogetherAiCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new PerplexityCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
@@ -69,10 +69,10 @@ internal class MistralAiCompletionOutputMapper
             Created = output.Created,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new PerplexityCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new PerplexityCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -80,7 +80,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new PerplexityCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -89,7 +89,7 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapAnthropicCompletionOutput(
+    private static PerplexityCompletionOutput MapAnthropicCompletionOutput(
         AnthropicCompletionOutput output)
     {
         var textContents = output
@@ -99,17 +99,17 @@ internal class MistralAiCompletionOutputMapper
         
         var text = string.Join(" ", textContents.Select(x => x.Text));
         
-        return new MistralAiCompletionOutput
+        return new PerplexityCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
             Object = output.Type,
             Created = TimeProvider.System.GetUtcNow().ToUnixTimeSeconds(),
             Choices = [
-                new MistralAiCompletionChoiceOutput
+                new PerplexityCompletionChoiceOutput
                 {
                     Index = 0,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new PerplexityCompletionMessageOutput
                     {
                         Role = output.Role,
                         Content = text
@@ -117,7 +117,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = output.StopReason,
                 }
             ],
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new PerplexityCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.OutputTokens,
                 PromptTokens = output.Usage.InputTokens,
@@ -126,21 +126,54 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapGroqCompletionOutput(
+    private static PerplexityCompletionOutput MapMistralAiCompletionOutput(
+        MistralAiCompletionOutput output)
+    {
+        return new PerplexityCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model,
+            Object = output.Object,
+            Created = output.Created,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new PerplexityCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new PerplexityCompletionMessageOutput
+                    {
+                        Role = choice.Message.Role,
+                        Content = choice.Message.Content
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new PerplexityCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
+            }
+        };
+    }
+    
+    private static PerplexityCompletionOutput MapGroqCompletionOutput(
         GroqCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new PerplexityCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
             Object = output.Object,
             Created = output.Created,
+            ServiceTier = output.ServiceTier,
+            SystemFingerprint = output.SystemFingerprint,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new PerplexityCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new PerplexityCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content
@@ -148,7 +181,7 @@ internal class MistralAiCompletionOutputMapper
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new PerplexityCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,
@@ -157,60 +190,31 @@ internal class MistralAiCompletionOutputMapper
         };
     }
     
-    private static MistralAiCompletionOutput MapCloudflareCompletionOutput(
+    private static PerplexityCompletionOutput MapCloudflareCompletionOutput(
         CloudflareCompletionOutput output)
     {
-        return new MistralAiCompletionOutput
+        return new PerplexityCompletionOutput
         {
             Id = output.Id,
             Model = output.Model,
             Object = output.Object,
             Created = output.Created,
+            ServiceTier = output.ServiceTier,
+            SystemFingerprint = output.SystemFingerprint,
             Choices = output
                 .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
+                .Select((choice, index) => new PerplexityCompletionChoiceOutput
                 {
                     Index = index,
-                    Message = new MistralAiCompletionMessageOutput
+                    Message = new PerplexityCompletionMessageOutput
                     {
                         Role = choice.Message.Role,
-                        Content = choice.Message.Content
+                        Content = choice.Message.Content,
                     },
                     FinishReason = choice.FinishReason,
                 })
                 .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
-            {
-                CompletionTokens = output.Usage.CompletionTokens,
-                PromptTokens = output.Usage.PromptTokens,
-                TotalTokens = output.Usage.TotalTokens
-            }
-        };
-    }
-    
-    private static MistralAiCompletionOutput MapPerplexityCompletionOutput(
-        PerplexityCompletionOutput output)
-    {
-        return new MistralAiCompletionOutput
-        {
-            Id = output.Id,
-            Model = output.Model,
-            Object = output.Object,
-            Created = output.Created,
-            Choices = output
-                .Choices
-                .Select((choice, index) => new MistralAiCompletionChoiceOutput
-                {
-                    Index = index,
-                    Message = new MistralAiCompletionMessageOutput
-                    {
-                        Role = choice.Message?.Role ?? string.Empty,
-                        Content = choice.Message?.Content
-                    },
-                    FinishReason = choice.FinishReason,
-                })
-                .ToList(),
-            Usage = new MistralAiCompletionUsageOutput
+            Usage = new PerplexityCompletionUsageOutput
             {
                 CompletionTokens = output.Usage.CompletionTokens,
                 PromptTokens = output.Usage.PromptTokens,

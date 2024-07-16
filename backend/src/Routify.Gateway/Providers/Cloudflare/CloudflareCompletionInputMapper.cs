@@ -4,6 +4,7 @@ using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
+using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.Cloudflare;
@@ -21,6 +22,7 @@ internal class CloudflareCompletionInputMapper
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
+            PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(perplexityCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -152,6 +154,28 @@ internal class CloudflareCompletionInputMapper
                     Role = message.Role
                 })
                 .ToList()
+        };
+    }
+    
+    private static CloudflareCompletionInput MapPerplexityCompletionInput(
+        PerplexityCompletionInput input)
+    {
+        return new CloudflareCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Messages = input
+                .Messages
+                .Select(message => new CloudflareCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList(),
         };
     }
 }

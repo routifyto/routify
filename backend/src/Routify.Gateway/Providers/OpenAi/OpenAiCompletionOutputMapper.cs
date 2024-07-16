@@ -4,6 +4,7 @@ using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
+using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.OpenAi;
@@ -21,6 +22,7 @@ internal class OpenAiCompletionOutputMapper
             MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
             CloudflareCompletionOutput cloudflareCompletionOutput => MapCloudflareCompletionOutput(cloudflareCompletionOutput),
+            PerplexityCompletionOutput perplexityCompletionOutput => MapPerplexityCompletionOutput(perplexityCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
@@ -177,6 +179,39 @@ internal class OpenAiCompletionOutputMapper
                     {
                         Role = choice.Message.Role,
                         Content = choice.Message.Content,
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new OpenAiCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
+            }
+        };
+    }
+    
+    private static OpenAiCompletionOutput MapPerplexityCompletionOutput(
+        PerplexityCompletionOutput output)
+    {
+        return new OpenAiCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model,
+            Object = output.Object,
+            Created = output.Created,
+            ServiceTier = output.ServiceTier,
+            SystemFingerprint = output.SystemFingerprint,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new OpenAiCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new OpenAiCompletionMessageOutput
+                    {
+                        Role = choice.Message?.Role ?? string.Empty,
+                        Content = choice.Message?.Content,
                     },
                     FinishReason = choice.FinishReason,
                 })

@@ -4,6 +4,7 @@ using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
+using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.Cloudflare;
@@ -21,6 +22,7 @@ internal class CloudflareCompletionOutputMapper
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralAiCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
+            PerplexityCompletionOutput perplexityCompletionOutput => MapPerplexityCompletionOutput(perplexityCompletionOutput),
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
@@ -187,6 +189,39 @@ internal class CloudflareCompletionOutputMapper
                 PromptTokens = output.Usage.PromptTokens,
                 TotalTokens = output.Usage.TotalTokens
             }
+        };
+    }
+    
+    private static CloudflareCompletionOutput MapPerplexityCompletionOutput(
+        PerplexityCompletionOutput output)
+    {
+        return new CloudflareCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model,
+            Object = output.Object,
+            Created = output.Created,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new CloudflareCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new CloudflareCompletionMessageOutput
+                    {
+                        Role = choice.Message?.Role ?? string.Empty,
+                        Content = choice.Message?.Content
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new CloudflareCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
+            },
+            ServiceTier = output.ServiceTier,
+            SystemFingerprint = output.SystemFingerprint
         };
     }
 }

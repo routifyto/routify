@@ -908,11 +908,54 @@ export const providers: Provider[] = [
     models: [],
   },
   {
-    id: 'perplexity-ai',
-    name: 'PerplexityAI',
+    id: 'perplexity',
+    name: 'Perplexity',
     description: 'Description coming soon.',
-    logo: '/providers/perplexity-ai.png',
-    models: [],
+    logo: '/providers/perplexity.png',
+    models: [
+      {
+        id: 'llama-3-sonar-small-32k-online',
+        name: 'llama-3-sonar-small-32k-online',
+        description: 'Description coming soon..',
+        contextWindow: 32000,
+      },
+      {
+        id: 'llama-3-sonar-small-32k-chat',
+        name: 'llama-3-sonar-small-32k-chat',
+        description: 'Description coming soon..',
+        contextWindow: 32000,
+      },
+      {
+        id: 'llama-3-sonar-large-32k-online',
+        name: 'llama-3-sonar-large-32k-online',
+        description: 'Description coming soon..',
+        contextWindow: 32000,
+      },
+      {
+        id: 'llama-3-sonar-large-32k-chat',
+        name: 'llama-3-sonar-large-32k-chat',
+        description: 'Description coming soon..',
+        contextWindow: 32000,
+      },
+      {
+        id: 'llama-3-8b-instruct',
+        name: 'llama-3-8b-instruct',
+        description: 'Description coming soon..',
+        contextWindow: 0,
+      },
+      {
+        id: 'llama-3-70b-instruct',
+        name: 'llama-3-70b-instruct',
+        description: 'Description coming soon..',
+        contextWindow: 0,
+      },
+      {
+        id: 'mixtral-8x7b-instruct',
+        name: 'mixtral-8x7b-instruct',
+        description: 'Description coming soon..',
+        contextWindow: 0,
+      },
+    ],
   },
   {
     id: 'groq',

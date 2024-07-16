@@ -4,6 +4,7 @@ using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.MistralAi.Models;
 using Routify.Gateway.Providers.OpenAi.Models;
+using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.Anthropic;
@@ -21,6 +22,7 @@ internal class AnthropicCompletionInputMapper
             MistralAiCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
             CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
+            PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(perplexityCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -155,6 +157,38 @@ internal class AnthropicCompletionInputMapper
     
     private static AnthropicCompletionInput MapCloudflareCompletionInput(
         CloudflareCompletionInput input)
+    {
+        var systemMessages = input
+            .Messages
+            .Where(message => message.Role == "system")
+            .ToList();
+        
+        var systemPrompt = string.Join("\n", systemMessages.Select(message => message.Content));
+        
+        var otherMessages = input
+            .Messages
+            .Where(message => message.Role != "system")
+            .ToList();
+        
+        return new AnthropicCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = otherMessages
+                .Select(message => new AnthropicCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList(),
+            System = systemPrompt,
+        };
+    }
+    
+    private static AnthropicCompletionInput MapPerplexityCompletionInput(
+        PerplexityCompletionInput input)
     {
         var systemMessages = input
             .Messages

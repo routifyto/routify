@@ -12,6 +12,6 @@ public static class ProviderIds
     public const string Cloudflare = "cloudflare";
     public const string AzureOpenAi = "azure-openai";
     public const string Bedrock = "bedrock";
-    public const string PerplexityAi = "perplexity-ai";
+    public const string Perplexity = "perplexity";
     public const string Groq = "groq";
 }
