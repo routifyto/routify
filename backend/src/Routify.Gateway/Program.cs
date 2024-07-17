@@ -3,6 +3,7 @@ using Routify.Gateway.Abstractions;
 using Routify.Gateway.Extensions;
 using Routify.Gateway.Handlers;
 using Routify.Gateway.Providers.Anthropic;
+using Routify.Gateway.Providers.AzureOpenAi;
 using Routify.Gateway.Providers.Cohere;
 using Routify.Gateway.Providers.Groq;
 using Routify.Gateway.Providers.Mistral;
@@ -36,6 +37,7 @@ builder.Services.AddMistral();
 builder.Services.AddCohere();
 builder.Services.AddGroq();
 builder.Services.AddPerplexity();
+builder.Services.AddAzureOpenAi();
 
 //inject api http client
 builder.Services.AddHttpClient("api",client =>

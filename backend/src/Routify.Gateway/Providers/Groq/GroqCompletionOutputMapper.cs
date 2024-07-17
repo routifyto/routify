@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -18,6 +19,7 @@ internal class GroqCompletionOutputMapper
         {
             GroqCompletionOutput groqCompletionOutput => groqCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
+            AzureOpenAiCompletionOutput azureOpenAiCompletionOutput => MapAzureOpenAiCompletionOutput(azureOpenAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
@@ -34,6 +36,39 @@ internal class GroqCompletionOutputMapper
         {
             Id = output.Id,
             Model = output.Model,
+            Object = output.Object,
+            Created = output.Created,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new GroqCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new GroqCompletionMessageOutput
+                    {
+                        Role = choice.Message.Role,
+                        Content = choice.Message.Content
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new GroqCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
+            },
+            ServiceTier = output.ServiceTier,
+            SystemFingerprint = output.SystemFingerprint
+        };
+    }
+    
+    private static GroqCompletionOutput MapAzureOpenAiCompletionOutput(
+        AzureOpenAiCompletionOutput output)
+    {
+        return new GroqCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model ?? string.Empty,
             Object = output.Object,
             Created = output.Created,
             Choices = output

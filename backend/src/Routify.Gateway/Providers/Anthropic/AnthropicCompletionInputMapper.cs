@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -18,6 +19,7 @@ internal class AnthropicCompletionInputMapper
         {
             AnthropicCompletionInput anthropicCompletionInput => anthropicCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
@@ -29,6 +31,38 @@ internal class AnthropicCompletionInputMapper
 
     private static AnthropicCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
+    {
+        var systemMessages = input
+            .Messages
+            .Where(message => message.Role == "system")
+            .ToList();
+        
+        var systemPrompt = string.Join("\n", systemMessages.Select(message => message.Content));
+        
+        var otherMessages = input
+            .Messages
+            .Where(message => message.Role != "system")
+            .ToList();
+        
+        return new AnthropicCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            Temperature = input.Temperature,
+            Messages = otherMessages
+                .Select(message => new AnthropicCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList(),
+            System = systemPrompt,
+        };
+    }
+    
+    private static AnthropicCompletionInput MapAzureOpenAiCompletionInput(
+        AzureOpenAiCompletionInput input)
     {
         var systemMessages = input
             .Messages

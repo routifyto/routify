@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
@@ -19,6 +20,7 @@ internal class CohereCompletionInputMapper
         {
             CohereCompletionInput cohereCompletionInput => cohereCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralCompletionInput => MapMistralCompletionInput(mistralCompletionInput),
@@ -31,6 +33,38 @@ internal class CohereCompletionInputMapper
 
     private static CohereCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
+    {
+        var lastMessage = input.Messages.LastOrDefault();
+        var chatHistory = new List<CohereCompletionMessageInput>();
+        if (input.Messages.Count > 1)
+        {
+            var otherMessages = input.Messages.Take(input.Messages.Count - 1);
+            var cohereMessages = otherMessages
+                .Select(message => new CohereCompletionMessageInput
+                {
+                    Message = message.Content,
+                    Role = MapCohereRole(message.Role)
+                });
+            
+            chatHistory.AddRange(cohereMessages);
+        }
+        
+        return new CohereCompletionInput
+        {
+            Model = input.Model,
+            P = input.TopP,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            ChatHistory = chatHistory,
+            Message = lastMessage?.Content,
+            Seed = input.Seed
+        };
+    }
+    
+    private static CohereCompletionInput MapAzureOpenAiCompletionInput(
+        AzureOpenAiCompletionInput input)
     {
         var lastMessage = input.Messages.LastOrDefault();
         var chatHistory = new List<CohereCompletionMessageInput>();

@@ -16,6 +16,19 @@ export function AzureOpenaiAppProviderAttrsForm() {
     <React.Fragment>
       <FormField
         control={form.control}
+        name="attrs.endpoint"
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormLabel>Endpoint</FormLabel>
+            <FormControl>
+              <Input placeholder="Endpoint" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
         name="attrs.apiKey"
         render={({ field }) => (
           <FormItem className="flex-1">

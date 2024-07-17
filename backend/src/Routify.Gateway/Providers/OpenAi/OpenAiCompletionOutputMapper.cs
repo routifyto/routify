@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -17,6 +18,7 @@ internal class OpenAiCompletionOutputMapper
         return output switch
         {
             OpenAiCompletionOutput openAiCompletionOutput => openAiCompletionOutput,
+            AzureOpenAiCompletionOutput azureOpenAiCompletionOutput => MapAzureOpenAiCompletionOutput(azureOpenAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
@@ -26,7 +28,40 @@ internal class OpenAiCompletionOutputMapper
             _ => throw new NotSupportedException($"Unsupported output type: {output.GetType().Name}")
         };
     }
-
+    
+    private static OpenAiCompletionOutput MapAzureOpenAiCompletionOutput(
+        AzureOpenAiCompletionOutput output)
+    {
+        return new OpenAiCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model ?? string.Empty,
+            Object = output.Object,
+            Created = output.Created,
+            ServiceTier = output.ServiceTier,
+            SystemFingerprint = output.SystemFingerprint,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new OpenAiCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new OpenAiCompletionMessageOutput
+                    {
+                        Role = choice.Message.Role,
+                        Content = choice.Message.Content
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new OpenAiCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
+            }
+        };
+    }
+    
     private static OpenAiCompletionOutput MapTogetherAiCompletionOutput(
         TogetherAiCompletionOutput output)
     {

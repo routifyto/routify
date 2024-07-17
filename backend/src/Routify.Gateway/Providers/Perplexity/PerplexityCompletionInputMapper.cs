@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -18,6 +19,7 @@ internal class PerplexityCompletionInputMapper
         {
             PerplexityCompletionInput perplexityCompletionInput => perplexityCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
@@ -29,6 +31,28 @@ internal class PerplexityCompletionInputMapper
 
     private static PerplexityCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
+    {
+        return new PerplexityCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Messages = input
+                .Messages
+                .Select(message => new PerplexityCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList(),
+        };
+    }
+    
+    private static PerplexityCompletionInput MapAzureOpenAiCompletionInput(
+        AzureOpenAiCompletionInput input)
     {
         return new PerplexityCompletionInput
         {

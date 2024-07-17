@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -17,6 +18,7 @@ internal class OpenAiCompletionInputMapper
         return input switch
         {
             OpenAiCompletionInput openAiCompletionInput => openAiCompletionInput,
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
@@ -27,6 +29,34 @@ internal class OpenAiCompletionInputMapper
         };
     }
 
+    private static OpenAiCompletionInput MapAzureOpenAiCompletionInput(
+        AzureOpenAiCompletionInput input)
+    {
+        return new OpenAiCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            N = input.N,
+            Stop = input.Stop,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Logprobs = input.Logprobs,
+            TopLogprobs = input.TopLogprobs,
+            Seed = input.Seed,
+            User = input.User,
+            Messages = input
+                .Messages
+                .Select(message => new OpenAiCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
     private static OpenAiCompletionInput MapTogetherAiCompletionInput(
         TogetherAiCompletionInput input)
     {

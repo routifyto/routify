@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -18,6 +19,7 @@ internal class TogetherAiCompletionInputMapper
         {
             TogetherAiCompletionInput togetherAiCompletionInput => togetherAiCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
@@ -29,6 +31,30 @@ internal class TogetherAiCompletionInputMapper
 
     private static TogetherAiCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
+    {
+        return new TogetherAiCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            N = input.N,
+            Stop = input.Stop,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Messages = input
+                .Messages
+                .Select(message => new TogetherAiCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
+    private static TogetherAiCompletionInput MapAzureOpenAiCompletionInput(
+        AzureOpenAiCompletionInput input)
     {
         return new TogetherAiCompletionInput
         {

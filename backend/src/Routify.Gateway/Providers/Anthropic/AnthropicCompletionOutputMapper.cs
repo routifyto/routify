@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -17,6 +18,7 @@ internal class AnthropicCompletionOutputMapper
         return output switch
         {
             AnthropicCompletionOutput anthropicCompletionOutput => anthropicCompletionOutput,
+            AzureOpenAiCompletionOutput azureOpenAiCompletionOutput => MapAzureOpenAiCompletionOutput(azureOpenAiCompletionOutput),
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             MistralCompletionOutput mistralAiCompletionOutput => MapMistralAiCompletionOutput(mistralAiCompletionOutput),
@@ -35,6 +37,32 @@ internal class AnthropicCompletionOutputMapper
         {
             Id = output.Id,
             Model = output.Model,
+            Type = output.Object,
+            Role = choice?.Message.Role ?? "assistant",
+            Content = [
+                new AnthropicCompletionContentOutput
+                {
+                    Type = "text",
+                    Text = choice?.Message.Content
+                }
+            ],
+            StopReason = choice?.FinishReason,
+            Usage = new AnthropicCompletionUsageOutput
+            {
+                InputTokens = output.Usage.PromptTokens,
+                OutputTokens = output.Usage.CompletionTokens
+            }
+        };
+    }
+    
+    private static AnthropicCompletionOutput MapAzureOpenAiCompletionOutput(
+        AzureOpenAiCompletionOutput output)
+    {
+        var choice = output.Choices.FirstOrDefault();
+        return new AnthropicCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model ?? string.Empty,
             Type = output.Object,
             Role = choice?.Message.Role ?? "assistant",
             Content = [

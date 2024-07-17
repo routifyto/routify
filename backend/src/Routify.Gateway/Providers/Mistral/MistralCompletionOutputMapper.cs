@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -18,6 +19,7 @@ internal class MistralCompletionOutputMapper
         {
             MistralCompletionOutput mistralAiCompletionOutput => mistralAiCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
+            AzureOpenAiCompletionOutput azureOpenAiCompletionOutput => MapAzureOpenAiCompletionOutput(azureOpenAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             GroqCompletionOutput groqCompletionOutput => MapGroqCompletionOutput(groqCompletionOutput),
@@ -34,6 +36,37 @@ internal class MistralCompletionOutputMapper
         {
             Id = output.Id,
             Model = output.Model,
+            Object = output.Object,
+            Created = output.Created,
+            Choices = output
+                .Choices
+                .Select((choice, index) => new MistralCompletionChoiceOutput
+                {
+                    Index = index,
+                    Message = new MistralCompletionMessageOutput
+                    {
+                        Role = choice.Message.Role,
+                        Content = choice.Message.Content
+                    },
+                    FinishReason = choice.FinishReason,
+                })
+                .ToList(),
+            Usage = new MistralCompletionUsageOutput
+            {
+                CompletionTokens = output.Usage.CompletionTokens,
+                PromptTokens = output.Usage.PromptTokens,
+                TotalTokens = output.Usage.TotalTokens
+            }
+        };
+    }
+    
+    private static MistralCompletionOutput MapAzureOpenAiCompletionOutput(
+        AzureOpenAiCompletionOutput output)
+    {
+        return new MistralCompletionOutput
+        {
+            Id = output.Id,
+            Model = output.Model ?? string.Empty,
             Object = output.Object,
             Created = output.Created,
             Choices = output

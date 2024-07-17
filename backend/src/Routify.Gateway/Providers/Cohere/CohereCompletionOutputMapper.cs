@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Cohere.Models;
 using Routify.Gateway.Providers.Groq.Models;
@@ -19,6 +20,7 @@ internal class CohereCompletionOutputMapper
         {
             CohereCompletionOutput cohereCompletionOutput => cohereCompletionOutput,
             OpenAiCompletionOutput openAiCompletionOutput => MapOpenAiCompletionOutput(openAiCompletionOutput),
+            AzureOpenAiCompletionOutput azureOpenAiCompletionOutput => MapAzureOpenAiCompletionOutput(azureOpenAiCompletionOutput),
             TogetherAiCompletionOutput togetherAiCompletionOutput => MapTogetherAiCompletionOutput(togetherAiCompletionOutput),
             AnthropicCompletionOutput anthropicCompletionOutput => MapAnthropicCompletionOutput(anthropicCompletionOutput),
             MistralCompletionOutput mistralCompletionOutput => MapMistralCompletionOutput(mistralCompletionOutput),
@@ -31,6 +33,31 @@ internal class CohereCompletionOutputMapper
 
     private static CohereCompletionOutput MapOpenAiCompletionOutput(
         OpenAiCompletionOutput output)
+    {
+        var choice = output.Choices.FirstOrDefault();
+        return new CohereCompletionOutput
+        {
+            GenerationId = output.Id,
+            Text = choice?.Message?.Content ?? string.Empty,
+            FinishReason = choice?.FinishReason,
+            Meta = new CohereCompletionMetaOutput
+            {
+                BilledUnits = new CohereCompletionBilledUnitsMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+                Tokens = new CohereCompletionTokensMetaOutput
+                {
+                    InputTokens = output.Usage.PromptTokens,
+                    OutputTokens = output.Usage.CompletionTokens,
+                },
+            }
+        };
+    }
+    
+    private static CohereCompletionOutput MapAzureOpenAiCompletionOutput(
+        AzureOpenAiCompletionOutput output)
     {
         var choice = output.Choices.FirstOrDefault();
         return new CohereCompletionOutput

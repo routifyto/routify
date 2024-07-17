@@ -1,5 +1,6 @@
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Providers.Anthropic.Models;
+using Routify.Gateway.Providers.AzureOpenAi.Models;
 using Routify.Gateway.Providers.Cloudflare.Models;
 using Routify.Gateway.Providers.Groq.Models;
 using Routify.Gateway.Providers.Mistral.Models;
@@ -18,6 +19,7 @@ internal class GroqCompletionInputMapper
         {
             GroqCompletionInput groqCompletionInput => groqCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
@@ -29,6 +31,32 @@ internal class GroqCompletionInputMapper
 
     private static GroqCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
+    {
+        return new GroqCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            N = input.N,
+            Stop = input.Stop,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Seed = input.Seed,
+            User = input.User,
+            Messages = input
+                .Messages
+                .Select(message => new GroqCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
+    private static GroqCompletionInput MapAzureOpenAiCompletionInput(
+        AzureOpenAiCompletionInput input)
     {
         return new GroqCompletionInput
         {

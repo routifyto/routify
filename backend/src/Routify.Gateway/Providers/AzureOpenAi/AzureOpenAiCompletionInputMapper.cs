@@ -8,31 +8,31 @@ using Routify.Gateway.Providers.OpenAi.Models;
 using Routify.Gateway.Providers.Perplexity.Models;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
-namespace Routify.Gateway.Providers.Cloudflare;
+namespace Routify.Gateway.Providers.AzureOpenAi;
 
-internal class CloudflareCompletionInputMapper
+internal class AzureOpenAiCompletionInputMapper
 {
-    public static CloudflareCompletionInput Map(
+    public static AzureOpenAiCompletionInput Map(
         ICompletionInput input)
     {
         return input switch
         {
-            CloudflareCompletionInput cloudflareCompletionInput => cloudflareCompletionInput,
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => azureOpenAiCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
-            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
             TogetherAiCompletionInput togetherAiCompletionInput => MapTogetherAiCompletionInput(togetherAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
+            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
             PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(perplexityCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
     
-    private static CloudflareCompletionInput MapOpenAiCompletionInput(
+    private static AzureOpenAiCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
     {
-        return new CloudflareCompletionInput
+        return new AzureOpenAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -42,55 +42,25 @@ internal class CloudflareCompletionInputMapper
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
             Temperature = input.Temperature,
-            Messages = input
-                .Messages
-                .Select(message => new CloudflareCompletionMessageInput
-                {
-                    Name = message.Name,
-                    Content = message.Content,
-                    Role = message.Role
-                })
-                .ToList(),
             Seed = input.Seed,
             User = input.User,
             Logprobs = input.Logprobs,
             TopLogprobs = input.TopLogprobs,
-        };
-    }
-    
-    private static CloudflareCompletionInput MapAzureOpenAiCompletionInput(
-        AzureOpenAiCompletionInput input)
-    {
-        return new CloudflareCompletionInput
-        {
-            Model = input.Model,
-            TopP = input.TopP,
-            N = input.N,
-            Stop = input.Stop,
-            MaxTokens = input.MaxTokens,
-            PresencePenalty = input.PresencePenalty,
-            FrequencyPenalty = input.FrequencyPenalty,
-            Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new CloudflareCompletionMessageInput
+                .Select(message => new AzureOpenAiCompletionMessageInput
                 {
-                    Name = message.Name,
                     Content = message.Content,
                     Role = message.Role
                 })
-                .ToList(),
-            Seed = input.Seed,
-            User = input.User,
-            Logprobs = input.Logprobs,
-            TopLogprobs = input.TopLogprobs,
+                .ToList()
         };
     }
 
-    private static CloudflareCompletionInput MapTogetherAiCompletionInput(
+    private static AzureOpenAiCompletionInput MapTogetherAiCompletionInput(
         TogetherAiCompletionInput input)
     {
-        return new CloudflareCompletionInput
+        return new AzureOpenAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -102,7 +72,7 @@ internal class CloudflareCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new CloudflareCompletionMessageInput
+                .Select(message => new AzureOpenAiCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -111,12 +81,12 @@ internal class CloudflareCompletionInputMapper
         };
     }
     
-    private static CloudflareCompletionInput MapAnthropicCompletionInput(
+    private static AzureOpenAiCompletionInput MapAnthropicCompletionInput(
         AnthropicCompletionInput input)
     {
         var messages = input
             .Messages
-            .Select(message => new CloudflareCompletionMessageInput
+            .Select(message => new AzureOpenAiCompletionMessageInput
             {
                 Content = message.Content,
                 Role = message.Role
@@ -125,14 +95,14 @@ internal class CloudflareCompletionInputMapper
 
         if (!string.IsNullOrWhiteSpace(input.System))
         {
-            messages.Insert(0, new CloudflareCompletionMessageInput
+            messages.Insert(0, new AzureOpenAiCompletionMessageInput
             {
                 Content = input.System,
                 Role = "system"
             });
         }
         
-        return new CloudflareCompletionInput
+        return new AzureOpenAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -142,10 +112,10 @@ internal class CloudflareCompletionInputMapper
         };
     }
     
-    private static CloudflareCompletionInput MapMistralAiCompletionInput(
+    private static AzureOpenAiCompletionInput MapMistralAiCompletionInput(
         MistralCompletionInput input)
     {
-        return new CloudflareCompletionInput
+        return new AzureOpenAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -153,7 +123,7 @@ internal class CloudflareCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new CloudflareCompletionMessageInput
+                .Select(message => new AzureOpenAiCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -162,10 +132,10 @@ internal class CloudflareCompletionInputMapper
         };
     }
     
-    private static CloudflareCompletionInput MapGroqCompletionInput(
+    private static AzureOpenAiCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
     {
-        return new CloudflareCompletionInput
+        return new AzureOpenAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -179,7 +149,7 @@ internal class CloudflareCompletionInputMapper
             User = input.User,
             Messages = input
                 .Messages
-                .Select(message => new CloudflareCompletionMessageInput
+                .Select(message => new AzureOpenAiCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
@@ -188,10 +158,38 @@ internal class CloudflareCompletionInputMapper
         };
     }
     
-    private static CloudflareCompletionInput MapPerplexityCompletionInput(
+    private static AzureOpenAiCompletionInput MapCloudflareCompletionInput(
+        CloudflareCompletionInput input)
+    {
+        return new AzureOpenAiCompletionInput
+        {
+            Model = input.Model,
+            TopP = input.TopP,
+            N = input.N,
+            Stop = input.Stop,
+            MaxTokens = input.MaxTokens,
+            PresencePenalty = input.PresencePenalty,
+            FrequencyPenalty = input.FrequencyPenalty,
+            Temperature = input.Temperature,
+            Seed = input.Seed,
+            User = input.User,
+            Logprobs = input.Logprobs,
+            TopLogprobs = input.TopLogprobs,
+            Messages = input
+                .Messages
+                .Select(message => new AzureOpenAiCompletionMessageInput
+                {
+                    Content = message.Content,
+                    Role = message.Role
+                })
+                .ToList()
+        };
+    }
+    
+    private static AzureOpenAiCompletionInput MapPerplexityCompletionInput(
         PerplexityCompletionInput input)
     {
-        return new CloudflareCompletionInput
+        return new AzureOpenAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
@@ -201,12 +199,12 @@ internal class CloudflareCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
-                .Select(message => new CloudflareCompletionMessageInput
+                .Select(message => new AzureOpenAiCompletionMessageInput
                 {
                     Content = message.Content,
                     Role = message.Role
                 })
-                .ToList(),
+                .ToList()
         };
     }
 }
