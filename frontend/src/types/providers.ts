@@ -898,7 +898,83 @@ export const providers: Provider[] = [
     name: 'Azure OpenAI',
     description: 'Description coming soon.',
     logo: '/providers/azure-openai.png',
-    models: [],
+    models: [
+      {
+        id: 'gpt-4o',
+        name: 'gpt-4o',
+        description:
+          'Our most advanced, multimodal flagship model that’s cheaper and faster than GPT-4 Turbo. Currently points to gpt-4o-2024-05-13.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'gpt-4-turbo',
+        name: 'gpt-4-turbo',
+        description:
+          'The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling. Currently points to gpt-4-turbo-2024-04-09.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'gpt-4-turbo-2024-04-09',
+        name: 'gpt-4-turbo-2024-04-09',
+        description:
+          'The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'gpt-4-turbo-preview',
+        name: 'gpt-4-turbo-preview',
+        description:
+          'GPT-4 Turbo preview model. Currently points to gpt-4-0125-preview.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'gpt-4-0125-preview',
+        name: 'gpt-4-0125-preview',
+        description:
+          'GPT-4 Turbo preview model intended to reduce cases of “laziness” where the model doesn’t complete a task. Returns a maximum of 4,096 output tokens.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'gpt-4-1106-preview',
+        name: 'gpt-4-1106-preview',
+        description:
+          'GPT-4 Turbo preview model featuring improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This is a preview model.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'gpt-4',
+        name: 'gpt-4',
+        description: 'Currently points to gpt-4-0613.',
+        contextWindow: 8192,
+      },
+      {
+        id: 'gpt-4-0613',
+        name: 'gpt-4-0613',
+        description:
+          'Snapshot of gpt-4 from June 13th 2023 with improved function calling support.',
+        contextWindow: 8192,
+      },
+      {
+        id: 'gpt-3.5-turbo-0125',
+        name: 'gpt-3.5-turbo-0125',
+        description:
+          'The latest GPT-3.5 Turbo model with higher accuracy at responding in requested formats and a fix for a bug which caused a text encoding issue for non-English language function calls. Returns a maximum of 4,096 output tokens.',
+        contextWindow: 16385,
+      },
+      {
+        id: 'gpt-3.5-turbo',
+        name: 'gpt-3.5-turbo',
+        description: 'Currently points to gpt-3.5-turbo-0125.',
+        contextWindow: 16385,
+      },
+      {
+        id: 'gpt-3.5-turbo-1106',
+        name: 'gpt-3.5-turbo-1106',
+        description:
+          'GPT-3.5 Turbo model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens.',
+        contextWindow: 16385,
+      },
+    ],
   },
   {
     id: 'bedrock',
