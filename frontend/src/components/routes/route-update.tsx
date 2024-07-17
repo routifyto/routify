@@ -21,6 +21,7 @@ export function RouteUpdate({ routeId }: RouteUpdateProps) {
   const { data, isPending: isPendingQuery } = useGetRouteQuery(app.id, routeId);
 
   function handleSubmit(input: UpdateRouteInput) {
+    console.log('update-input', input);
     mutate(input, {
       onSuccess: () => {
         toast({

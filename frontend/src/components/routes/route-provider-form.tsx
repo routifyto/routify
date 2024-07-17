@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import { ModelSelect } from '@/components/providers/model-select';
 import { RouteProviderAttrsForm } from '@/components/routes/route-provider-attrs-form';
+import { Input } from '@/components/ui/input';
 
 interface RouteProviderFormProps {
   index: number;
@@ -81,6 +82,29 @@ export function RouteProviderForm({ index, onRemove }: RouteProviderFormProps) {
           <Trash className="h-4 w-4" />
         </Button>
       </div>
+      <FormField
+        control={form.control}
+        name={`providers.${index}.weight`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Weight</FormLabel>
+            <FormControl>
+              <Input
+                placeholder=""
+                value={field.value ?? ''}
+                onChange={(event) => {
+                  const number = parseInt(event.target.value, 10);
+                  if (isNaN(number)) {
+                    return;
+                  }
+                  field.onChange(number);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <FormField
         control={form.control}
         name={`providers.${index}.model`}

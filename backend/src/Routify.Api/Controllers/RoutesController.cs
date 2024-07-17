@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Routify.Api.Models.Common;
 using Routify.Api.Models.Routes;
-using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Data;
 using Routify.Data.Common;
@@ -168,7 +167,8 @@ public class RoutesController(
             Description = input.Description,
             Path = input.Path,
             Type = input.Type,
-            Schema = ProviderIds.OpenAi,
+            Strategy = input.Strategy,
+            Schema = input.Schema,
             Attrs = input.Attrs,
             Config = new RouteConfig(),
             CreatedAt = DateTime.UtcNow,
@@ -186,6 +186,7 @@ public class RoutesController(
                 AppProviderId = x.AppProviderId,
                 Model = x.Model,
                 Attrs = x.Attrs ?? new Dictionary<string, string>(),
+                Weight = x.Weight,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = CurrentUserId,
                 VersionId = RoutifyId.Generate(IdType.Version)
@@ -255,6 +256,8 @@ public class RoutesController(
         route.Name = input.Name;
         route.Description = input.Description;
         route.Path = input.Path;
+        route.Strategy = input.Strategy;
+        route.Schema = input.Schema;
         route.Attrs = input.Attrs;
 
         var routeProviderIds = input.Providers.Select(x => x.Id).ToList();
@@ -279,6 +282,7 @@ public class RoutesController(
                     AppProviderId = routeProviderInput.AppProviderId,
                     Model = routeProviderInput.Model,
                     Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>(),
+                    Weight = routeProviderInput.Weight,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = CurrentUserId,
                     VersionId = RoutifyId.Generate(IdType.Version)
@@ -295,6 +299,7 @@ public class RoutesController(
                 routeProvider.AppProviderId = routeProviderInput.AppProviderId;
                 routeProvider.Model = routeProviderInput.Model;
                 routeProvider.Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>();
+                routeProvider.Weight = routeProviderInput.Weight;
                 routeProvider.UpdatedAt = DateTime.UtcNow;
                 routeProvider.UpdatedBy = CurrentUserId;
                 routeProvider.VersionId = RoutifyId.Generate(IdType.Version);
@@ -374,13 +379,16 @@ public class RoutesController(
             Path = route.Path,
             Type = route.Type,
             Attrs = route.Attrs,
+            Strategy = route.Strategy,
+            Schema = route.Schema,
             Providers = route.Providers
                 .Select(x => new RouteProviderOutput
                 {
                     Id = x.Id,
                     AppProviderId = x.AppProviderId,
                     Model = x.Model,
-                    Attrs = x.Attrs
+                    Attrs = x.Attrs,
+                    Weight = x.Weight
                 })
                 .ToList(),
         };

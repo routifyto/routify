@@ -20,25 +20,8 @@ internal record AppData
         Name = output.Name;
         Routes = output
             .Routes
-            .ToDictionary(route => route.Path, route => new RouteData
-            {
-                Id = route.Id,
-                Name = route.Name,
-                Path = route.Path,
-                Type = route.Type,
-                Schema = route.Schema,
-                Providers = route
-                    .Providers
-                    .Select(routeProvider => new RouteProviderData
-                    {
-                        Id = routeProvider.Id,
-                        AppProviderId = routeProvider.AppProviderId,
-                        Model = routeProvider.Model,
-                        Attrs = routeProvider.Attrs
-                    })
-                    .ToList()
-            });
-        
+            .ToDictionary(route => route.Path, route => new RouteData(route));
+
         Providers = output
             .Providers
             .ToDictionary(provider => provider.Id, provider => new AppProviderData
@@ -48,7 +31,7 @@ internal record AppData
                 Alias = provider.Alias,
                 Attrs = provider.Attrs
             });
-        
+
         ApiKeys = output
             .ApiKeys
             .ToDictionary(apiKey => apiKey.Id, apiKey => new ApiKeyData
@@ -70,7 +53,7 @@ internal record AppData
                 Id = consumerOutput.Id,
                 Alias = consumerOutput.Alias
             };
-            
+
             if (!string.IsNullOrEmpty(consumerOutput.Alias))
             {
                 ConsumerByAliases[consumerOutput.Alias] = consumerOutput.Id;
@@ -84,7 +67,7 @@ internal record AppData
         Routes.TryGetValue(path, out var route);
         return route;
     }
-    
+
     public AppProviderData? GetProviderById(
         string id)
     {
@@ -98,7 +81,7 @@ internal record AppData
         ApiKeys.TryGetValue(id, out var apiKey);
         return apiKey;
     }
-    
+
     public ConsumerData? GetConsumer(
         string idOrAlias)
     {
@@ -106,13 +89,13 @@ internal record AppData
         {
             return consumer;
         }
-        
+
         if (ConsumerByAliases.TryGetValue(idOrAlias, out var consumerId)
             && Consumers.TryGetValue(consumerId, out consumer))
         {
             return consumer;
         }
-        
+
         return null;
     }
 }

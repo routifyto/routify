@@ -17,6 +17,7 @@ public record Route
     public RouteType Type { get; set; }
     public string Schema { get; set; } = null!;
     
+    public RouteStrategy Strategy { get; set; }
     public RouteConfig Config { get; set; } = null!;
     public RateLimitConfig? RateLimitConfig { get; set; }
     public CacheConfig? CacheConfig { get; set; }
@@ -69,6 +70,10 @@ public record Route
             
             entity.Property(e => e.Schema)
                 .HasColumnName("schema")
+                .IsRequired();
+            
+            entity.Property(e => e.Strategy)
+                .HasColumnName("strategy")
                 .IsRequired();
 
             entity.Property(e => e.Config)

@@ -15,6 +15,7 @@ public record RouteProvider
     public string? Model { get; set; }
     public Dictionary<string, string> Attrs { get; set; } = [];
     public RetryConfig? RetryConfig { get; set; }
+    public int Weight { get; set; } = 1;
     
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
@@ -72,6 +73,11 @@ public record RouteProvider
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<RetryConfig>(v));
+
+            entity.Property(e => e.Weight)
+                .HasColumnName("weight")
+                .IsRequired()
+                .HasDefaultValue(1);
 
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at")

@@ -67,6 +67,7 @@ public class GatewayController(
                         Path = route.Path,
                         Type = route.Type,
                         Schema = route.Schema,
+                        Strategy = route.Strategy,
                         Providers = allRouteProviders
                             .Where(routeProvider => routeProvider.RouteId == route.Id)
                             .Select(routeProvider => new GatewayRouteProviderOutput
@@ -74,7 +75,8 @@ public class GatewayController(
                                 Id = routeProvider.Id,
                                 AppProviderId = routeProvider.AppProviderId,
                                 Model = routeProvider.Model,
-                                Attrs = routeProvider.Attrs
+                                Attrs = routeProvider.Attrs,
+                                Weight = routeProvider.Weight
                             })
                             .ToList()
                     })

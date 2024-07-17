@@ -19,6 +19,7 @@ import { CreateRouteInput, RouteOutput } from '@/types/routes';
 import { RouteProviderForm } from '@/components/routes/route-provider-form';
 import { Plus } from 'lucide-react';
 import { AppProvidersDialog } from '@/components/app-providers/app-providers-dialog';
+import { ProviderSelect } from '@/components/providers/provider-select';
 
 const formSchema = z.object({
   name: z.string(),
@@ -29,12 +30,15 @@ const formSchema = z.object({
   description: z.string().optional(),
   attrs: z.record(z.string(), z.string()),
   type: z.enum(['COMPLETION', 'EMBEDDING']),
+  schema: z.string(),
+  strategy: z.enum(['DEFAULT', 'LOAD_BALANCE', 'FALLBACK']),
   providers: z.array(
     z.object({
       id: z.string().nullable().optional(),
       appProviderId: z.string(),
       model: z.string().nullable().optional(),
       attrs: z.record(z.string(), z.string().optional().nullable()),
+      weight: z.number().int().min(1).max(100).default(1),
     }),
   ),
 });
@@ -61,7 +65,8 @@ export function RouteForm({
       path: '',
       attrs: {},
       type: 'COMPLETION',
-      schemaType: 'OPENAI',
+      schema: 'openai',
+      strategy: 'DEFAULT',
       providers: [],
     },
   });
@@ -133,6 +138,22 @@ export function RouteForm({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="schema"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Schema *</FormLabel>
+                  <FormControl>
+                    <ProviderSelect
+                      value={field.value}
+                      onChange={(provider) => field.onChange(provider)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           {providers.map((_, index) => (
             <div
@@ -192,6 +213,7 @@ export function RouteForm({
                 appProviderId,
                 model: null,
                 attrs: {},
+                weight: 1,
               },
             ]);
 

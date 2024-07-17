@@ -2,11 +2,14 @@ using System.Net;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Data.Common;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Data;
 using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Services;
+using RouteData = Routify.Gateway.Models.Data.RouteData;
 
 namespace Routify.Gateway.Handlers;
 
@@ -15,6 +18,8 @@ internal class CompletionHandler(
     LogService logService)
     : IRequestHandler
 {
+    private readonly Random _random = new();
+    
     public async Task HandleAsync(
         RequestContext context,
         CancellationToken cancellationToken)
@@ -39,7 +44,7 @@ internal class CompletionHandler(
             var requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
             log.GatewayRequest.Body = requestBody;
 
-            var schemaProvider = serviceProvider.GetKeyedService<ICompletionProvider>(ProviderIds.OpenAi);
+            var schemaProvider = serviceProvider.GetKeyedService<ICompletionProvider>(context.Route.Schema);
             if (schemaProvider == null)
                 throw new GatewayException(HttpStatusCode.NotImplemented);
 
@@ -47,7 +52,7 @@ internal class CompletionHandler(
             if (input == null)
                 throw new GatewayException(HttpStatusCode.BadRequest);
 
-            var routeProvider = context.Route.Providers.FirstOrDefault();
+            var routeProvider = ChooseRouteProvider(context.Route);
             if (routeProvider == null)
                 throw new GatewayException(HttpStatusCode.NotImplemented);
 
@@ -119,5 +124,23 @@ internal class CompletionHandler(
             log.Duration = (log.EndedAt - log.StartedAt).TotalMilliseconds;
             logService.Save(log);
         }
+    }
+    
+    private RouteProviderData? ChooseRouteProvider(
+        RouteData route)
+    {
+        if (route.Strategy == RouteStrategy.LoadBalance)
+        {
+            var totalWeight = route.TotalWeight;
+            var randomWeight = _random.Next(0, totalWeight);
+            
+            var routeProviders = route.Providers
+                .FirstOrDefault(x => randomWeight >= x.WeightFrom && randomWeight < x.WeightTo);
+            
+            if (routeProviders != null)
+                return routeProviders;
+        }
+
+        return route.Providers.FirstOrDefault();
     }
 }
