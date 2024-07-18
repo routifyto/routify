@@ -14,6 +14,7 @@ public class DatabaseContext(
     public DbSet<Route> Routes { get; init; }
     public DbSet<RouteProvider> RouteProviders { get; init; }
     public DbSet<CompletionLog> CompletionLogs { get; init; }
+    public DbSet<CompletionOutgoingLog> CompletionOutgoingLogs { get; init; }
     public DbSet<ApiKey> ApiKeys { get; init; }
     public DbSet<Consumer> Consumers { get; init; }
 
@@ -27,6 +28,7 @@ public class DatabaseContext(
         Route.OnModelCreating(modelBuilder);
         RouteProvider.OnModelCreating(modelBuilder);
         CompletionLog.OnModelCreating(modelBuilder);
+        CompletionOutgoingLog.OnModelCreating(modelBuilder);
         ApiKey.OnModelCreating(modelBuilder);
         Consumer.OnModelCreating(modelBuilder);
     }

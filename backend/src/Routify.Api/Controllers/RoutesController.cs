@@ -167,10 +167,11 @@ public class RoutesController(
             Description = input.Description,
             Path = input.Path,
             Type = input.Type,
-            Strategy = input.Strategy,
             Schema = input.Schema,
+            IsLoadBalanceEnabled = input.IsLoadBalanceEnabled,
+            IsFailoverEnabled = input.IsFailoverEnabled,
+            Timeout = input.Timeout,
             Attrs = input.Attrs,
-            Config = new RouteConfig(),
             CreatedAt = DateTime.UtcNow,
             CreatedBy = CurrentUserId,
             VersionId = RoutifyId.Generate(IdType.Version)
@@ -178,15 +179,16 @@ public class RoutesController(
 
         var routeProviders = input
             .Providers
-            .Select(x => new RouteProvider
+            .Select((routeProviderInput, index) => new RouteProvider
             {
                 Id = RoutifyId.Generate(IdType.RouteModel),
                 RouteId = route.Id,
                 AppId = route.AppId,
-                AppProviderId = x.AppProviderId,
-                Model = x.Model,
-                Attrs = x.Attrs ?? new Dictionary<string, string>(),
-                Weight = x.Weight,
+                AppProviderId = routeProviderInput.AppProviderId,
+                Index = index,
+                Model = routeProviderInput.Model,
+                Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>(),
+                Weight = routeProviderInput.Weight,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = CurrentUserId,
                 VersionId = RoutifyId.Generate(IdType.Version)
@@ -256,8 +258,10 @@ public class RoutesController(
         route.Name = input.Name;
         route.Description = input.Description;
         route.Path = input.Path;
-        route.Strategy = input.Strategy;
         route.Schema = input.Schema;
+        route.IsLoadBalanceEnabled = input.IsLoadBalanceEnabled;
+        route.IsFailoverEnabled = input.IsFailoverEnabled;
+        route.Timeout = input.Timeout;
         route.Attrs = input.Attrs;
 
         var routeProviderIds = input.Providers.Select(x => x.Id).ToList();
@@ -280,6 +284,7 @@ public class RoutesController(
                     RouteId = route.Id,
                     AppId = route.AppId,
                     AppProviderId = routeProviderInput.AppProviderId,
+                    Index = i,
                     Model = routeProviderInput.Model,
                     Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>(),
                     Weight = routeProviderInput.Weight,
@@ -297,6 +302,7 @@ public class RoutesController(
                     throw new Exception("Route provider not found");
 
                 routeProvider.AppProviderId = routeProviderInput.AppProviderId;
+                routeProvider.Index = i;
                 routeProvider.Model = routeProviderInput.Model;
                 routeProvider.Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>();
                 routeProvider.Weight = routeProviderInput.Weight;
@@ -378,9 +384,11 @@ public class RoutesController(
             Description = route.Description,
             Path = route.Path,
             Type = route.Type,
-            Attrs = route.Attrs,
-            Strategy = route.Strategy,
             Schema = route.Schema,
+            Attrs = route.Attrs,
+            IsFailoverEnabled = route.IsFailoverEnabled,
+            IsLoadBalanceEnabled = route.IsLoadBalanceEnabled,
+            Timeout = route.Timeout,
             Providers = route.Providers
                 .Select(x => new RouteProviderOutput
                 {

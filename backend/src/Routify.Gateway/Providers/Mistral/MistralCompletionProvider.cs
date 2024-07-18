@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.Mistral.Models;
 
 namespace Routify.Gateway.Providers.Mistral;
 
 internal class MistralCompletionProvider(
     IHttpClientFactory httpClientFactory)
-    : ICompletionProvider
+    : CompletionProviderBase<MistralCompletionInput, MistralCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "open-mistral-7b", new CompletionModel
@@ -64,77 +63,48 @@ internal class MistralCompletionProvider(
         }
     };
 
-    public string Id => ProviderIds.Mistral;
+    public override string Id => ProviderIds.Mistral;
     
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request, 
-        CancellationToken cancellationToken)
+    public override Dictionary<string, CompletionModel> Models => _models;
+    
+    protected override HttpClient PrepareHttpClient(
+        CompletionRequest request)
     {
-        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-
-        var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
+        var apiKey = request.AppProvider.Attrs.GetValueOrDefault("apiKey");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new GatewayException(HttpStatusCode.Unauthorized);
+        
+        var client = httpClientFactory.CreateClient(Id);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-        var mistralAiInput = PrepareInput(request);
-        var requestJson = RoutifyJsonSerializer.Serialize(mistralAiInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        var response = await client.PostAsync("chat/completions", requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<MistralCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Usage;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = responseOutput.Model,
-            InputTokens = usage.PromptTokens,
-            OutputTokens = usage.CompletionTokens,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-        
-        if (Models.TryGetValue(responseOutput.Model, out var model))
-        {
-            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
-            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
-        }
-
-        return completionResponse;
+        return client;
     }
 
-    private static MistralCompletionInput PrepareInput(
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        return "chat/completions";
+    }
+
+    protected override string GetModel(
+        MistralCompletionInput input, 
+        MistralCompletionOutput output)
+    {
+        return output.Model;
+    }
+    
+    protected override int GetInputTokens(
+        MistralCompletionOutput output)
+    {
+        return output.Usage.PromptTokens;
+    }
+    
+    protected override int GetOutputTokens(
+        MistralCompletionOutput output)
+    {
+        return output.Usage.CompletionTokens;
+    }
+    protected override MistralCompletionInput PrepareInput(
         CompletionRequest request)
     {
         var mistralAiInput = MistralCompletionInputMapper.Map(request.Input);
@@ -168,13 +138,13 @@ internal class MistralCompletionProvider(
         return mistralAiInput;
     }
     
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<MistralCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var openAiOutput = MistralCompletionOutputMapper.Map(output);

@@ -9,6 +9,8 @@ internal record ApiRouteOutput
     public string Path { get; set; } = null!;
     public RouteType Type { get; set; }
     public string Schema { get; set; } = null!;
-    public RouteStrategy Strategy { get; set; }
+    public bool IsLoadBalanceEnabled { get; set; }
+    public bool IsFailoverEnabled { get; set; }
+    public int? Timeout { get; set; }
     public List<ApiRouteProviderOutput> Providers { get; set; } = [];
 }

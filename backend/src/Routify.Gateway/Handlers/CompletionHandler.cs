@@ -1,15 +1,12 @@
 using System.Net;
-using Routify.Core.Constants;
+using Microsoft.AspNetCore.Http.Extensions;
 using Routify.Core.Utils;
-using Routify.Data.Common;
-using Routify.Data.Enums;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Extensions;
-using Routify.Gateway.Models.Data;
 using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Services;
-using RouteData = Routify.Gateway.Models.Data.RouteData;
+using Routify.Gateway.Utils;
 
 namespace Routify.Gateway.Handlers;
 
@@ -18,12 +15,11 @@ internal class CompletionHandler(
     LogService logService)
     : IRequestHandler
 {
-    private readonly Random _random = new();
-    
     public async Task HandleAsync(
         RequestContext context,
         CancellationToken cancellationToken)
     {
+        var request = context.HttpContext.Request;
         var log = new CompletionLog
         {
             Id = RoutifyId.Generate(IdType.CompletionLog),
@@ -33,77 +29,110 @@ internal class CompletionHandler(
             StartedAt = DateTime.UtcNow,
             ApiKeyId = context.ApiKey.Id,
             ConsumerId = context.Consumer?.Id,
-            GatewayRequest = context.HttpContext.Request.ToRequestLog(),
+            RequestUrl = request.GetDisplayUrl(),
+            RequestMethod = request.Method,
         };
 
+        var outgoingLogs = new List<CompletionOutgoingLog>();
         try
         {
-            var httpContext = context.HttpContext;
-            var request = httpContext.Request;
-
-            var requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
-            log.GatewayRequest.Body = requestBody;
-
             var schemaProvider = serviceProvider.GetKeyedService<ICompletionProvider>(context.Route.Schema);
             if (schemaProvider == null)
                 throw new GatewayException(HttpStatusCode.NotImplemented);
+
+            var requestBody = await request.ReadBodyAsync(cancellationToken) ?? string.Empty;
+            log.RequestBody = requestBody;
 
             var input = schemaProvider.ParseInput(requestBody);
             if (input == null)
                 throw new GatewayException(HttpStatusCode.BadRequest);
 
-            var routeProvider = ChooseRouteProvider(context.Route);
-            if (routeProvider == null)
-                throw new GatewayException(HttpStatusCode.NotImplemented);
-
-            var appProvider = context.App.GetProviderById(routeProvider.AppProviderId);
-            if (appProvider == null)
-                throw new GatewayException(HttpStatusCode.NotImplemented);
-
-            var completionProvider = serviceProvider.GetKeyedService<ICompletionProvider>(appProvider.Provider);
-            if (completionProvider == null)
-                throw new GatewayException(HttpStatusCode.NotImplemented);
-
-            log.AppProviderId = appProvider.Id;
-            log.RouteProviderId = routeProvider.Id;
-            log.Provider = appProvider.Provider;
+            var routeProviderSelector = new RouteProviderSelector(context.Route);
+            var isDone = false;
             
-            var completionRequest = new CompletionRequest
+            while (routeProviderSelector.HasNextProvider && !isDone)
             {
-                Input = input,
-                AppProvider = appProvider,
-                RouteProvider = routeProvider,
-            };
+                var routeProvider = routeProviderSelector.GetNextProvider();
+                if (routeProvider == null)
+                    throw new GatewayException(HttpStatusCode.NotImplemented);
 
-            var completionResponse = await completionProvider.CompleteAsync(completionRequest, cancellationToken);
-            var responseBody = string.Empty;
-            if (completionResponse.Output != null)
-            {
-                responseBody = schemaProvider.SerializeOutput(completionResponse.Output);
+                var appProvider = context.App.GetProviderById(routeProvider.AppProviderId);
+                if (appProvider == null)
+                    throw new GatewayException(HttpStatusCode.NotImplemented);
+
+                var completionProvider = serviceProvider.GetKeyedService<ICompletionProvider>(appProvider.Provider);
+                if (completionProvider == null)
+                    throw new GatewayException(HttpStatusCode.NotImplemented);
+
+                var completionRequest = new CompletionRequest
+                {
+                    Input = input,
+                    AppProvider = appProvider,
+                    RouteProvider = routeProvider,
+                };
+
+                var outgoingStartedAt = DateTime.UtcNow;
+                var completionResponse = await completionProvider.CompleteAsync(completionRequest, cancellationToken);
+                var outgoingEndedAt = DateTime.UtcNow;
+                var completionOutgoingLog = new CompletionOutgoingLog
+                {
+                    Id = RoutifyId.Generate(IdType.CompletionOutgoingLog),
+                    IncomingLogId = log.Id,
+                    AppId = context.App.Id,
+                    RouteId = context.Route.Id,
+                    Provider = appProvider.Provider,
+                    AppProviderId = appProvider.Id,
+                    RouteProviderId = routeProvider.Id,
+                    RequestUrl = completionResponse.RequestUrl,
+                    RequestMethod = completionResponse.RequestMethod,
+                    RequestHeaders = completionResponse.RequestHeaders,
+                    RequestBody = completionResponse.RequestBody,
+                    StatusCode = completionResponse.StatusCode,
+                    ResponseBody = completionResponse.ResponseBody,
+                    ResponseHeaders = completionResponse.ResponseHeaders,
+                    StartedAt = outgoingStartedAt,
+                    EndedAt = outgoingEndedAt,
+                    Duration = (outgoingEndedAt - outgoingStartedAt).TotalMilliseconds
+                };
+                outgoingLogs.Add(completionOutgoingLog);
+                
+                if (context.Route.IsFailoverEnabled
+                    && HttpUtils.ShouldRetry(completionResponse.StatusCode)
+                    && routeProviderSelector.HasNextProvider)
+                {
+                    continue;
+                }
+
+                var responseBody = string.Empty;
+                if (completionResponse.Output != null)
+                {
+                    responseBody = schemaProvider.SerializeOutput(completionResponse.Output);
+                }
+                else if (!string.IsNullOrWhiteSpace(completionResponse.Error))
+                {
+                    responseBody = completionResponse.Error;
+                }
+
+                log.AppProviderId = appProvider.Id;
+                log.RouteProviderId = routeProvider.Id;
+                log.Provider = appProvider.Provider;
+                log.Model = completionResponse.Model;
+                log.InputTokens = completionResponse.InputTokens;
+                log.OutputTokens = completionResponse.OutputTokens;
+                log.InputCost = completionResponse.InputCost;
+                log.OutputCost = completionResponse.OutputCost;
+                log.StatusCode = completionResponse.StatusCode;
+                log.ResponseBody = responseBody;
+                log.OutgoingRequestsCount = outgoingLogs.Count;
+                
+                context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.WriteAsync(responseBody ?? string.Empty, cancellationToken);
+                isDone = true;
             }
-            else if (string.IsNullOrWhiteSpace(completionResponse.Error))
-            {
-                responseBody = completionResponse.Error;
-            }
-            
-            log.Model = completionResponse.Model;
-            log.InputTokens = completionResponse.InputTokens;
-            log.OutputTokens = completionResponse.OutputTokens;
-            log.InputCost = completionResponse.InputCost;
-            log.OutputCost = completionResponse.OutputCost;
-            log.ProviderRequest = completionResponse.RequestLog;
-            log.ProviderResponse = completionResponse.ResponseLog;
-            
-            log.GatewayResponse = new ResponseLog
-            {
-                StatusCode = completionResponse.StatusCode,
-                Body = responseBody ?? string.Empty,
-                Headers = context.HttpContext.Response.GetHeaders()
-            };
-            
-            context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
-            context.HttpContext.Response.ContentType = "application/json";
-            await context.HttpContext.Response.WriteAsync(responseBody ?? string.Empty, cancellationToken);
+
+            if (!isDone)
+                throw new GatewayException(HttpStatusCode.NotImplemented);
         }
         catch (GatewayException ex)
         {
@@ -122,25 +151,9 @@ internal class CompletionHandler(
         {
             log.EndedAt = DateTime.UtcNow;
             log.Duration = (log.EndedAt - log.StartedAt).TotalMilliseconds;
-            logService.Save(log);
-        }
-    }
-    
-    private RouteProviderData? ChooseRouteProvider(
-        RouteData route)
-    {
-        if (route.Strategy == RouteStrategy.LoadBalance)
-        {
-            var totalWeight = route.TotalWeight;
-            var randomWeight = _random.Next(0, totalWeight);
             
-            var routeProviders = route.Providers
-                .FirstOrDefault(x => randomWeight >= x.WeightFrom && randomWeight < x.WeightTo);
-            
-            if (routeProviders != null)
-                return routeProviders;
+            logService.SaveCompletionLog(log);
+            logService.SaveCompletionOutgoingLogs(outgoingLogs);
         }
-
-        return route.Providers.FirstOrDefault();
     }
 }

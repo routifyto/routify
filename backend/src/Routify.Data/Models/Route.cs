@@ -17,8 +17,9 @@ public record Route
     public RouteType Type { get; set; }
     public string Schema { get; set; } = null!;
     
-    public RouteStrategy Strategy { get; set; }
-    public RouteConfig Config { get; set; } = null!;
+    public bool IsLoadBalanceEnabled { get; set; }
+    public bool IsFailoverEnabled { get; set; }
+    public int? Timeout { get; set; }
     public RateLimitConfig? RateLimitConfig { get; set; }
     public CacheConfig? CacheConfig { get; set; }
     public Dictionary<string, string> Attrs { get; set; } = [];
@@ -71,18 +72,17 @@ public record Route
             entity.Property(e => e.Schema)
                 .HasColumnName("schema")
                 .IsRequired();
-            
-            entity.Property(e => e.Strategy)
-                .HasColumnName("strategy")
-                .IsRequired();
 
-            entity.Property(e => e.Config)
-                .HasColumnName("config")
-                .HasColumnType("jsonb")
-                .IsRequired()
-                .HasConversion(
-                    v => RoutifyJsonSerializer.Serialize(v),
-                    v => RoutifyJsonSerializer.Deserialize<RouteConfig>(v) ?? new RouteConfig());
+            entity.Property(e => e.IsLoadBalanceEnabled)
+                .HasColumnName("is_load_balance_enabled")
+                .IsRequired();
+            
+            entity.Property(e => e.IsFailoverEnabled)
+                .HasColumnName("is_failover_enabled")
+                .IsRequired();
+            
+            entity.Property(e => e.Timeout)
+                .HasColumnName("timeout");
             
             entity.Property(e => e.RateLimitConfig)
                 .HasColumnName("rate_limit_config")

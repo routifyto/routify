@@ -8,14 +8,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { NavLink } from 'react-router-dom';
-import { cn, formatJson } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useApp } from '@/contexts/app';
 import { providers } from '@/types/providers';
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-SyntaxHighlighter.registerLanguage('json', json);
+import { CompletionOutgoingLogs } from '@/components/logs/completion-outgoing-logs';
+import { JsonFormatter } from '@/components/logs/json-formatter';
 
 interface CompletionLogDetailsProps {
   completionLog: CompletionLogOutput;
@@ -163,57 +161,28 @@ export function CompletionLogDetails({
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Original request</CardTitle>
+              <CardTitle>Request</CardTitle>
               <CardDescription className="flex flex-row gap-2">
-                <span>{completionLog.gatewayRequest.method}</span>
-                <span>{completionLog.gatewayRequest.url}</span>
+                <span>{completionLog.requestMethod ?? '-'}</span>
+                <span>{completionLog.requestUrl ?? '-'}</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <SyntaxHighlighter
-                className="rounded-md bg-white p-3 text-sm"
-                language="json"
-                style={docco}
-              >
-                {formatJson(completionLog.gatewayRequest?.body)}
-              </SyntaxHighlighter>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Provider request</CardTitle>
-              <CardDescription className="flex flex-row gap-2">
-                <span>{completionLog.providerRequest?.method}</span>
-                <span>{completionLog.providerRequest?.url}</span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SyntaxHighlighter
-                className="rounded-md bg-white p-3 text-sm"
-                language="json"
-                style={docco}
-              >
-                {formatJson(completionLog.providerRequest?.body)}
-              </SyntaxHighlighter>
+              <JsonFormatter json={completionLog.requestBody ?? ''} />
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
               <CardTitle>Response</CardTitle>
-              <CardDescription>
-                {completionLog.gatewayResponse?.statusCode}
-              </CardDescription>
+              <CardDescription>{completionLog.statusCode}</CardDescription>
             </CardHeader>
             <CardContent>
-              <SyntaxHighlighter
-                className="rounded-md bg-white p-3 text-sm"
-                language="json"
-                style={docco}
-              >
-                {formatJson(completionLog.gatewayResponse?.body)}
-              </SyntaxHighlighter>
+              <JsonFormatter json={completionLog.responseBody ?? ''} />
             </CardContent>
           </Card>
+          {completionLog.outgoingRequestsCount > 0 && (
+            <CompletionOutgoingLogs completionLogId={completionLog.id} />
+          )}
         </div>
       </div>
     </div>

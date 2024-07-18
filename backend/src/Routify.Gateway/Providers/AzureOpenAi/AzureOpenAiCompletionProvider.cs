@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.AzureOpenAi.Models;
 
 namespace Routify.Gateway.Providers.AzureOpenAi;
 
 internal class AzureOpenAiCompletionProvider(
     IHttpClientFactory httpClientFactory)
-    : ICompletionProvider
+    : CompletionProviderBase<AzureOpenAiCompletionInput, AzureOpenAiCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "gpt-4o", new CompletionModel
@@ -122,95 +121,56 @@ internal class AzureOpenAiCompletionProvider(
         },
     };
 
-    public string Id => ProviderIds.OpenAi;
+    public override string Id => ProviderIds.AzureOpenAi;
+    public override Dictionary<string, CompletionModel> Models => _models;
 
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request,
-        CancellationToken cancellationToken)
+    protected override HttpClient PrepareHttpClient(
+        CompletionRequest request)
     {
-        if (!request.AppProvider.Attrs.TryGetValue("endpoint", out var endpoint))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.ServiceUnavailable,
-            };
-        }
-        
         if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-        
-        if (!request.AppProvider.Attrs.TryGetValue("apiVersion", out var apiVersion))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.ServiceUnavailable,
-            };
-        }
+            throw new GatewayException(HttpStatusCode.Unauthorized);
 
         var client = httpClientFactory.CreateClient(Id);
         client.DefaultRequestHeaders.Add("api-key", apiKey);
-
-        var azureOpenAiInput = PrepareInput(request);
-        var requestUrl = $"{endpoint}/openai/deployments/{azureOpenAiInput.Model}/chat/completions?api-version={apiVersion}";
-        var requestJson = RoutifyJsonSerializer.Serialize(azureOpenAiInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        var response = await client.PostAsync(requestUrl, requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<AzureOpenAiCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Usage;
-        var modelUsed = responseOutput.Model ?? azureOpenAiInput.Model ?? string.Empty;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = modelUsed,
-            InputTokens = usage.PromptTokens,
-            OutputTokens = usage.CompletionTokens,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-
-        if (Models.TryGetValue(modelUsed, out var model))
-        {
-            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
-            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
-        }
-
-        return completionResponse;
+        return client;
     }
 
-    private static AzureOpenAiCompletionInput PrepareInput(
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        if (!request.AppProvider.Attrs.TryGetValue("endpoint", out var endpoint))
+            throw new GatewayException(HttpStatusCode.ServiceUnavailable);
+        
+        if (!request.AppProvider.Attrs.TryGetValue("deployment", out var deployment))
+            throw new GatewayException(HttpStatusCode.Unauthorized);
+        
+        if (!request.AppProvider.Attrs.TryGetValue("apiVersion", out var apiVersion))
+            throw new GatewayException(HttpStatusCode.ServiceUnavailable);
+
+        return $"{endpoint}/openai/deployments/{deployment}/chat/completions?api-version={apiVersion}";
+    }
+
+    protected override string GetModel(
+        AzureOpenAiCompletionInput input, 
+        AzureOpenAiCompletionOutput output)
+    {
+        return output.Model ?? input.Model ?? string.Empty;
+    }
+
+    protected override int GetInputTokens(
+        AzureOpenAiCompletionOutput output)
+    {
+        return output.Usage.PromptTokens;
+    }
+    
+    protected override int GetOutputTokens(
+        AzureOpenAiCompletionOutput output)
+    {
+        return output.Usage.CompletionTokens;
+    }
+
+    protected override AzureOpenAiCompletionInput PrepareInput(
         CompletionRequest request)
     {
         var azureOpenAiInput = AzureOpenAiCompletionInputMapper.Map(request.Input);
@@ -259,13 +219,13 @@ internal class AzureOpenAiCompletionProvider(
         return azureOpenAiInput;
     }
 
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<AzureOpenAiCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var openAiOutput = AzureOpenAiCompletionOutputMapper.Map(output);

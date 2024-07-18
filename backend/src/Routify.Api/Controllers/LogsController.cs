@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Routify.Api.Models.Common;
 using Routify.Api.Models.LogModels;
 using Routify.Data;
+using Routify.Data.Models;
+using Route = Routify.Data.Models.Route;
 
 namespace Routify.Api.Controllers;
 
@@ -131,7 +133,7 @@ public class LogsController(
             .AppProviders
             .SingleOrDefaultAsync(x => x.Id == completionLog.AppProviderId, cancellationToken);
 
-        return new CompletionLogOutput
+        var output = new CompletionLogOutput
         {
             Id = completionLog.Id,
             RouteId = completionLog.RouteId,
@@ -143,35 +145,14 @@ public class LogsController(
             ApiKeyId = completionLog.ApiKeyId,
             SessionId = completionLog.SessionId,
             ConsumerId = completionLog.ConsumerId,
-            GatewayRequest = new RequestLogOutput
-                {
-                    Url = completionLog.GatewayRequest.Url,
-                    Method = completionLog.GatewayRequest.Method,
-                    Headers = completionLog.GatewayRequest.Headers,
-                    Body = completionLog.GatewayRequest.Body
-                },
-            ProviderRequest = completionLog.ProviderRequest != null ?
-                new RequestLogOutput
-                {
-                    Url = completionLog.ProviderRequest.Url,
-                    Method = completionLog.ProviderRequest.Method,
-                    Headers = completionLog.ProviderRequest.Headers,
-                    Body = completionLog.ProviderRequest.Body
-                } : null,
-            GatewayResponse = completionLog.GatewayResponse != null ?
-                new ResponseLogOutput
-                {
-                    StatusCode = completionLog.GatewayResponse.StatusCode,
-                    Headers = completionLog.GatewayResponse.Headers,
-                    Body = completionLog.GatewayResponse.Body
-                } : null,
-            ProviderResponse = completionLog.ProviderResponse != null ?
-                new ResponseLogOutput
-                {
-                    StatusCode = completionLog.ProviderResponse.StatusCode,
-                    Headers = completionLog.ProviderResponse.Headers,
-                    Body = completionLog.ProviderResponse.Body
-                } : null,
+            OutgoingRequestsCount = completionLog.OutgoingRequestsCount,
+            RequestUrl = completionLog.RequestUrl,
+            RequestMethod = completionLog.RequestMethod,
+            RequestBody = completionLog.RequestBody,
+            RequestHeaders = completionLog.RequestHeaders,
+            StatusCode = completionLog.StatusCode,
+            ResponseBody = completionLog.ResponseBody,
+            ResponseHeaders = completionLog.ResponseHeaders,
             InputTokens = completionLog.InputTokens,
             OutputTokens = completionLog.OutputTokens,
             InputCost = completionLog.InputCost,
@@ -179,20 +160,113 @@ public class LogsController(
             StartedAt = completionLog.StartedAt,
             EndedAt = completionLog.EndedAt,
             Duration = completionLog.Duration,
-            Route = route is null ? null : new LogRouteOutput
+            Route = MapRoute(route),
+            AppProvider = MapAppProvider(appProvider)
+        };
+        
+        return Ok(output);
+    }
+
+    [HttpGet("completions/{completionLogId}/outgoing", Name = "GetCompletionOutgoingLogs")]
+    public async Task<ActionResult<List<CompletionOutgoingLogOutput>>>
+        GetCompletionOutgoingLogsAsync(
+            [FromRoute] string appId,
+            [FromRoute] string completionLogId,
+            [FromQuery] string? after,
+            [FromQuery] int limit = 20,
+            CancellationToken cancellationToken = default)
+    {
+        if (!IsAuthenticated)
+        {
+            return Unauthorized(new ApiErrorOutput
             {
-                Id = route.Id,
-                Name = route.Name,
-                Description = route.Description,
-                Path = route.Path
-            },
-            AppProvider = appProvider is null ? null : new LogAppProviderOutput
+                Code = ApiError.Unauthorized,
+                Message = "Unauthorized access"
+            });
+        }
+
+        var currentAppUser = await databaseContext
+            .AppUsers
+            .SingleOrDefaultAsync(x => x.AppId == appId && x.UserId == CurrentUserId, cancellationToken);
+
+        if (currentAppUser is null)
+        {
+            return Forbidden(new ApiErrorOutput
             {
-                Id = appProvider.Id,
-                Name = appProvider.Name,
-                Description = appProvider.Description,
-                Alias = appProvider.Alias
-            }
+                Code = ApiError.NoAppAccess,
+                Message = "You do not have access to the app"
+            });
+        }
+
+        
+        var completionOutgoingLogs = await databaseContext
+            .CompletionOutgoingLogs
+            .Where(x => x.AppId == appId && x.IncomingLogId == completionLogId)
+            .ToListAsync(cancellationToken);
+        
+        var appProviderIds = completionOutgoingLogs
+            .Select(log => log.AppProviderId)
+            .Distinct()
+            .ToList();
+        
+        var appProviders = await databaseContext
+            .AppProviders
+            .Where(x => appProviderIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+        
+        var completionOutgoingLogOutputs = completionOutgoingLogs
+            .Select(log => new CompletionOutgoingLogOutput
+            {
+                Id = log.Id,
+                IncomingLogId = log.IncomingLogId,
+                Provider = log.Provider,
+                AppProviderId = log.AppProviderId,
+                RouteProviderId = log.RouteProviderId,
+                RequestUrl = log.RequestUrl,
+                RequestMethod = log.RequestMethod,
+                RequestHeaders = log.RequestHeaders,
+                RequestBody = log.RequestBody,
+                StatusCode = log.StatusCode,
+                ResponseBody = log.ResponseBody,
+                ResponseHeaders = log.ResponseHeaders,
+                StartedAt = log.StartedAt,
+                EndedAt = log.EndedAt,
+                Duration = log.Duration,
+                
+                AppProvider = MapAppProvider(appProviders.GetValueOrDefault(log.AppProviderId))
+            })
+            .ToList();
+        
+        return Ok(completionOutgoingLogOutputs);
+    }
+    
+    private static LogRouteOutput? MapRoute(
+        Route? route)
+    {
+        if (route is null)
+            return null;
+
+        return new LogRouteOutput
+        {
+            Id = route.Id,
+            Name = route.Name,
+            Description = route.Description,
+            Path = route.Path
+        };
+    }
+    
+    private static LogAppProviderOutput? MapAppProvider(
+        AppProvider? appProvider)
+    {
+        if (appProvider is null)
+            return null;
+
+        return new LogAppProviderOutput
+        {
+            Id = appProvider.Id,
+            Name = appProvider.Name,
+            Description = appProvider.Description,
+            Alias = appProvider.Alias
         };
     }
 }

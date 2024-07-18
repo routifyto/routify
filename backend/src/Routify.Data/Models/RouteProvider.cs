@@ -11,7 +11,7 @@ public record RouteProvider
     public string AppId { get; set; } = null!;
     public string RouteId { get; set; } = null!;
     public string AppProviderId { get; set; } = null!;
-    
+    public int Index { get; set; }
     public string? Model { get; set; }
     public Dictionary<string, string> Attrs { get; set; } = [];
     public RetryConfig? RetryConfig { get; set; }
@@ -53,6 +53,10 @@ public record RouteProvider
                 .HasColumnName("app_provider_id")
                 .IsRequired()
                 .HasMaxLength(30);
+            
+            entity.Property(e => e.Index)
+                .HasColumnName("index")
+                .IsRequired();
 
             entity.Property(e => e.Model)
                 .HasColumnName("model")

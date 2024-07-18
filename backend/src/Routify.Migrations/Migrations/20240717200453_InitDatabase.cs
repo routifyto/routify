@@ -46,10 +46,14 @@ namespace Routify.Migrations.Migrations
                     api_key_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     consumer_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     session_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    gateway_request = table.Column<string>(type: "jsonb", nullable: false),
-                    provider_request = table.Column<string>(type: "jsonb", nullable: true),
-                    gateway_response = table.Column<string>(type: "jsonb", nullable: true),
-                    provider_response = table.Column<string>(type: "jsonb", nullable: true),
+                    outgoing_requests_count = table.Column<int>(type: "integer", nullable: false),
+                    request_url = table.Column<string>(type: "text", nullable: true),
+                    request_method = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    request_headers = table.Column<string>(type: "jsonb", nullable: true),
+                    request_body = table.Column<string>(type: "text", nullable: true),
+                    status_code = table.Column<int>(type: "integer", nullable: false),
+                    response_body = table.Column<string>(type: "text", nullable: true),
+                    response_headers = table.Column<string>(type: "jsonb", nullable: true),
                     input_tokens = table.Column<int>(type: "integer", nullable: false),
                     output_tokens = table.Column<int>(type: "integer", nullable: false),
                     input_cost = table.Column<decimal>(type: "numeric", nullable: false),
@@ -61,6 +65,33 @@ namespace Routify.Migrations.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_routify_completion_logs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "routify_completion_outgoing_logs",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    incoming_log_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    app_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    route_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    provider = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    app_provider_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    route_provider_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    request_url = table.Column<string>(type: "text", nullable: true),
+                    request_method = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    request_headers = table.Column<string>(type: "jsonb", nullable: true),
+                    request_body = table.Column<string>(type: "text", nullable: true),
+                    status_code = table.Column<int>(type: "integer", nullable: false),
+                    response_body = table.Column<string>(type: "text", nullable: true),
+                    response_headers = table.Column<string>(type: "jsonb", nullable: true),
+                    started_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ended_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    duration = table.Column<double>(type: "double precision", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_routify_completion_outgoing_logs", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -183,7 +214,9 @@ namespace Routify.Migrations.Migrations
                     path = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     schema = table.Column<string>(type: "text", nullable: false),
-                    config = table.Column<string>(type: "jsonb", nullable: false),
+                    is_load_balance_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    is_failover_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    timeout = table.Column<int>(type: "integer", nullable: true),
                     rate_limit_config = table.Column<string>(type: "jsonb", nullable: true),
                     cache_config = table.Column<string>(type: "jsonb", nullable: true),
                     attrs = table.Column<string>(type: "jsonb", nullable: false),
@@ -243,9 +276,11 @@ namespace Routify.Migrations.Migrations
                     app_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     route_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     app_provider_id = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    index = table.Column<int>(type: "integer", nullable: false),
                     model = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     attrs = table.Column<string>(type: "jsonb", nullable: false),
                     retry_config = table.Column<string>(type: "jsonb", nullable: true),
+                    weight = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     created_by = table.Column<string>(type: "text", nullable: false),
@@ -349,6 +384,9 @@ namespace Routify.Migrations.Migrations
 
             migrationBuilder.DropTable(
                 name: "routify_completion_logs");
+
+            migrationBuilder.DropTable(
+                name: "routify_completion_outgoing_logs");
 
             migrationBuilder.DropTable(
                 name: "routify_consumers");

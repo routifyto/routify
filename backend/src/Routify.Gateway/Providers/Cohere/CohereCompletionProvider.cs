@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.Cohere.Models;
 
 namespace Routify.Gateway.Providers.Cohere;
 
 internal class CohereCompletionProvider(
     IHttpClientFactory httpClientFactory) 
-    : ICompletionProvider
+    : CompletionProviderBase<CohereCompletionInput, CohereCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "command-r-plus", new CompletionModel
@@ -64,82 +63,47 @@ internal class CohereCompletionProvider(
         }
     };
     
-    public string Id => ProviderIds.Cohere;
-    
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request, 
-        CancellationToken cancellationToken)
+    public override string Id => ProviderIds.Cohere;
+    public override Dictionary<string, CompletionModel> Models => _models;
+
+    protected override HttpClient PrepareHttpClient(
+        CompletionRequest request)
     {
         if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-
-        var client = httpClientFactory.CreateClient(ProviderIds.OpenAi);
+            throw new GatewayException(HttpStatusCode.Unauthorized);
+        
+        var client = httpClientFactory.CreateClient(Id);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-        var cohereInput = PrepareInput(request);
-        var requestJson = RoutifyJsonSerializer.Serialize(cohereInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        var response = await client.PostAsync("chat", requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<CohereCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Meta?.BilledUnits;
-        var model = cohereInput.Model;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = cohereInput.Model,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-
-        if (string.IsNullOrWhiteSpace(model) || usage == null) 
-            return completionResponse;
-        
-        completionResponse.InputTokens = usage.InputTokens;
-        completionResponse.OutputTokens = usage.OutputTokens;
-        
-        if (Models.TryGetValue(model, out var modelData))
-        {
-            completionResponse.InputCost = modelData.InputCost / modelData.InputCostUnit * usage.InputTokens;
-            completionResponse.OutputCost = modelData.OutputCost / modelData.OutputCostUnit * usage.OutputTokens;
-        }
-
-        return completionResponse;
+        return client;
     }
 
-    private static CohereCompletionInput PrepareInput(
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        return "chat";
+    }
+
+    protected override string GetModel(
+        CohereCompletionInput input, 
+        CohereCompletionOutput output)
+    {
+        return input.Model ?? string.Empty;
+    }
+    
+    protected override int GetInputTokens(
+        CohereCompletionOutput output)
+    {
+        return output.Meta?.BilledUnits?.InputTokens ?? 0;
+    }
+    
+    protected override int GetOutputTokens(
+        CohereCompletionOutput output)
+    {
+        return output.Meta?.BilledUnits?.OutputTokens ?? 0;
+    }
+
+    protected override CohereCompletionInput PrepareInput(
         CompletionRequest request)
     {
         var cohereInput = CohereCompletionInputMapper.Map(request.Input);
@@ -188,13 +152,13 @@ internal class CohereCompletionProvider(
         return cohereInput;
     }
     
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<CohereCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var openAiOutput = CohereCompletionOutputMapper.Map(output);

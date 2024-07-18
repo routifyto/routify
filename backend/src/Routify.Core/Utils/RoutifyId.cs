@@ -53,4 +53,5 @@ public static class IdType
     public const string CompletionLog = "cl";
     public const string ApiKey = "ak";
     public const string Consumer = "cn";
+    public const string CompletionOutgoingLog = "co";
 }

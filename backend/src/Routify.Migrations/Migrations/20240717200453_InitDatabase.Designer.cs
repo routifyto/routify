@@ -12,8 +12,8 @@ using Routify.Data;
 namespace Routify.Migrations.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240717115114_UpdateRouteTables")]
-    partial class UpdateRouteTables
+    [Migration("20240717200453_InitDatabase")]
+    partial class InitDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -341,15 +341,6 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ended_at");
 
-                    b.Property<string>("GatewayRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("gateway_request");
-
-                    b.Property<string>("GatewayResponse")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("gateway_response");
-
                     b.Property<decimal>("InputCost")
                         .HasColumnType("numeric")
                         .HasColumnName("input_cost");
@@ -362,6 +353,10 @@ namespace Routify.Migrations.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("model");
+
+                    b.Property<int>("OutgoingRequestsCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("outgoing_requests_count");
 
                     b.Property<decimal>("OutputCost")
                         .HasColumnType("numeric")
@@ -382,13 +377,30 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("provider");
 
-                    b.Property<string>("ProviderRequest")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("provider_request");
+                    b.Property<string>("RequestBody")
+                        .HasColumnType("text")
+                        .HasColumnName("request_body");
 
-                    b.Property<string>("ProviderResponse")
+                    b.Property<string>("RequestHeaders")
                         .HasColumnType("jsonb")
-                        .HasColumnName("provider_response");
+                        .HasColumnName("request_headers");
+
+                    b.Property<string>("RequestMethod")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("request_method");
+
+                    b.Property<string>("RequestUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("request_url");
+
+                    b.Property<string>("ResponseBody")
+                        .HasColumnType("text")
+                        .HasColumnName("response_body");
+
+                    b.Property<string>("ResponseHeaders")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("response_headers");
 
                     b.Property<string>("RouteId")
                         .IsRequired()
@@ -411,11 +423,104 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("started_at");
 
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_code");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AppId");
 
                     b.ToTable("routify_completion_logs", (string)null);
+                });
+
+            modelBuilder.Entity("Routify.Data.Models.CompletionOutgoingLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AppId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("app_id");
+
+                    b.Property<string>("AppProviderId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("app_provider_id");
+
+                    b.Property<double>("Duration")
+                        .HasColumnType("double precision")
+                        .HasColumnName("duration");
+
+                    b.Property<DateTime>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<string>("IncomingLogId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("incoming_log_id");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("RequestBody")
+                        .HasColumnType("text")
+                        .HasColumnName("request_body");
+
+                    b.Property<string>("RequestHeaders")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("request_headers");
+
+                    b.Property<string>("RequestMethod")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("request_method");
+
+                    b.Property<string>("RequestUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("request_url");
+
+                    b.Property<string>("ResponseBody")
+                        .HasColumnType("text")
+                        .HasColumnName("response_body");
+
+                    b.Property<string>("ResponseHeaders")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("response_headers");
+
+                    b.Property<string>("RouteId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("route_id");
+
+                    b.Property<string>("RouteProviderId")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("route_provider_id");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_code");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("routify_completion_outgoing_logs", (string)null);
                 });
 
             modelBuilder.Entity("Routify.Data.Models.Consumer", b =>
@@ -504,11 +609,6 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("cache_config");
 
-                    b.Property<string>("Config")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("config");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -522,6 +622,14 @@ namespace Routify.Migrations.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)")
                         .HasColumnName("description");
+
+                    b.Property<bool>("IsFailoverEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_failover_enabled");
+
+                    b.Property<bool>("IsLoadBalanceEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_load_balance_enabled");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -548,9 +656,9 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
-                    b.Property<int>("Strategy")
+                    b.Property<int?>("Timeout")
                         .HasColumnType("integer")
-                        .HasColumnName("strategy");
+                        .HasColumnName("timeout");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -609,6 +717,10 @@ namespace Routify.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("created_by");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("integer")
+                        .HasColumnName("index");
 
                     b.Property<string>("Model")
                         .HasMaxLength(256)

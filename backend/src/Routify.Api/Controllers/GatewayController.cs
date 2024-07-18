@@ -67,13 +67,16 @@ public class GatewayController(
                         Path = route.Path,
                         Type = route.Type,
                         Schema = route.Schema,
-                        Strategy = route.Strategy,
+                        IsLoadBalanceEnabled = route.IsLoadBalanceEnabled,
+                        IsFailoverEnabled = route.IsFailoverEnabled,
+                        Timeout = route.Timeout,
                         Providers = allRouteProviders
                             .Where(routeProvider => routeProvider.RouteId == route.Id)
                             .Select(routeProvider => new GatewayRouteProviderOutput
                             {
                                 Id = routeProvider.Id,
                                 AppProviderId = routeProvider.AppProviderId,
+                                Index = routeProvider.Index,
                                 Model = routeProvider.Model,
                                 Attrs = routeProvider.Attrs,
                                 Weight = routeProvider.Weight
@@ -130,6 +133,7 @@ public class GatewayController(
             return Unauthorized();
         
         await databaseContext.CompletionLogs.AddRangeAsync(input.CompletionLogs, cancellationToken);
+        await databaseContext.CompletionOutgoingLogs.AddRangeAsync(input.CompletionOutgoingLogs, cancellationToken);
         await databaseContext.SaveChangesAsync(cancellationToken);
         
         return Ok();

@@ -12,12 +12,15 @@ public record CompletionLogOutput
     public string ApiKeyId { get; set; } = null!;
     public string? SessionId { get; set; }
     public string? ConsumerId { get; set; }
+    public int OutgoingRequestsCount { get; set; }
     
-    public RequestLogOutput? GatewayRequest { get; set; }
-    public RequestLogOutput? ProviderRequest { get; set; }
-    
-    public ResponseLogOutput? GatewayResponse { get; set; }
-    public ResponseLogOutput? ProviderResponse { get; set; }
+    public string? RequestUrl { get; set; }
+    public string? RequestMethod { get; set; }
+    public Dictionary<string, string>? RequestHeaders { get; set; }
+    public string? RequestBody { get; set; }
+    public int StatusCode { get; set; }
+    public string? ResponseBody { get; set; }
+    public Dictionary<string, string>? ResponseHeaders { get; set; }
     
     public int InputTokens { get; set; }
     public int OutputTokens { get; set; }

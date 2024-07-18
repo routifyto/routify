@@ -5,19 +5,6 @@ export type LogRouteOutput = {
   path: string;
 };
 
-export type RequestLogOutput = {
-  url?: string | null;
-  method?: string | null;
-  headers?: Record<string, string> | null;
-  body?: string | null;
-};
-
-export type ResponseLogOutput = {
-  statusCode: number;
-  headers?: Record<string, string> | null;
-  body?: string | null;
-};
-
 export type LogAppProviderOutput = {
   id: string;
   name: string;
@@ -50,6 +37,17 @@ export type CompletionLogOutput = {
   apiKeyId: string;
   sessionId: string | null;
   consumerId: string | null;
+  outgoingRequestsCount: number;
+
+  requestUrl?: string | null;
+  requestMethod?: string | null;
+  requestHeaders?: Record<string, string> | null;
+  requestBody?: string;
+
+  statusCode: number;
+  responseBody?: string | null;
+  responseHeaders?: Record<string, string> | null;
+
   inputTokens: number;
   outputTokens: number;
   inputCost: number;
@@ -58,11 +56,29 @@ export type CompletionLogOutput = {
   endedAt: string;
   duration: number;
 
-  gatewayRequest: RequestLogOutput;
-  providerRequest: RequestLogOutput | null;
-  gatewayResponse: ResponseLogOutput | null;
-  providerResponse: ResponseLogOutput | null;
-
   route: LogRouteOutput | null;
+  appProvider: LogAppProviderOutput | null;
+};
+
+export type CompletionOutgoingLogOutput = {
+  id: string;
+  incomingLogId: string;
+  provider: string;
+  appProviderId: string;
+  routeProviderId: string;
+
+  requestUrl?: string | null;
+  requestMethod?: string | null;
+  requestHeaders?: Record<string, string> | null;
+  requestBody?: string;
+
+  statusCode: number;
+  responseBody?: string | null;
+  responseHeaders?: Record<string, string> | null;
+
+  startedAt: string;
+  endedAt: string;
+  duration: number;
+
   appProvider: LogAppProviderOutput | null;
 };

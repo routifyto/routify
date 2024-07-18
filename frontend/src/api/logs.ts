@@ -1,7 +1,11 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { axios, parseApiError } from '@/api/axios';
 import { PaginatedOutput } from '@/types/common';
-import { CompletionLogOutput, CompletionLogRowOutput } from '@/types/logs';
+import {
+  CompletionLogOutput,
+  CompletionLogRowOutput,
+  CompletionOutgoingLogOutput,
+} from '@/types/logs';
 import { ApiErrorOutput } from '@/types/errors';
 
 export function useGetCompletionLogsQuery(appId: string, limit?: number) {
@@ -41,6 +45,26 @@ export function useGetCompletionLogQuery(
       try {
         const { data } = await axios.get<CompletionLogOutput>(
           `v1/apps/${appId}/logs/completions/${completionLogId}`,
+        );
+        return data;
+      } catch (error) {
+        const apiError = parseApiError(error);
+        return Promise.reject(apiError);
+      }
+    },
+  });
+}
+
+export function useGetCompletionOutgoingLogsQuery(
+  appId: string,
+  completionLogId: string,
+) {
+  return useQuery<CompletionOutgoingLogOutput[], ApiErrorOutput>({
+    queryKey: ['completion-outgoing-logs', completionLogId],
+    queryFn: async () => {
+      try {
+        const { data } = await axios.get<CompletionOutgoingLogOutput[]>(
+          `v1/apps/${appId}/logs/completions/${completionLogId}/outgoing`,
         );
         return data;
       } catch (error) {

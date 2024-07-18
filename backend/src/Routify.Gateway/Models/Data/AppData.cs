@@ -20,7 +20,29 @@ internal record AppData
         Name = output.Name;
         Routes = output
             .Routes
-            .ToDictionary(route => route.Path, route => new RouteData(route));
+            .ToDictionary(route => route.Path, route => new RouteData
+            {
+                Id = route.Id,
+                Name = route.Name,
+                Path = route.Path,
+                Type = route.Type,
+                Schema = route.Schema,
+                IsLoadBalanceEnabled = route.IsLoadBalanceEnabled,
+                IsFailoverEnabled = route.IsFailoverEnabled,
+                Timeout = route.Timeout,
+                Providers = route
+                    .Providers
+                    .Select(provider => new RouteProviderData
+                    {
+                        Id = provider.Id,
+                        AppProviderId = provider.AppProviderId,
+                        Index = provider.Index,
+                        Model = provider.Model,
+                        Attrs = provider.Attrs,
+                        Weight = Math.Max(provider.Weight, 1),
+                    })
+                    .ToList()
+            });
 
         Providers = output
             .Providers

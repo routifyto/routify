@@ -11,11 +11,21 @@ internal class LogService(
     : BackgroundService
 {
     private readonly ConcurrentQueue<CompletionLog> _completionLogs = new();
+    private readonly ConcurrentQueue<CompletionOutgoingLog> _completionOutgoingLogs = new();
     
-    public void Save(
+    public void SaveCompletionLog(
         CompletionLog log)
     {
         _completionLogs.Enqueue(log);
+    }
+    
+    public void SaveCompletionOutgoingLogs(
+        List<CompletionOutgoingLog> logs)
+    {
+        foreach (var log in logs)
+        {
+            _completionOutgoingLogs.Enqueue(log);
+        }
     }
     
     protected override async Task ExecuteAsync(
@@ -33,13 +43,20 @@ internal class LogService(
                     {
                         logs.Add(log);
                     }
+                    
+                    var completionOutgoingLogs = new List<CompletionOutgoingLog>();
+                    while (_completionOutgoingLogs.TryDequeue(out var log))
+                    {
+                        completionOutgoingLogs.Add(log);
+                    }
                 
-                    if (logs.Count > 0)
+                    if (logs.Count > 0 || completionOutgoingLogs.Count > 0)
                     {
                         var client = httpClientFactory.CreateClient("api");
                         var input = new LogsInput
                         {
-                            CompletionLogs = logs
+                            CompletionLogs = logs,
+                            CompletionOutgoingLogs = completionOutgoingLogs
                         };
                         var inputJson = RoutifyJsonSerializer.Serialize(input);
                         var content = new StringContent(inputJson, Encoding.UTF8, "application/json");
@@ -59,5 +76,6 @@ internal class LogService(
     private record LogsInput
     {
         public List<CompletionLog> CompletionLogs { get; set; } = [];
+        public List<CompletionOutgoingLog> CompletionOutgoingLogs { get; set; } = [];
     }
 }

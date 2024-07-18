@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.Perplexity.Models;
 
 namespace Routify.Gateway.Providers.Perplexity;
 
 internal class PerplexityCompletionProvider(
     IHttpClientFactory httpClientFactory)
-    : ICompletionProvider
+    : CompletionProviderBase<PerplexityCompletionInput, PerplexityCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "llama-3-sonar-small-32k-online", new CompletionModel
@@ -72,77 +71,49 @@ internal class PerplexityCompletionProvider(
         },
     };
 
-    public string Id => ProviderIds.OpenAi;
-
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request,
-        CancellationToken cancellationToken)
+    public override string Id => ProviderIds.Perplexity;
+    
+    public override Dictionary<string, CompletionModel> Models => _models;
+    
+    protected override HttpClient PrepareHttpClient(
+        CompletionRequest request)
     {
-        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-
+        var apiKey = request.AppProvider.Attrs.GetValueOrDefault("apiKey");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new GatewayException(HttpStatusCode.Unauthorized);
+        
         var client = httpClientFactory.CreateClient(Id);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-        var perplexityInput = PrepareInput(request);
-        var requestJson = RoutifyJsonSerializer.Serialize(perplexityInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        var response = await client.PostAsync("chat/completions", requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<PerplexityCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Usage;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = responseOutput.Model,
-            InputTokens = usage.PromptTokens,
-            OutputTokens = usage.CompletionTokens,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-
-        if (Models.TryGetValue(responseOutput.Model, out var model))
-        {
-            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
-            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
-        }
-
-        return completionResponse;
+        return client;
     }
 
-    private static PerplexityCompletionInput PrepareInput(
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        return "chat/completions";
+    }
+
+    protected override string GetModel(
+        PerplexityCompletionInput input, 
+        PerplexityCompletionOutput output)
+    {
+        return output.Model;
+    }
+    
+    protected override int GetInputTokens(
+        PerplexityCompletionOutput output)
+    {
+        return output.Usage.PromptTokens;
+    }
+    
+    protected override int GetOutputTokens(
+        PerplexityCompletionOutput output)
+    {
+        return output.Usage.CompletionTokens;
+    }
+
+    protected override PerplexityCompletionInput PrepareInput(
         CompletionRequest request)
     {
         var perplexityInput = PerplexityCompletionInputMapper.Map(request.Input);
@@ -191,13 +162,13 @@ internal class PerplexityCompletionProvider(
         return perplexityInput;
     }
 
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<PerplexityCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var openAiOutput = PerplexityCompletionOutputMapper.Map(output);

@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.Anthropic.Models;
 
 namespace Routify.Gateway.Providers.Anthropic;
 
 internal class AnthropicCompletionProvider(
     IHttpClientFactory httpClientFactory)
-    : ICompletionProvider
+    : CompletionProviderBase<AnthropicCompletionInput, AnthropicCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "claude-3-5-sonnet-20240620", new CompletionModel
@@ -47,82 +46,52 @@ internal class AnthropicCompletionProvider(
             }
         }
     };
-
-    public string Id => ProviderIds.Anthropic;
     
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request,
-        CancellationToken cancellationToken)
-    {
-        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-
-        var client = httpClientFactory.CreateClient(Id);
-        client.DefaultRequestHeaders.Add("x-api-key", apiKey);
-
-
-        var anthropicInput = PrepareInput(request);
-        var requestJson = RoutifyJsonSerializer.Serialize(anthropicInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
-        
-        var response = await client.PostAsync("messages", requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<AnthropicCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Usage;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = responseOutput.Model,
-            InputTokens = usage.InputTokens,
-            OutputTokens = usage.OutputTokens,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-        
-        if (Models.TryGetValue(responseOutput.Model, out var model))
-        {
-            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.InputTokens;
-            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.OutputTokens;
-        }
-
-        return completionResponse;
-    }
-
-    private static AnthropicCompletionInput PrepareInput(
+    public override string Id => ProviderIds.Anthropic;
+    
+    public override Dictionary<string, CompletionModel> Models => _models;
+    
+    protected override HttpClient PrepareHttpClient(
         CompletionRequest request)
     {
+        var apiKey = request.AppProvider.Attrs.GetValueOrDefault("apiKey");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new GatewayException(HttpStatusCode.Unauthorized);
         
+        var client = httpClientFactory.CreateClient(Id);
+        client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+        
+        return client;
+    }
+
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        return "messages";
+    }
+
+    protected override string GetModel(
+        AnthropicCompletionInput input, 
+        AnthropicCompletionOutput output)
+    {
+        return output.Model;
+    }
+    
+    protected override int GetInputTokens(
+        AnthropicCompletionOutput output)
+    {
+        return output.Usage.InputTokens;
+    }
+    
+    protected override int GetOutputTokens(
+        AnthropicCompletionOutput output)
+    {
+        return output.Usage.OutputTokens;
+    }
+
+    protected override AnthropicCompletionInput PrepareInput(
+        CompletionRequest request)
+    {
         var anthropicInput = AnthropicCompletionInputMapper.Map(request.Input);
         if (!string.IsNullOrWhiteSpace(request.RouteProvider.Model))
             anthropicInput.Model = request.RouteProvider.Model;
@@ -150,13 +119,13 @@ internal class AnthropicCompletionProvider(
         return anthropicInput;
     }
     
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<AnthropicCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var openAiOutput = AnthropicCompletionOutputMapper.Map(output);

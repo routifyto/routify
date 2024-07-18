@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.TogetherAi.Models;
 
 namespace Routify.Gateway.Providers.TogetherAi;
 
 internal class TogetherAiCompletionProvider(
     IHttpClientFactory httpClientFactory) 
-    : ICompletionProvider
+    : CompletionProviderBase<TogetherAiCompletionInput, TogetherAiCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "Qwen/Qwen2-72B-Instruct", new CompletionModel
@@ -463,78 +462,49 @@ internal class TogetherAiCompletionProvider(
             }
         },
     };
+    public override string Id => ProviderIds.TogetherAi;
     
-    public string Id => ProviderIds.TogetherAi;
+    public override Dictionary<string, CompletionModel> Models => _models;
     
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request, 
-        CancellationToken cancellationToken)
+    protected override HttpClient PrepareHttpClient(
+        CompletionRequest request)
     {
-        if (!request.AppProvider.Attrs.TryGetValue("apiKey", out var apiKey))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-
-        var client = httpClientFactory.CreateClient(ProviderIds.TogetherAi);
+        var apiKey = request.AppProvider.Attrs.GetValueOrDefault("apiKey");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new GatewayException(HttpStatusCode.Unauthorized);
+        
+        var client = httpClientFactory.CreateClient(Id);
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-        var togetherAiInput = PrepareInput(request);
-        var requestJson = RoutifyJsonSerializer.Serialize(togetherAiInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         
-        var response = await client.PostAsync("chat/completions", requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-        
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<TogetherAiCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Usage;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = responseOutput.Model,
-            InputTokens = usage.PromptTokens,
-            OutputTokens = usage.CompletionTokens,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-        
-        if (Models.TryGetValue(responseOutput.Model, out var model))
-        {
-            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
-            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
-        }
-
-        return completionResponse;
+        return client;
     }
 
-    private static TogetherAiCompletionInput PrepareInput(
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        return "chat/completions";
+    }
+
+    protected override string GetModel(
+        TogetherAiCompletionInput input, 
+        TogetherAiCompletionOutput output)
+    {
+        return output.Model;
+    }
+    
+    protected override int GetInputTokens(
+        TogetherAiCompletionOutput output)
+    {
+        return output.Usage.PromptTokens;
+    }
+    
+    protected override int GetOutputTokens(
+        TogetherAiCompletionOutput output)
+    {
+        return output.Usage.CompletionTokens;
+    }
+
+    protected override TogetherAiCompletionInput PrepareInput(
         CompletionRequest request)
     {
         var togetherAiInput = TogetherAiCompletionInputMapper.Map(request.Input);
@@ -583,13 +553,13 @@ internal class TogetherAiCompletionProvider(
         return togetherAiInput;
     }
     
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<TogetherAiCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var openAiOutput = TogetherAiCompletionOutputMapper.Map(output);

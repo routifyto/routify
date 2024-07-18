@@ -1,18 +1,17 @@
 using System.Net;
-using System.Text;
 using Routify.Core.Constants;
 using Routify.Core.Utils;
 using Routify.Gateway.Abstractions;
-using Routify.Gateway.Extensions;
+using Routify.Gateway.Models.Exceptions;
 using Routify.Gateway.Providers.Cloudflare.Models;
 
 namespace Routify.Gateway.Providers.Cloudflare;
 
 internal class CloudflareCompletionProvider(
     IHttpClientFactory httpClientFactory)
-    : ICompletionProvider
+    : CompletionProviderBase<CloudflareCompletionInput, CloudflareCompletionOutput>
 {
-    private static readonly Dictionary<string, CompletionModel> Models = new()
+    private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
             "llama-2-7b-chat-fp16", new CompletionModel
@@ -282,85 +281,51 @@ internal class CloudflareCompletionProvider(
         },
     };
 
-    public string Id => ProviderIds.Cloudflare;
+    public override string Id => ProviderIds.Cloudflare;
+    public override Dictionary<string, CompletionModel> Models => _models;
 
-    public async Task<CompletionResponse> CompleteAsync(
-        CompletionRequest request,
-        CancellationToken cancellationToken)
+    protected override HttpClient PrepareHttpClient(
+        CompletionRequest request)
     {
-        if (!request.AppProvider.Attrs.TryGetValue("apiToken", out var apiToken))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.Unauthorized,
-            };
-        }
-
-        if (!request.AppProvider.Attrs.TryGetValue("accountId", out var accountId))
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-            };
-        }
+        var apiKey = request.AppProvider.Attrs.GetValueOrDefault("apiToken");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new GatewayException(HttpStatusCode.Unauthorized);
 
         var client = httpClientFactory.CreateClient(Id);
-        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-        var cloudflareInput = PrepareInput(request);
-        var requestJson = RoutifyJsonSerializer.Serialize(cloudflareInput);
-        var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
-
-        var response = await client.PostAsync($"{accountId}/ai/v1/chat/completions", requestContent, cancellationToken);
-        var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        var requestLog = response.RequestMessage?.ToRequestLog(requestJson);
-        var responseLog = response.ToResponseLog(responseBody);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)response.StatusCode,
-                Error = responseBody,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var responseOutput = RoutifyJsonSerializer.Deserialize<CloudflareCompletionOutput>(responseBody);
-        if (responseOutput == null)
-        {
-            return new CompletionResponse
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError,
-                RequestLog = requestLog,
-                ResponseLog = responseLog
-            };
-        }
-
-        var usage = responseOutput.Usage;
-        var completionResponse = new CompletionResponse
-        {
-            StatusCode = (int)response.StatusCode,
-            Model = responseOutput.Model,
-            InputTokens = usage.PromptTokens,
-            OutputTokens = usage.CompletionTokens,
-            Output = responseOutput,
-            RequestLog = requestLog,
-            ResponseLog = responseLog
-        };
-
-        if (Models.TryGetValue(responseOutput.Model, out var model))
-        {
-            completionResponse.InputCost = model.InputCost / model.InputCostUnit * usage.PromptTokens;
-            completionResponse.OutputCost = model.OutputCost / model.OutputCostUnit * usage.CompletionTokens;
-        }
-
-        return completionResponse;
+        return client;
     }
 
-    private static CloudflareCompletionInput PrepareInput(
+    protected override string PrepareRequestUrl(
+        CompletionRequest request)
+    {
+        if (!request.AppProvider.Attrs.TryGetValue("accountId", out var accountId))
+            throw new GatewayException(HttpStatusCode.BadRequest);
+
+        return $"{accountId}/ai/v1/chat/completions";
+    }
+
+    protected override string GetModel(
+        CloudflareCompletionInput input, 
+        CloudflareCompletionOutput output)
+    {
+        return output.Model;
+    }
+
+    protected override int GetInputTokens(
+        CloudflareCompletionOutput output)
+    {
+        return output.Usage.PromptTokens;
+    }
+
+    protected override int GetOutputTokens(
+        CloudflareCompletionOutput output)
+    {
+        return output.Usage.CompletionTokens;
+    }
+
+    protected override CloudflareCompletionInput PrepareInput(
         CompletionRequest request)
     {
         var cloudflareInput = CloudflareCompletionInputMapper.Map(request.Input);
@@ -409,13 +374,13 @@ internal class CloudflareCompletionProvider(
         return cloudflareInput;
     }
 
-    public ICompletionInput? ParseInput(
+    public override ICompletionInput? ParseInput(
         string input)
     {
         return RoutifyJsonSerializer.Deserialize<CloudflareCompletionInput>(input);
     }
 
-    public string SerializeOutput(
+    public override string SerializeOutput(
         ICompletionOutput output)
     {
         var cloudflareOutput = CloudflareCompletionOutputMapper.Map(output);
