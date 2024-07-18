@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,6 +21,7 @@ import { RouteProviderForm } from '@/components/routes/route-provider-form';
 import { Plus } from 'lucide-react';
 import { AppProvidersDialog } from '@/components/app-providers/app-providers-dialog';
 import { ProviderSelect } from '@/components/providers/provider-select';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   name: z.string(),
@@ -31,7 +33,8 @@ const formSchema = z.object({
   attrs: z.record(z.string(), z.string()),
   type: z.enum(['COMPLETION', 'EMBEDDING']),
   schema: z.string(),
-  strategy: z.enum(['DEFAULT', 'LOAD_BALANCE', 'FALLBACK']),
+  isLoadBalanceEnabled: z.boolean().default(true),
+  isFailoverEnabled: z.boolean().default(false),
   providers: z.array(
     z.object({
       id: z.string().nullable().optional(),
@@ -66,8 +69,9 @@ export function RouteForm({
       attrs: {},
       type: 'COMPLETION',
       schema: 'openai',
-      strategy: 'DEFAULT',
       providers: [],
+      isLoadBalanceEnabled: true,
+      isFailoverEnabled: false,
     },
   });
 
@@ -151,6 +155,47 @@ export function RouteForm({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isLoadBalanceEnabled"
+              render={({ field }) => (
+                <FormItem className="mt-1 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Enable load balancing</FormLabel>
+                    <FormDescription>
+                      Distribute requests across multiple providers.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isFailoverEnabled"
+              render={({ field }) => (
+                <FormItem className="mt-1 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Enable failover</FormLabel>
+                    <FormDescription>
+                      Route requests to a backup provider if the primary
+                      provider fails.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

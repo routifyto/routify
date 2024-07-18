@@ -1,5 +1,4 @@
 export type RouteType = 'COMPLETION' | 'EMBEDDING';
-export type RouteStrategy = 'DEFAULT' | 'LOAD_BALANCE' | 'FALLBACK';
 
 export type RouteOutput = {
   id: string;
@@ -8,7 +7,8 @@ export type RouteOutput = {
   path: string;
   type: RouteType;
   schema: string;
-  strategy: RouteStrategy;
+  isLoadBalanceEnabled: boolean;
+  isFailoverEnabled: boolean;
   providers: RouteProviderOutput[];
 };
 
@@ -25,7 +25,8 @@ export type CreateRouteInput = {
   path: string;
   type: RouteType;
   schema: string;
-  strategy: RouteStrategy;
+  isLoadBalanceEnabled: boolean;
+  isFailoverEnabled: boolean;
   attrs: Record<string, string>;
   providers: RouteProviderInput[];
 };
@@ -35,7 +36,8 @@ export type UpdateRouteInput = {
   description?: string | null;
   path: string;
   schema: string;
-  strategy: RouteStrategy;
+  isLoadBalanceEnabled: boolean;
+  isFailoverEnabled: boolean;
   providers: RouteProviderInput[];
   attrs?: Record<string, string> | null;
 };
