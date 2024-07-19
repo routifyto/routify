@@ -41,7 +41,8 @@ internal record AppData
                         Attrs = provider.Attrs,
                         Weight = Math.Max(provider.Weight, 1),
                     })
-                    .ToList()
+                    .ToList(),
+                CacheConfig = route.CacheConfig
             });
 
         Providers = output

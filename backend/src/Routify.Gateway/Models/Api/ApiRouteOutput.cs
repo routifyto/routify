@@ -1,3 +1,4 @@
+using Routify.Data.Common;
 using Routify.Data.Enums;
 
 namespace Routify.Gateway.Models.Api;
@@ -13,4 +14,5 @@ internal record ApiRouteOutput
     public bool IsFailoverEnabled { get; set; }
     public int? Timeout { get; set; }
     public List<ApiRouteProviderOutput> Providers { get; set; } = [];
+    public CacheConfig? CacheConfig { get; set; }
 }

@@ -11,6 +11,8 @@ using Routify.Gateway.Providers.OpenAi;
 using Routify.Gateway.Providers.Perplexity;
 using Routify.Gateway.Providers.TogetherAi;
 using Routify.Gateway.Services;
+using Routify.Gateway.Utils;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,7 @@ builder.Services.AddHttpContextAccessor();
 //inject services
 builder.Services.AddSingleton<Repository>();
 builder.Services.AddSingleton<LogService>();
+builder.Services.AddSingleton<CacheService>();
 builder.Services.AddHostedService<Synchronizer>();
 builder.Services.AddHostedService(sp =>
 {
@@ -56,6 +59,19 @@ builder.Services.AddHttpClient("api",client =>
     client.DefaultRequestHeaders.Add("x-gateway-token", token);
 });
 
+//inject redis
+builder.Services.AddSingleton<IDatabase>(_ =>
+{
+    var redisConfig = builder.Configuration.GetSection("Redis");
+    var connectionString = redisConfig["ConnectionString"];
+    
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new Exception("Redis connection string is not set.");
+    
+    var redis = ConnectionMultiplexer.Connect(connectionString);
+    return redis.GetDatabase();
+});
+
 var app = builder.Build();
 
 app.MapPost("/{appId}/{*path}", async (
@@ -64,6 +80,7 @@ app.MapPost("/{appId}/{*path}", async (
     string appId,
     string path,
     HttpContext httpContext,
+    CacheService cacheService,
     CancellationToken cancellationToken) =>
 {
     var appData = repository.GetApp(appId);
@@ -86,7 +103,8 @@ app.MapPost("/{appId}/{*path}", async (
         HttpContext = httpContext,
         App = appData,
         Route = routeData,
-        ApiKey = apiKey
+        ApiKey = apiKey,
+        Cache = cacheService
     };
 
     var consumerHeader = httpContext.Request.GetConsumer();

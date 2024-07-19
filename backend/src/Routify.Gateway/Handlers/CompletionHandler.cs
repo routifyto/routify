@@ -49,7 +49,7 @@ internal class CompletionHandler(
 
             var routeProviderSelector = new RouteProviderSelector(context.Route);
             var isDone = false;
-            
+
             while (routeProviderSelector.HasNextProvider && !isDone)
             {
                 var routeProvider = routeProviderSelector.GetNextProvider();
@@ -66,35 +66,17 @@ internal class CompletionHandler(
 
                 var completionRequest = new CompletionRequest
                 {
+                    Context = context,
+                    LogId = log.Id,
                     Input = input,
                     AppProvider = appProvider,
                     RouteProvider = routeProvider,
                 };
 
-                var outgoingStartedAt = DateTime.UtcNow;
                 var completionResponse = await completionProvider.CompleteAsync(completionRequest, cancellationToken);
-                var outgoingEndedAt = DateTime.UtcNow;
-                var completionOutgoingLog = new CompletionOutgoingLog
-                {
-                    Id = RoutifyId.Generate(IdType.CompletionOutgoingLog),
-                    IncomingLogId = log.Id,
-                    AppId = context.App.Id,
-                    RouteId = context.Route.Id,
-                    Provider = appProvider.Provider,
-                    AppProviderId = appProvider.Id,
-                    RouteProviderId = routeProvider.Id,
-                    RequestUrl = completionResponse.RequestUrl,
-                    RequestMethod = completionResponse.RequestMethod,
-                    RequestHeaders = completionResponse.RequestHeaders,
-                    RequestBody = completionResponse.RequestBody,
-                    StatusCode = completionResponse.StatusCode,
-                    ResponseBody = completionResponse.ResponseBody,
-                    ResponseHeaders = completionResponse.ResponseHeaders,
-                    StartedAt = outgoingStartedAt,
-                    EndedAt = outgoingEndedAt,
-                    Duration = (outgoingEndedAt - outgoingStartedAt).TotalMilliseconds
-                };
-                outgoingLogs.Add(completionOutgoingLog);
+                
+                if (completionResponse.Log != null)
+                    outgoingLogs.Add(completionResponse.Log);
                 
                 if (context.Route.IsFailoverEnabled
                     && HttpUtils.ShouldRetry(completionResponse.StatusCode)
@@ -124,7 +106,7 @@ internal class CompletionHandler(
                 log.StatusCode = completionResponse.StatusCode;
                 log.ResponseBody = responseBody;
                 log.OutgoingRequestsCount = outgoingLogs.Count;
-                
+
                 context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
                 context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.WriteAsync(responseBody ?? string.Empty, cancellationToken);
@@ -145,13 +127,16 @@ internal class CompletionHandler(
         }
         catch (Exception)
         {
+#if DEBUG
+            throw;
+#endif
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         }
         finally
         {
             log.EndedAt = DateTime.UtcNow;
             log.Duration = (log.EndedAt - log.StartedAt).TotalMilliseconds;
-            
+
             logService.SaveCompletionLog(log);
             logService.SaveCompletionOutgoingLogs(outgoingLogs);
         }

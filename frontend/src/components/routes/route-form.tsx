@@ -44,6 +44,13 @@ const formSchema = z.object({
       weight: z.number().int().min(1).max(100).default(1),
     }),
   ),
+  cacheConfig: z
+    .object({
+      enabled: z.boolean(),
+      expiration: z.number().int().min(1),
+    })
+    .optional()
+    .nullable(),
 });
 
 interface RouteFormProps {
@@ -77,6 +84,8 @@ export function RouteForm({
 
   const [openProvidersDialog, setOpenProvidersDialog] = React.useState(false);
   const providers = form.watch('providers');
+
+  const isCacheEnabled = form.watch('cacheConfig.enabled');
 
   return (
     <React.Fragment>
@@ -158,31 +167,13 @@ export function RouteForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="isLoadBalanceEnabled"
-              render={({ field }) => (
-                <FormItem className="mt-1 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>Enable load balancing</FormLabel>
-                    <FormDescription>
-                      Distribute requests across multiple providers.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
             <FormField
               control={form.control}
               name="isFailoverEnabled"
               render={({ field }) => (
-                <FormItem className="mt-1 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel>Enable failover</FormLabel>
                     <FormDescription>
@@ -199,6 +190,75 @@ export function RouteForm({
                 </FormItem>
               )}
             />
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
+            <FormField
+              control={form.control}
+              name="isLoadBalanceEnabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between">
+                  <div className="space-y-0.5">
+                    <FormLabel>Enable load balancing</FormLabel>
+                    <FormDescription>
+                      Distribute requests across multiple providers.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
+            <FormField
+              control={form.control}
+              name="cacheConfig.enabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between">
+                  <div className="space-y-0.5">
+                    <FormLabel>Enable caching</FormLabel>
+                    <FormDescription>
+                      Cache responses to reduce latency.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {isCacheEnabled && (
+              <FormField
+                control={form.control}
+                name="cacheConfig.expiration"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Caching expiration (seconds)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder=""
+                        value={field.value ?? ''}
+                        onChange={(event) => {
+                          const number = parseInt(event.target.value, 10);
+                          if (isNaN(number)) {
+                            return;
+                          }
+                          field.onChange(number);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
           {providers.map((_, index) => (
             <div

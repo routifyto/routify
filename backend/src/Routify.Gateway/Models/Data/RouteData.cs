@@ -1,3 +1,4 @@
+using Routify.Data.Common;
 using Routify.Data.Enums;
 
 namespace Routify.Gateway.Models.Data;
@@ -13,4 +14,5 @@ internal record RouteData
     public bool IsFailoverEnabled { get; set; }
     public int? Timeout { get; set; }
     public List<RouteProviderData> Providers { get; set; } = [];
+    public CacheConfig? CacheConfig { get; set; }
 }

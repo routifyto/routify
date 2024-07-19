@@ -1,7 +1,7 @@
 using Routify.Core.Extensions;
 using Routify.Gateway.Models.Data;
 
-namespace Routify.Gateway.Services;
+namespace Routify.Gateway.Utils;
 
 internal class AuthorizationUtils
 {

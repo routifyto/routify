@@ -4,7 +4,6 @@ using Routify.Api.Models.Common;
 using Routify.Api.Models.Routes;
 using Routify.Core.Utils;
 using Routify.Data;
-using Routify.Data.Common;
 using Routify.Data.Enums;
 using Routify.Data.Models;
 using Route = Routify.Data.Models.Route;
@@ -172,6 +171,7 @@ public class RoutesController(
             IsFailoverEnabled = input.IsFailoverEnabled,
             Timeout = input.Timeout,
             Attrs = input.Attrs,
+            CacheConfig = input.CacheConfig,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = CurrentUserId,
             VersionId = RoutifyId.Generate(IdType.Version)
@@ -263,6 +263,10 @@ public class RoutesController(
         route.IsFailoverEnabled = input.IsFailoverEnabled;
         route.Timeout = input.Timeout;
         route.Attrs = input.Attrs;
+        route.CacheConfig = input.CacheConfig;
+        route.UpdatedAt = DateTime.UtcNow;
+        route.UpdatedBy = CurrentUserId;
+        route.VersionId = RoutifyId.Generate(IdType.Version);
 
         var routeProviderIds = input.Providers.Select(x => x.Id).ToList();
         foreach (var routeProvider in route.Providers)
@@ -399,6 +403,7 @@ public class RoutesController(
                     Weight = x.Weight
                 })
                 .ToList(),
+            CacheConfig = route.CacheConfig
         };
     }
 

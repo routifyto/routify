@@ -13,4 +13,6 @@ internal static class HttpUtils
     ];
     
     public static bool ShouldRetry(int statusCode) => _statusCodesForRetry.Contains(statusCode);
+    
+    public static bool IsSuccessStatusCode(int statusCode) => statusCode is >= 200 and < 300;
 }

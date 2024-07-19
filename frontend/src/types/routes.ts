@@ -1,3 +1,5 @@
+import { CacheConfig } from '@/types/configs';
+
 export type RouteType = 'COMPLETION' | 'EMBEDDING';
 
 export type RouteOutput = {
@@ -10,6 +12,7 @@ export type RouteOutput = {
   isLoadBalanceEnabled: boolean;
   isFailoverEnabled: boolean;
   providers: RouteProviderOutput[];
+  cacheConfig?: CacheConfig | null;
 };
 
 export type RouteProviderOutput = {
@@ -29,6 +32,7 @@ export type CreateRouteInput = {
   isFailoverEnabled: boolean;
   attrs: Record<string, string>;
   providers: RouteProviderInput[];
+  cacheConfig?: CacheConfig | null;
 };
 
 export type UpdateRouteInput = {
@@ -40,6 +44,7 @@ export type UpdateRouteInput = {
   isFailoverEnabled: boolean;
   providers: RouteProviderInput[];
   attrs?: Record<string, string> | null;
+  cacheConfig?: CacheConfig | null;
 };
 
 export type RouteProviderInput = {

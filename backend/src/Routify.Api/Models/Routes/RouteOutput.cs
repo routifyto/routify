@@ -1,3 +1,4 @@
+using Routify.Data.Common;
 using Routify.Data.Enums;
 
 namespace Routify.Api.Models.Routes;
@@ -14,8 +15,7 @@ public record RouteOutput
     public bool IsLoadBalanceEnabled { get; set; }
     public bool IsFailoverEnabled { get; set; }
     public int? Timeout { get; set; }
-    
     public Dictionary<string, string> Attrs { get; set; } = [];
-    
     public List<RouteProviderOutput> Providers { get; set; } = [];
+    public CacheConfig? CacheConfig { get; set; }
 }

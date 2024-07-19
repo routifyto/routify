@@ -1,4 +1,4 @@
-using Routify.Data.Enums;
+using Routify.Data.Common;
 
 namespace Routify.Api.Models.Routes;
 
@@ -15,4 +15,6 @@ public record UpdateRouteInput
     
     public Dictionary<string, string> Attrs { get; set; } = [];
     public List<UpdateRouteProviderInput> Providers { get; set; } = [];
+    
+    public CacheConfig? CacheConfig { get; set; }
 }
