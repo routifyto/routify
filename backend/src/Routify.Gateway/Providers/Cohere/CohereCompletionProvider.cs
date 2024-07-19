@@ -17,16 +17,16 @@ internal class CohereCompletionProvider(
             "command-r-plus", new CompletionModel
             {
                 Id = "command-r-plus",
-                InputCost = 3m,
-                OutputCost = 15m
+                InputCost = 300m,
+                OutputCost = 1500m
             }
         },
         {
             "command-r", new CompletionModel
             {
                 Id = "command-r",
-                InputCost = 0.5m,
-                OutputCost = 1.5m
+                InputCost = 500m,
+                OutputCost = 150m
             }
         },
         {

@@ -17,56 +17,56 @@ internal class PerplexityCompletionProvider(
             "llama-3-sonar-small-32k-online", new CompletionModel
             {
                 Id = "llama-3-sonar-small-32k-online",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "llama-3-sonar-small-32k-chat", new CompletionModel
             {
                 Id = "llama-3-sonar-small-32k-chat",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "llama-3-sonar-large-32k-online", new CompletionModel
             {
                 Id = "llama-3-sonar-large-32k-online",
-                InputCost = 1m,
-                OutputCost = 1m
+                InputCost = 100m,
+                OutputCost = 100m
             }
         },
         {
             "llama-3-sonar-large-32k-chat", new CompletionModel
             {
                 Id = "llama-3-sonar-large-32k-chat",
-                InputCost = 1m,
-                OutputCost = 1m
+                InputCost = 100m,
+                OutputCost = 100m
             }
         },
         {
             "llama-3-8b-instruct", new CompletionModel
             {
                 Id = "llama-3-8b-instruct",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "llama-3-70b-instruct", new CompletionModel
             {
                 Id = "llama-3-70b-instruct",
-                InputCost = 1m,
-                OutputCost = 1m
+                InputCost = 100m,
+                OutputCost = 100m
             }
         },
         {
             "mixtral-8x7b-instruct", new CompletionModel
             {
                 Id = "mixtral-8x7b-instruct",
-                InputCost = 0.6m,
-                OutputCost = 0.6m
+                InputCost = 60m,
+                OutputCost = 60m
             }
         },
     };

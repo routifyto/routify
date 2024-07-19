@@ -26,3 +26,8 @@ export function formatJson(json?: string | null) {
     return json;
   }
 }
+
+export function formatCost(cost: number, fractionDigits = 2) {
+  // we multiply by 100 to get the cost in dollars
+  return `$${(cost * 100).toFixed(fractionDigits)}`;
+}

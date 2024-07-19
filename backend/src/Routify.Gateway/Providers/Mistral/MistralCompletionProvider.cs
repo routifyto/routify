@@ -17,48 +17,48 @@ internal class MistralCompletionProvider(
             "open-mistral-7b", new CompletionModel
             {
                 Id = "open-mistral-7b",
-                InputCost = 0.25m,
-                OutputCost = 1m
+                InputCost = 25m,
+                OutputCost = 100m
             }
         },
         {
             "open-mixtral-8x7b", new CompletionModel
             {
                 Id = "open-mixtral-8x7b",
-                InputCost = 0.7m,
-                OutputCost = 0.7m
+                InputCost = 70m,
+                OutputCost = 70m
             }
         },
         {
             "open-mixtral-8x22b", new CompletionModel
             {
                 Id = "open-mixtral-8x22b",
-                InputCost = 2m,
-                OutputCost = 6m
+                InputCost = 200m,
+                OutputCost = 600m
             }
         },
         {
             "mistral-small-2402", new CompletionModel
             {
                 Id = "mistral-small-2402",
-                InputCost = 1m,
-                OutputCost = 3m
+                InputCost = 100m,
+                OutputCost = 300m
             }
         },
         {
             "codestral-2405", new CompletionModel
             {
                 Id = "codestral-2405",
-                InputCost = 1m,
-                OutputCost = 3m
+                InputCost = 100m,
+                OutputCost = 300m
             }
         },
         {
             "mistral-large-2402", new CompletionModel
             {
                 Id = "mistral-large-2402",
-                InputCost = 4m,
-                OutputCost = 12m
+                InputCost = 400m,
+                OutputCost = 1200m
             }
         }
     };

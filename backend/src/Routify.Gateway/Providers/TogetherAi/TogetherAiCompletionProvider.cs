@@ -17,448 +17,448 @@ internal class TogetherAiCompletionProvider(
             "Qwen/Qwen2-72B-Instruct", new CompletionModel
             {
                 Id = "Qwen/Qwen2-72B-Instruct",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "meta-llama/Llama-3-70b-chat-hf", new CompletionModel
             {
                 Id = "meta-llama/Llama-3-70b-chat-hf",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "Snowflake/snowflake-arctic-instruct", new CompletionModel
             {
                 Id = "Snowflake/snowflake-arctic-instruct",
-                InputCost = 2.4m,
-                OutputCost = 2.4m
+                InputCost = 240m,
+                OutputCost = 240m
             }
         },
         {
             "meta-llama/Llama-3-8b-chat-hf", new CompletionModel
             {
                 Id = "meta-llama/Llama-3-8b-chat-hf",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "microsoft/WizardLM-2-8x22B", new CompletionModel
             {
                 Id = "microsoft/WizardLM-2-8x22B",
-                InputCost = 1.2m,
-                OutputCost = 1.2m
+                InputCost = 120m,
+                OutputCost = 120m
             }
         },
         {
             "togethercomputer/StripedHyena-Nous-7B", new CompletionModel
             {
                 Id = "togethercomputer/StripedHyena-Nous-7B",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "databricks/dbrx-instruct", new CompletionModel
             {
                 Id = "databricks/dbrx-instruct",
-                InputCost = 1.2m,
-                OutputCost = 1.2m
+                InputCost = 120m,
+                OutputCost = 120m
             }
         },
         {
             "allenai/OLMo-7B-Instruct", new CompletionModel
             {
                 Id = "allenai/OLMo-7B-Instruct",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "deepseek-ai/deepseek-llm-67b-chat", new CompletionModel
             {
                 Id = "deepseek-ai/deepseek-llm-67b-chat",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "google/gemma-7b-it", new CompletionModel
             {
                 Id = "google/gemma-7b-it",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "google/gemma-2b-it", new CompletionModel
             {
                 Id = "google/gemma-2b-it",
-                InputCost = 0.1m,
-                OutputCost = 0.1m
+                InputCost = 10m,
+                OutputCost = 10m
             }
         },
         {
             "NousResearch/Nous-Hermes-2-Mistral-7B-DPO", new CompletionModel
             {
                 Id = "NousResearch/Nous-Hermes-2-Mistral-7B-DPO",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT", new CompletionModel
             {
                 Id = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-SFT",
-                InputCost = 0.6m,
-                OutputCost = 0.6m
+                InputCost = 60m,
+                OutputCost = 60m
             }
         },
         {
             "NousResearch/Nous-Hermes-2-Yi-34B", new CompletionModel
             {
                 Id = "NousResearch/Nous-Hermes-2-Yi-34B",
-                InputCost = 0.8m,
-                OutputCost = 0.8m
+                InputCost = 80m,
+                OutputCost = 80m
             }
         },
         {
             "codellama/CodeLlama-70b-Instruct-hf", new CompletionModel
             {
                 Id = "codellama/CodeLlama-70b-Instruct-hf",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO", new CompletionModel
             {
                 Id = "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-                InputCost = 0.6m,
-                OutputCost = 0.6m
+                InputCost = 60m,
+                OutputCost = 60m
             }
         },
         {
             "snorkelai/Snorkel-Mistral-PairRM-DPO", new CompletionModel
             {
                 Id = "snorkelai/Snorkel-Mistral-PairRM-DPO",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "deepseek-ai/deepseek-coder-33b-instruct", new CompletionModel
             {
                 Id = "deepseek-ai/deepseek-coder-33b-instruct",
-                InputCost = 0.8m,
-                OutputCost = 0.8m
+                InputCost = 80m,
+                OutputCost = 80m
             }
         },
         {
             "zero-one-ai/Yi-34B-Chat", new CompletionModel
             {
                 Id = "zero-one-ai/Yi-34B-Chat",
-                InputCost = 0.8m,
-                OutputCost = 0.8m
+                InputCost = 80m,
+                OutputCost = 80m
             }
         },
         {
             "NousResearch/Nous-Hermes-Llama2-13b", new CompletionModel
             {
                 Id = "NousResearch/Nous-Hermes-Llama2-13b",
-                InputCost = 0.3m,
-                OutputCost = 0.3m
+                InputCost = 30m,
+                OutputCost = 30m
             }
         },
         {
             "NousResearch/Nous-Hermes-llama-2-7b", new CompletionModel
             {
                 Id = "NousResearch/Nous-Hermes-llama-2-7b",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "togethercomputer/Llama-2-7B-32K-Instruct", new CompletionModel
             {
                 Id = "togethercomputer/Llama-2-7B-32K-Instruct",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "meta-llama/Llama-2-70b-chat-hf", new CompletionModel
             {
                 Id = "meta-llama/Llama-2-70b-chat-hf",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "meta-llama/Llama-2-13b-chat-hf", new CompletionModel
             {
                 Id = "meta-llama/Llama-2-13b-chat-hf",
-                InputCost = 0.22m,
-                OutputCost = 0.22m
+                InputCost = 22m,
+                OutputCost = 22m
             }
         },
         {
             "meta-llama/Llama-2-7b-chat-hf", new CompletionModel
             {
                 Id = "meta-llama/Llama-2-7b-chat-hf",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "codellama/CodeLlama-13b-Instruct-hf", new CompletionModel
             {
                 Id = "codellama/CodeLlama-13b-Instruct-hf",
-                InputCost = 0.22m,
-                OutputCost = 0.22m
+                InputCost = 22m,
+                OutputCost = 22m
             }
         },
         {
             "codellama/CodeLlama-34b-Instruct-hf", new CompletionModel
             {
                 Id = "codellama/CodeLlama-34b-Instruct-hf",
-                InputCost = 0.78m,
-                OutputCost = 0.78m
+                InputCost = 78m,
+                OutputCost = 78m
             }
         },
         {
             "codellama/CodeLlama-7b-Instruct-hf", new CompletionModel
             {
                 Id = "codellama/CodeLlama-7b-Instruct-hf",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "NousResearch/Nous-Capybara-7B-V1p9", new CompletionModel
             {
                 Id = "NousResearch/Nous-Capybara-7B-V1p9",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "teknium/OpenHermes-2p5-Mistral-7B", new CompletionModel
             {
                 Id = "teknium/OpenHermes-2p5-Mistral-7B",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "Open-Orca/Mistral-7B-OpenOrca", new CompletionModel
             {
                 Id = "Open-Orca/Mistral-7B-OpenOrca",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "teknium/OpenHermes-2-Mistral-7B", new CompletionModel
             {
                 Id = "teknium/OpenHermes-2-Mistral-7B",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "Austism/chronos-hermes-13b", new CompletionModel
             {
                 Id = "Austism/chronos-hermes-13b",
-                InputCost = 0.3m,
-                OutputCost = 0.3m
+                InputCost = 30m,
+                OutputCost = 30m
             }
         },
         {
             "garage-bAInd/Platypus2-70B-instruct", new CompletionModel
             {
                 Id = "garage-bAInd/Platypus2-70B-instruct",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "Gryphe/MythoMax-L2-13b", new CompletionModel
             {
                 Id = "Gryphe/MythoMax-L2-13b",
-                InputCost = 0.3m,
-                OutputCost = 0.3m
+                InputCost = 30m,
+                OutputCost = 30m
             }
         },
         {
             "togethercomputer/alpaca-7b", new CompletionModel
             {
                 Id = "togethercomputer/alpaca-7b",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "WizardLM/WizardLM-13B-V1.2", new CompletionModel
             {
                 Id = "WizardLM/WizardLM-13B-V1.2",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "upstage/SOLAR-10.7B-Instruct-v1.0", new CompletionModel
             {
                 Id = "upstage/SOLAR-10.7B-Instruct-v1.0",
-                InputCost = 0.3m,
-                OutputCost = 0.3m
+                InputCost = 30m,
+                OutputCost = 30m
             }
         },
         {
             "OpenAssistant/llama2-70b-oasst-sft-v10", new CompletionModel
             {
                 Id = "OpenAssistant/llama2-70b-oasst-sft-v10",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "openchat/openchat-3.5-1210", new CompletionModel
             {
                 Id = "openchat/openchat-3.5-1210",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "Qwen/Qwen1.5-7B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-7B-Chat",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "Qwen/Qwen1.5-14B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-14B-Chat",
-                InputCost = 0.3m,
-                OutputCost = 0.3m
+                InputCost = 30m,
+                OutputCost = 30m
             }
         },
         {
             "Qwen/Qwen1.5-1.8B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-1.8B-Chat",
-                InputCost = 0.1m,
-                OutputCost = 0.1m
+                InputCost = 10m,
+                OutputCost = 10m
             }
         },
         {
             "cognitivecomputations/dolphin-2.5-mixtral-8x7b", new CompletionModel
             {
                 Id = "cognitivecomputations/dolphin-2.5-mixtral-8x7b",
-                InputCost = 0.6m,
-                OutputCost = 0.6m
+                InputCost = 60m,
+                OutputCost = 60m
             }
         },
         {
             "mistralai/Mixtral-8x22B-Instruct-v0.1", new CompletionModel
             {
                 Id = "mistralai/Mixtral-8x22B-Instruct-v0.1",
-                InputCost = 1.2m,
-                OutputCost = 1.2m
+                InputCost = 120m,
+                OutputCost = 120m
             }
         },
         {
             "lmsys/vicuna-13b-v1.5", new CompletionModel
             {
                 Id = "lmsys/vicuna-13b-v1.5",
-                InputCost = 0.3m,
-                OutputCost = 0.3m
+                InputCost = 30m,
+                OutputCost = 30m
             }
         },
         {
             "Qwen/Qwen1.5-0.5B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-0.5B-Chat",
-                InputCost = 0.1m,
-                OutputCost = 0.1m
+                InputCost = 10m,
+                OutputCost = 10m
             }
         },
         {
             "Qwen/Qwen1.5-4B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-4B-Chat",
-                InputCost = 0.1m,
-                OutputCost = 0.1m
+                InputCost = 10m,
+                OutputCost = 10m
             }
         },
         {
             "mistralai/Mistral-7B-Instruct-v0.1", new CompletionModel
             {
                 Id = "mistralai/Mistral-7B-Instruct-v0.1",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "mistralai/Mistral-7B-Instruct-v0.2", new CompletionModel
             {
                 Id = "mistralai/Mistral-7B-Instruct-v0.2",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "togethercomputer/Pythia-Chat-Base-7B", new CompletionModel
             {
                 Id = "togethercomputer/Pythia-Chat-Base-7B",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "Qwen/Qwen1.5-32B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-32B-Chat",
-                InputCost = 0.8m,
-                OutputCost = 0.8m
+                InputCost = 80m,
+                OutputCost = 80m
             }
         },
         {
             "Qwen/Qwen1.5-72B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-72B-Chat",
-                InputCost = 0.9m,
-                OutputCost = 0.9m
+                InputCost = 90m,
+                OutputCost = 90m
             }
         },
         {
             "mistralai/Mistral-7B-Instruct-v0.3", new CompletionModel
             {
                 Id = "mistralai/Mistral-7B-Instruct-v0.3",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
         {
             "Qwen/Qwen1.5-110B-Chat", new CompletionModel
             {
                 Id = "Qwen/Qwen1.5-110B-Chat",
-                InputCost = 1.8m,
-                OutputCost = 1.8m
+                InputCost = 180m,
+                OutputCost = 180m
             }
         },
         {
             "mistralai/Mixtral-8x7B-Instruct-v0.1", new CompletionModel
             {
                 Id = "mistralai/Mixtral-8x7B-Instruct-v0.1",
-                InputCost = 0.6m,
-                OutputCost = 0.6m
+                InputCost = 60m,
+                OutputCost = 60m
             }
         },
     };

@@ -17,16 +17,16 @@ internal class OpenAiCompletionProvider(
             "gpt-4o", new CompletionModel
             {
                 Id = "gpt-4o",
-                InputCost = 5m,
-                OutputCost = 15m
+                InputCost = 500m,
+                OutputCost = 1500m
             }
         },
         {
             "gpt-4o-2024-05-13", new CompletionModel
             {
                 Id = "gpt-4o-2024-05-13",
-                InputCost = 5m,
-                OutputCost = 15m
+                InputCost = 500m,
+                OutputCost = 1500m
             }
         },
 
@@ -34,56 +34,56 @@ internal class OpenAiCompletionProvider(
             "gpt-4-turbo", new CompletionModel
             {
                 Id = "gpt-4-turbo",
-                InputCost = 10m,
-                OutputCost = 30m
+                InputCost = 1000m,
+                OutputCost = 3000m
             }
         },
         {
             "gpt-4-turbo-2024-04-09", new CompletionModel
             {
                 Id = "gpt-4-turbo-2024-04-09",
-                InputCost = 10m,
-                OutputCost = 30m
+                InputCost = 1000m,
+                OutputCost = 3000m
             }
         },
         {
             "gpt-4-turbo-preview", new CompletionModel
             {
                 Id = "gpt-4-turbo-preview",
-                InputCost = 10m,
-                OutputCost = 30m
+                InputCost = 1000m,
+                OutputCost = 3000m
             }
         },
         {
             "gpt-4-0125-preview", new CompletionModel
             {
                 Id = "gpt-4-0125-preview",
-                InputCost = 10m,
-                OutputCost = 30m
+                InputCost = 1000m,
+                OutputCost = 3000m
             }
         },
         {
             "gpt-4", new CompletionModel
             {
                 Id = "gpt-4",
-                InputCost = 30m,
-                OutputCost = 60m
+                InputCost = 3000m,
+                OutputCost = 6000m
             }
         },
         {
             "gpt-4-0613", new CompletionModel
             {
                 Id = "gpt-4-0613",
-                InputCost = 30m,
-                OutputCost = 60m
+                InputCost = 3000m,
+                OutputCost = 6000m
             }
         },
         {
             "gpt-4-0314", new CompletionModel
             {
                 Id = "gpt-4-0314",
-                InputCost = 30m,
-                OutputCost = 60m
+                InputCost = 3000m,
+                OutputCost = 6000m
             }
         },
 
@@ -91,32 +91,32 @@ internal class OpenAiCompletionProvider(
             "gpt-3.5-turbo-0125", new CompletionModel
             {
                 Id = "gpt-3.5-turbo-0125",
-                InputCost = 0.5m,
-                OutputCost = 1.5m
+                InputCost = 500m,
+                OutputCost = 150m
             }
         },
         {
             "gpt-3.5-turbo", new CompletionModel
             {
                 Id = "gpt-3.5-turbo",
-                InputCost = 0.5m,
-                OutputCost = 1.5m
+                InputCost = 50m,
+                OutputCost = 150m
             }
         },
         {
             "gpt-3.5-turbo-1106", new CompletionModel
             {
                 Id = "gpt-3.5-turbo-1106",
-                InputCost = 1m,
-                OutputCost = 2m
+                InputCost = 100m,
+                OutputCost = 200m
             }
         },
         {
             "gpt-3.5-turbo-instruct", new CompletionModel
             {
                 Id = "gpt-3.5-turbo-instruct",
-                InputCost = 1.5m,
-                OutputCost = 2m
+                InputCost = 150m,
+                OutputCost = 200m
             }
         },
     };

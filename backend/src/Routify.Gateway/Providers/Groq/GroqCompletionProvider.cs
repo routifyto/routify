@@ -17,16 +17,16 @@ internal class GroqCompletionProvider(
             "llama3-8b-8192", new CompletionModel
             {
                 Id = "llama3-8b-8192",
-                InputCost = 0.05m,
-                OutputCost = 0.08m
+                InputCost = 5m,
+                OutputCost = 8m
             }
         },
         {
             "llama3-70b-8192", new CompletionModel
             {
                 Id = "llama3-70b-8192",
-                InputCost = 0.59m,
-                OutputCost = 0.79m
+                InputCost = 59m,
+                OutputCost = 79m
             }
         },
 
@@ -34,24 +34,24 @@ internal class GroqCompletionProvider(
             "mixtral-8x7b-32768", new CompletionModel
             {
                 Id = "mixtral-8x7b-32768",
-                InputCost = 0.24m,
-                OutputCost = 0.24m
+                InputCost = 24m,
+                OutputCost = 24m
             }
         },
         {
             "gemma-7b-it", new CompletionModel
             {
                 Id = "gemma-7b-it",
-                InputCost = 0.07m,
-                OutputCost = 0.07m
+                InputCost = 7m,
+                OutputCost = 7m
             }
         },
         {
             "gemma2-9b-it", new CompletionModel
             {
                 Id = "gemma2-9b-it",
-                InputCost = 0.2m,
-                OutputCost = 0.2m
+                InputCost = 20m,
+                OutputCost = 20m
             }
         },
     };

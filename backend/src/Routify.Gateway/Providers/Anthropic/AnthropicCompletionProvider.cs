@@ -17,32 +17,32 @@ internal class AnthropicCompletionProvider(
             "claude-3-5-sonnet-20240620", new CompletionModel
             {
                 Id = "claude-3-5-sonnet-20240620",
-                InputCost = 3m,
-                OutputCost = 15m,
+                InputCost = 300m,
+                OutputCost = 1500m,
             }
         },
         {
             "claude-3-opus-20240229", new CompletionModel
             {
                 Id = "claude-3-opus-20240229",
-                InputCost = 15m,
-                OutputCost = 75m,
+                InputCost = 1500m,
+                OutputCost = 7500m,
             }
         },
         {
             "claude-3-sonnet-20240229", new CompletionModel
             {
                 Id = "claude-3-sonnet-20240229",
-                InputCost = 3m,
-                OutputCost = 5m,
+                InputCost = 300m,
+                OutputCost = 500m,
             }
         },
         {
             "claude-3-haiku-20240307", new CompletionModel
             {
                 Id = "claude-3-haiku-20240307",
-                InputCost = 0.25m,
-                OutputCost = 1.25m,
+                InputCost = 25m,
+                OutputCost = 125m,
             }
         }
     };

@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { NavLink } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { cn, formatCost } from '@/lib/utils';
 import { useApp } from '@/contexts/app';
 import { providers } from '@/types/providers';
 
@@ -124,19 +124,13 @@ export function CompletionLogDetails({
               <div className={rowClass}>
                 <p className={firstColumnClass}>Prompt tokens cost</p>
                 <p className={secondColumnClass}>
-                  {completionLog.inputCost.toLocaleString('en-US', {
-                    maximumFractionDigits: 20,
-                  })}
-                  $
+                  {formatCost(completionLog.inputCost, 4)}
                 </p>
               </div>
               <div className={rowClass}>
                 <p className={firstColumnClass}>Generated tokens cost</p>
                 <p className={secondColumnClass}>
-                  {completionLog.outputCost.toLocaleString('en-US', {
-                    maximumFractionDigits: 20,
-                  })}
-                  $
+                  {formatCost(completionLog.outputCost, 4)}
                 </p>
               </div>
               <div className={rowClass}>

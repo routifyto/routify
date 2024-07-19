@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useGetCompletionLogsQuery } from '@/api/logs';
 import { providers } from '@/types/providers';
 import { CompletionLogDetailsSheet } from '@/components/logs/completion-log-details-sheet';
+import { formatCost } from '@/lib/utils';
 
 export function CompletionLogs() {
   const app = useApp();
@@ -91,12 +92,10 @@ export function CompletionLogs() {
                           ).toLocaleString()}
                         </TableCell>
                         <TableCell className="w-24 text-right">
-                          {(
-                            completionLog.inputCost + completionLog.outputCost
-                          ).toLocaleString('en-US', {
-                            maximumFractionDigits: 20,
-                          })}
-                          $
+                          {formatCost(
+                            completionLog.inputCost + completionLog.outputCost,
+                            4,
+                          )}
                         </TableCell>
                         <TableCell className="w-24 text-right">
                           {Math.floor(completionLog.duration).toLocaleString()}{' '}
