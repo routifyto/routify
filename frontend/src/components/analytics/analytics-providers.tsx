@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCost } from '@/lib/utils';
 
 export function AnalyticsProvidersSkeleton() {
   return (
@@ -93,7 +94,7 @@ export function AnalyticsProviders({ providersMetrics }: AnalyticsListsProps) {
                     {providerMetrics.totalTokens.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    {providerMetrics.totalCost.toLocaleString()}$
+                    {formatCost(providerMetrics.totalCost)}
                   </TableCell>
                   <TableCell className="text-right">
                     {providerMetrics.averageDuration.toFixed(2)}ms

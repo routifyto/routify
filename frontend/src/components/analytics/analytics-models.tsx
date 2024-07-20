@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCost } from '@/lib/utils';
 
 export function AnalyticsModelsSkeleton() {
   return (
@@ -76,7 +77,7 @@ export function AnalyticsModels({ modelsMetrics }: AnalyticsListsProps) {
                     {modelMetrics.totalTokens.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    {modelMetrics.totalCost.toLocaleString()}$
+                    {formatCost(modelMetrics.totalCost)}
                   </TableCell>
                   <TableCell className="text-right">
                     {modelMetrics.averageDuration.toFixed(2)}ms

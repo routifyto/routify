@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AnalyticsSummaryOutput } from '@/types/analytics';
+import { formatCost } from '@/lib/utils';
 
 function percentageDifference(current: number, previous: number) {
   if (previous == 0) {
@@ -124,7 +125,7 @@ export function AnalyticsSummary({ summary }: AnalyticsSummaryProps) {
           <CardTitle className="text-sm font-medium">Total cost</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalCost.toFixed(2)}$</div>
+          <div className="text-2xl font-bold">{formatCost(totalCost)}</div>
           <p className="text-xs text-muted-foreground">
             {totalCostDifference > 0 ? '+' : ''}
             {totalCostDifference.toFixed(1)}% from previous period
