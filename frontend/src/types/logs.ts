@@ -1,3 +1,5 @@
+export type CacheStatus = 'DISABLED' | 'MISS' | 'HIT';
+
 export type LogRouteOutput = {
   id: string;
   name: string;
@@ -38,6 +40,7 @@ export type CompletionLogOutput = {
   sessionId: string | null;
   consumerId: string | null;
   outgoingRequestsCount: number;
+  cacheStatus: CacheStatus;
 
   requestUrl?: string | null;
   requestMethod?: string | null;

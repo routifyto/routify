@@ -151,6 +151,10 @@ export function CompletionLogDetails({
                   {Math.floor(completionLog.duration).toLocaleString()} ms
                 </p>
               </div>
+              <div className={rowClass}>
+                <p className={firstColumnClass}>Cache</p>
+                <p className={secondColumnClass}>{completionLog.cacheStatus}</p>
+              </div>
             </CardContent>
           </Card>
           <Card>
