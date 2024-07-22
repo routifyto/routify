@@ -5,13 +5,13 @@ FROM node:20-alpine as build
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy all files
-COPY . .
+COPY frontend/. .
 
 # Build the app
 RUN npm run build
@@ -23,7 +23,7 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Add your nginx.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80

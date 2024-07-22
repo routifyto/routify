@@ -7,12 +7,12 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /
-COPY ["src/Routify.Api/Routify.Api.csproj", "src/Routify.Api/"]
-COPY ["src/Routify.Core/Routify.Core.csproj", "src/Routify.Core/"]
-COPY ["src/Routify.Data/Routify.Data.csproj", "src/Routify.Data/"]
+COPY ["backend/src/Routify.Api/Routify.Api.csproj", "src/Routify.Api/"]
+COPY ["backend/src/Routify.Core/Routify.Core.csproj", "src/Routify.Core/"]
+COPY ["backend/src/Routify.Data/Routify.Data.csproj", "src/Routify.Data/"]
 RUN dotnet restore "src/Routify.Api/Routify.Api.csproj"
 COPY . .
-WORKDIR "/src/Routify.Api"
+WORKDIR "/backend/src/Routify.Api"
 RUN dotnet build "Routify.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
