@@ -1,4 +1,5 @@
 using Routify.Core.Utils;
+using Routify.Gateway.Utils;
 using StackExchange.Redis;
 
 namespace Routify.Gateway.Services;
@@ -8,7 +9,8 @@ internal class CacheService(IDatabase redisDatabase)
     public async Task<T?> GetAsync<T>(
         string key) where T : class
     {
-        string? value = await redisDatabase.StringGetAsync(key);
+        var redisKey = RedisUtils.BuildKey(key);
+        string? value = await redisDatabase.StringGetAsync(redisKey);
         if (string.IsNullOrEmpty(value))
             return null;
         
@@ -21,7 +23,8 @@ internal class CacheService(IDatabase redisDatabase)
         T data,
         TimeSpan? expiry = null)
     {
+        var redisKey = RedisUtils.BuildKey(key);
         var value = RoutifyJsonSerializer.Serialize(data);
-        await redisDatabase.StringSetAsync(key, value, expiry);
+        await redisDatabase.StringSetAsync(redisKey, value, expiry);
     }
 }

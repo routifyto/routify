@@ -82,7 +82,8 @@ public class GatewayController(
                                 Weight = routeProvider.Weight
                             })
                             .ToList(),
-                        CacheConfig = route.CacheConfig
+                        CacheConfig = route.CacheConfig,
+                        CostLimitConfig = route.CostLimitConfig
                     })
                     .ToList(),
                 Providers = allAppProviders

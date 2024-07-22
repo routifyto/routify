@@ -1,4 +1,4 @@
-import { CacheConfig } from '@/types/configs';
+import { CacheConfig, CostLimitConfig } from '@/types/configs';
 
 export type RouteType = 'COMPLETION' | 'EMBEDDING';
 
@@ -13,6 +13,7 @@ export type RouteOutput = {
   isFailoverEnabled: boolean;
   providers: RouteProviderOutput[];
   cacheConfig?: CacheConfig | null;
+  costLimitConfig?: CostLimitConfig | null;
 };
 
 export type RouteProviderOutput = {
@@ -33,6 +34,7 @@ export type CreateRouteInput = {
   attrs: Record<string, string>;
   providers: RouteProviderInput[];
   cacheConfig?: CacheConfig | null;
+  costLimitConfig?: CostLimitConfig | null;
 };
 
 export type UpdateRouteInput = {
@@ -45,6 +47,7 @@ export type UpdateRouteInput = {
   providers: RouteProviderInput[];
   attrs?: Record<string, string> | null;
   cacheConfig?: CacheConfig | null;
+  costLimitConfig?: CostLimitConfig | null;
 };
 
 export type RouteProviderInput = {

@@ -1,6 +1,7 @@
 using System.Text;
 using Routify.Core.Extensions;
 using Routify.Core.Utils;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Utils;
@@ -25,15 +26,15 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
         var requestJson = RoutifyJsonSerializer.Serialize(input);
         
         var isCacheEnabled = request.Context.Route.CacheConfig?.Enabled == true;
-        var (response, isCacheHit) = await GetResponseAsync(request, requestUrl, requestJson, isCacheEnabled, cancellationToken);
+        var (response, cacheStatus) = await GetResponseAsync(request, requestUrl, requestJson, isCacheEnabled, cancellationToken);
         var completionResponse = new CompletionResponse
         {
             StatusCode = response.StatusCode,
             ResponseBody = response.Body,
-            IsCacheHit = isCacheHit
+            CacheStatus = cacheStatus
         };
 
-        if (!isCacheHit)
+        if (cacheStatus != CacheStatus.Hit)
         {
             var endedAt = DateTime.UtcNow;
             completionResponse.Log = new CompletionOutgoingLog
@@ -78,7 +79,7 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
         return completionResponse;
     }
     
-    private async Task<(HttpCompletionResponse, bool)> GetResponseAsync(
+    private async Task<(HttpCompletionResponse, CacheStatus)> GetResponseAsync(
         CompletionRequest request,
         string requestUrl,
         string requestJson,
@@ -87,11 +88,11 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
     {
         if (isCacheEnabled)
         {
-            var hash = $"{requestUrl}_{requestJson}".ToSha256();
-            var key = $"{request.Context.Route.Id}_{hash}";
+            var hash = $"{requestUrl}:{requestJson}".ToSha256();
+            var key = $"{request.Context.Route.Id}:{hash}";
             var cacheResponse = await request.Context.Cache.GetAsync<HttpCompletionResponse>(key);
             if (cacheResponse != null)
-                return (cacheResponse, true);
+                return (cacheResponse, CacheStatus.Hit);
         }
         
         var httpClient = PrepareHttpClient(request);
@@ -107,14 +108,15 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
         
         if (isCacheEnabled)
         {
-            var hash = $"{requestUrl}_{requestJson}".ToSha256();
-            var key = $"{request.Context.Route.Id}_{hash}";
+            var hash = $"{requestUrl}:{requestJson}".ToSha256();
+            var key = $"{request.Context.Route.Id}:{hash}";
             var expirationSeconds = request.Context.Route.CacheConfig?.Expiration ?? 60;
             var expiration = TimeSpan.FromSeconds(expirationSeconds);
             await request.Context.Cache.SetAsync(key, completionResponse, expiration);
         }
         
-        return (completionResponse, false);
+        var cacheStatus = isCacheEnabled ? CacheStatus.Miss : CacheStatus.Disabled;
+        return (completionResponse, cacheStatus);
     }
 
     public abstract ICompletionInput? ParseInput(string input);

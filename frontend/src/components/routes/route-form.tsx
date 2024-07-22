@@ -51,6 +51,14 @@ const formSchema = z.object({
     })
     .optional()
     .nullable(),
+  costLimitConfig: z
+    .object({
+      enabled: z.boolean(),
+      dailyLimit: z.number().int().min(1).nullable().optional(),
+      monthlyLimit: z.number().int().min(1).nullable().optional(),
+    })
+    .optional()
+    .nullable(),
 });
 
 interface RouteFormProps {
@@ -86,6 +94,7 @@ export function RouteForm({
   const providers = form.watch('providers');
 
   const isCacheEnabled = form.watch('cacheConfig.enabled');
+  const isCostLimitEnabled = form.watch('costLimitConfig.enabled');
 
   return (
     <React.Fragment>
@@ -258,6 +267,80 @@ export function RouteForm({
                   </FormItem>
                 )}
               />
+            )}
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
+            <FormField
+              control={form.control}
+              name="costLimitConfig.enabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between">
+                  <div className="space-y-0.5">
+                    <FormLabel>Enable cost limits</FormLabel>
+                    <FormDescription>
+                      Limit the cost of requests to this route.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {isCostLimitEnabled && (
+              <React.Fragment>
+                <FormField
+                  control={form.control}
+                  name="costLimitConfig.dailyLimit"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Daily limit ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder=""
+                          value={field.value ?? ''}
+                          onChange={(event) => {
+                            const number = parseFloat(event.target.value);
+                            if (isNaN(number)) {
+                              field.onChange(null);
+                            } else {
+                              field.onChange(number);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="costLimitConfig.monthlyLimit"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Monthly limit ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder=""
+                          value={field.value ?? ''}
+                          onChange={(event) => {
+                            const number = parseFloat(event.target.value);
+                            if (isNaN(number)) {
+                              field.onChange(null);
+                            } else {
+                              field.onChange(number);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </React.Fragment>
             )}
           </div>
           {providers.map((_, index) => (

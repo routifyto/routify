@@ -18,4 +18,5 @@ public record RouteOutput
     public Dictionary<string, string> Attrs { get; set; } = [];
     public List<RouteProviderOutput> Providers { get; set; } = [];
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

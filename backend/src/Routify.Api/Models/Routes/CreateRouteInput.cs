@@ -20,4 +20,5 @@ public record CreateRouteInput
     public List<CreateRouteProviderInput> Providers { get; set; } = [];
     
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

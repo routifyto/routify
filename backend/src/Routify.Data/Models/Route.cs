@@ -22,6 +22,7 @@ public record Route
     public int? Timeout { get; set; }
     public RateLimitConfig? RateLimitConfig { get; set; }
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
     public Dictionary<string, string> Attrs { get; set; } = [];
     
     public DateTime CreatedAt { get; set; }
@@ -97,6 +98,13 @@ public record Route
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<CacheConfig>(v) ?? new CacheConfig());
+            
+            entity.Property(e => e.CostLimitConfig)
+                .HasColumnName("cost_limit_config")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<CostLimitConfig>(v) ?? new CostLimitConfig());
             
             entity.Property(e => e.Attrs)
                 .HasColumnName("attrs")

@@ -15,4 +15,5 @@ internal record RouteData
     public int? Timeout { get; set; }
     public List<RouteProviderData> Providers { get; set; } = [];
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

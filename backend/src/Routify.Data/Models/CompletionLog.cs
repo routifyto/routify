@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Routify.Core.Utils;
+using Routify.Data.Enums;
 using Routify.Data.Utils;
 
 namespace Routify.Data.Models;
@@ -18,10 +19,12 @@ public record CompletionLog
     public string? ConsumerId { get; set; }
     public string? SessionId { get; set; }
     public int OutgoingRequestsCount { get; set; }
+    public CacheStatus CacheStatus { get; set; }
     public string? RequestUrl { get; set; }
     public string? RequestMethod { get; set; }
     public Dictionary<string, string>? RequestHeaders { get; set; }
     public string? RequestBody { get; set; }
+    
     
     public int StatusCode { get; set; }
     public string? ResponseBody { get; set; }
@@ -90,6 +93,11 @@ public record CompletionLog
             
             entity.Property(e => e.OutgoingRequestsCount)
                 .HasColumnName("outgoing_requests_count");
+            
+            entity.Property(e => e.CacheStatus)
+                .HasColumnName("cache_status")
+                .IsRequired()
+                .HasDefaultValue(CacheStatus.Disabled);
             
             entity.Property(e => e.ConsumerId)
                 .HasColumnName("consumer_id")

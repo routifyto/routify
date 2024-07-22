@@ -1,3 +1,5 @@
+using Routify.Data.Enums;
+
 namespace Routify.Api.Models.LogModels;
 
 public record CompletionLogOutput
@@ -13,6 +15,7 @@ public record CompletionLogOutput
     public string? SessionId { get; set; }
     public string? ConsumerId { get; set; }
     public int OutgoingRequestsCount { get; set; }
+    public CacheStatus CacheStatus { get; set; }
     
     public string? RequestUrl { get; set; }
     public string? RequestMethod { get; set; }

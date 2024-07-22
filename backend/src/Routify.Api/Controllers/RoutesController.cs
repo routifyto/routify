@@ -172,6 +172,7 @@ public class RoutesController(
             Timeout = input.Timeout,
             Attrs = input.Attrs,
             CacheConfig = input.CacheConfig,
+            CostLimitConfig = input.CostLimitConfig,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = CurrentUserId,
             VersionId = RoutifyId.Generate(IdType.Version)
@@ -264,6 +265,7 @@ public class RoutesController(
         route.Timeout = input.Timeout;
         route.Attrs = input.Attrs;
         route.CacheConfig = input.CacheConfig;
+        route.CostLimitConfig = input.CostLimitConfig;
         route.UpdatedAt = DateTime.UtcNow;
         route.UpdatedBy = CurrentUserId;
         route.VersionId = RoutifyId.Generate(IdType.Version);
@@ -403,7 +405,8 @@ public class RoutesController(
                     Weight = x.Weight
                 })
                 .ToList(),
-            CacheConfig = route.CacheConfig
+            CacheConfig = route.CacheConfig,
+            CostLimitConfig = route.CostLimitConfig
         };
     }
 

@@ -1,3 +1,4 @@
+using Routify.Data.Enums;
 using Routify.Data.Models;
 
 namespace Routify.Gateway.Abstractions;
@@ -14,7 +15,7 @@ internal record CompletionResponse
     public int OutputTokens { get; set; }
     public decimal InputCost { get; set; }
     public decimal OutputCost { get; set; }
-    public bool IsCacheHit { get; set; }
+    public CacheStatus CacheStatus { get; set; }
     
     public CompletionOutgoingLog? Log { get; set; }
 }

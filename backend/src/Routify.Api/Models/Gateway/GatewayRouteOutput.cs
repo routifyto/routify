@@ -15,4 +15,5 @@ public record GatewayRouteOutput
     public int? Timeout { get; set; }
     public List<GatewayRouteProviderOutput> Providers { get; set; } = [];
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

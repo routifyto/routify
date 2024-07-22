@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Http.Extensions;
 using Routify.Core.Utils;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 using Routify.Gateway.Abstractions;
 using Routify.Gateway.Extensions;
@@ -12,7 +13,8 @@ namespace Routify.Gateway.Handlers;
 
 internal class CompletionHandler(
     IServiceProvider serviceProvider,
-    LogService logService)
+    LogService logService,
+    CostService costService)
     : IRequestHandler
 {
     public async Task HandleAsync(
@@ -47,6 +49,14 @@ internal class CompletionHandler(
             if (input == null)
                 throw new GatewayException(HttpStatusCode.BadRequest);
 
+            var isCostLimitEnabled = context.Route.CostLimitConfig?.Enabled == true;
+            if (isCostLimitEnabled && context.Route.CostLimitConfig != null)
+            {
+                var hasReachedCostLimit = await costService.HasReachedCostLimit(context.Route.Id, context.Route.CostLimitConfig);
+                if (hasReachedCostLimit)
+                    throw new GatewayException(HttpStatusCode.TooManyRequests);
+            }
+            
             var routeProviderSelector = new RouteProviderSelector(context.Route);
             var isDone = false;
 
@@ -106,11 +116,18 @@ internal class CompletionHandler(
                 log.StatusCode = completionResponse.StatusCode;
                 log.ResponseBody = responseBody;
                 log.OutgoingRequestsCount = outgoingLogs.Count;
+                log.CacheStatus = completionResponse.CacheStatus;
 
                 context.HttpContext.Response.StatusCode = completionResponse.StatusCode;
                 context.HttpContext.Response.ContentType = "application/json";
                 await context.HttpContext.Response.WriteAsync(responseBody ?? string.Empty, cancellationToken);
                 isDone = true;
+
+                if (isCostLimitEnabled && log.CacheStatus != CacheStatus.Hit)
+                {
+                    var totalCost = completionResponse.InputCost + completionResponse.OutputCost;
+                    await serviceProvider.GetRequiredService<CostService>().SaveCost(context.Route.Id, totalCost);
+                }
             }
 
             if (!isDone)

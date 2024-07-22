@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Routify.Api.Models.Common;
 using Routify.Api.Models.LogModels;
 using Routify.Data;
+using Routify.Data.Enums;
 using Routify.Data.Models;
 using Route = Routify.Data.Models.Route;
 
@@ -66,8 +67,8 @@ public class LogsController(
                 Model = log.Model,
                 InputTokens = log.InputTokens,
                 OutputTokens = log.OutputTokens,
-                InputCost = log.InputCost,
-                OutputCost = log.OutputCost,
+                InputCost = CalculateCost(log.InputCost, log.CacheStatus),
+                OutputCost = CalculateCost(log.OutputCost, log.CacheStatus),
                 EndedAt = log.EndedAt,
                 Duration = log.Duration
             })
@@ -146,6 +147,7 @@ public class LogsController(
             SessionId = completionLog.SessionId,
             ConsumerId = completionLog.ConsumerId,
             OutgoingRequestsCount = completionLog.OutgoingRequestsCount,
+            CacheStatus = completionLog.CacheStatus,
             RequestUrl = completionLog.RequestUrl,
             RequestMethod = completionLog.RequestMethod,
             RequestBody = completionLog.RequestBody,
@@ -155,8 +157,8 @@ public class LogsController(
             ResponseHeaders = completionLog.ResponseHeaders,
             InputTokens = completionLog.InputTokens,
             OutputTokens = completionLog.OutputTokens,
-            InputCost = completionLog.InputCost,
-            OutputCost = completionLog.OutputCost,
+            InputCost = CalculateCost(completionLog.InputCost, completionLog.CacheStatus),
+            OutputCost = CalculateCost(completionLog.OutputCost, completionLog.CacheStatus),
             StartedAt = completionLog.StartedAt,
             EndedAt = completionLog.EndedAt,
             Duration = completionLog.Duration,
@@ -268,5 +270,12 @@ public class LogsController(
             Description = appProvider.Description,
             Alias = appProvider.Alias
         };
+    }
+    
+    private static decimal CalculateCost(
+        decimal cost,
+        CacheStatus cacheStatus)
+    {
+        return cacheStatus == CacheStatus.Hit ? 0 : cost;
     }
 }

@@ -17,4 +17,5 @@ public record UpdateRouteInput
     public List<UpdateRouteProviderInput> Providers { get; set; } = [];
     
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

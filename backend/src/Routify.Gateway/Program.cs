@@ -22,6 +22,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<Repository>();
 builder.Services.AddSingleton<LogService>();
 builder.Services.AddSingleton<CacheService>();
+builder.Services.AddSingleton<CostService>();
 builder.Services.AddHostedService<Synchronizer>();
 builder.Services.AddHostedService(sp =>
 {

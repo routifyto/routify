@@ -15,4 +15,5 @@ internal record ApiRouteOutput
     public int? Timeout { get; set; }
     public List<ApiRouteProviderOutput> Providers { get; set; } = [];
     public CacheConfig? CacheConfig { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }
