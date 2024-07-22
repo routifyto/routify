@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  REGISTRY: ghcr.io
+  API_IMAGE_NAME: routifyto/routify/api
+  GATEWAY_IMAGE_NAME: routifyto/routify/gateway
+  ADMIN_IMAGE_NAME: routifyto/routify/admin
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}
+          ${{ env.REGISTRY }}/${{ env.GATEWAY_IMAGE_NAME }}
+          ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}
+
+    - name: Build and push API image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend/src/Routify.Api
+        file: ./backend/src/Routify.Api/Dockerfile
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+    - name: Build and push Gateway image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend/src/Routify.Gateway
+        file: ./backend/src/Routify.Gateway/Dockerfile
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.GATEWAY_IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.GATEWAY_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+    - name: Build and push Admin image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./admin
+        file: ./admin/Dockerfile
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ steps.meta.outputs.version }}
+        body: |
+          Release of Routify version ${{ steps.meta.outputs.version }}
+          
+          Docker images:
+          - API: ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+          - Gateway: ${{ env.REGISTRY }}/${{ env.GATEWAY_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+          - Admin: ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
