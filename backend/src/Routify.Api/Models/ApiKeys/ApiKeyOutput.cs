@@ -1,3 +1,4 @@
+using Routify.Data.Common;
 using Routify.Data.Enums;
 
 namespace Routify.Api.Models.ApiKeys;
@@ -12,4 +13,5 @@ public record ApiKeyOutput
     public string Prefix { get; set; } = null!;
     public string Suffix { get; set; } = null!;
     public DateTime? ExpiresAt { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

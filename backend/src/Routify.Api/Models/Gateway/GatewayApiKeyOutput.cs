@@ -1,3 +1,4 @@
+using Routify.Data.Common;
 using Routify.Data.Enums;
 
 namespace Routify.Api.Models.Gateway;
@@ -10,4 +11,5 @@ public record GatewayApiKeyOutput
     public string Prefix { get; set; } = null!;
     public ApiKeyHashAlgorithm Algorithm { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

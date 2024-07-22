@@ -1,4 +1,5 @@
 import { AppRole } from '@/types/app-users';
+import { CostLimitConfig } from '@/types/configs';
 
 export type ApiKeyInput = {
   name: string;
@@ -6,6 +7,7 @@ export type ApiKeyInput = {
   canUseGateway: boolean;
   role?: AppRole;
   expiresAt?: Date | null;
+  costLimitConfig?: CostLimitConfig | null;
 };
 
 export type ApiKeyOutput = {
@@ -17,6 +19,7 @@ export type ApiKeyOutput = {
   prefix: string;
   suffix: string;
   expiresAt?: Date | null;
+  costLimitConfig?: CostLimitConfig | null;
 };
 
 export type CreateApiKeyOutput = {

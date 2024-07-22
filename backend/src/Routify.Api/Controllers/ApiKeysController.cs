@@ -70,7 +70,8 @@ public class ApiKeysController(
                 Role = apiKey.Role,
                 Prefix = apiKey.Prefix,
                 Suffix = apiKey.Suffix,
-                ExpiresAt = apiKey.ExpiresAt
+                ExpiresAt = apiKey.ExpiresAt,
+                CostLimitConfig = apiKey.CostLimitConfig
             };
 
             apiKeyOutputs.Add(output);
@@ -136,7 +137,8 @@ public class ApiKeysController(
             Role = apiKey.Role,
             Prefix = apiKey.Prefix,
             Suffix = apiKey.Suffix,
-            ExpiresAt = apiKey.ExpiresAt
+            ExpiresAt = apiKey.ExpiresAt,
+            CostLimitConfig = apiKey.CostLimitConfig
         };
 
         return Ok(output);
@@ -200,6 +202,7 @@ public class ApiKeysController(
             Suffix = suffix,
             Algorithm = ApiKeyHashAlgorithm.Sha256,
             ExpiresAt = input.ExpiresAt,
+            CostLimitConfig = input.CostLimitConfig,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = CurrentUserId,
             VersionId = RoutifyId.Generate(IdType.Version),
@@ -221,7 +224,8 @@ public class ApiKeysController(
                 Role = apiKey.Role,
                 Prefix = apiKey.Prefix,
                 Suffix = apiKey.Suffix,
-                ExpiresAt = apiKey.ExpiresAt
+                ExpiresAt = apiKey.ExpiresAt,
+                CostLimitConfig = apiKey.CostLimitConfig
             }
         };
 
@@ -284,6 +288,7 @@ public class ApiKeysController(
         apiKey.CanUseGateway = input.CanUseGateway;
         apiKey.Role = input.Role;
         apiKey.ExpiresAt = input.ExpiresAt;
+        apiKey.CostLimitConfig = input.CostLimitConfig;
         apiKey.UpdatedAt = DateTime.UtcNow;
         apiKey.UpdatedBy = CurrentUserId;
         apiKey.VersionId = RoutifyId.Generate(IdType.Version);
@@ -299,7 +304,8 @@ public class ApiKeysController(
             Role = apiKey.Role,
             Prefix = apiKey.Prefix,
             Suffix = apiKey.Suffix,
-            ExpiresAt = apiKey.ExpiresAt
+            ExpiresAt = apiKey.ExpiresAt,
+            CostLimitConfig = apiKey.CostLimitConfig
         };
 
         return Ok(output);

@@ -14,6 +14,9 @@ internal class CostService(
         if (await HasReachedCostLimit(context.Route.Id, context.Route.CostLimitConfig))
             return true;
         
+        if (await HasReachedCostLimit(context.ApiKey.Id, context.ApiKey.CostLimitConfig))
+            return true;
+        
         if (context.Consumer != null && await HasReachedCostLimit(context.Consumer.Id, context.Consumer.CostLimitConfig))
             return true;
         
@@ -25,6 +28,7 @@ internal class CostService(
         decimal cost)
     {
         await SaveCost(context.Route.Id, context.Route.CostLimitConfig, cost);
+        await SaveCost(context.ApiKey.Id, context.ApiKey.CostLimitConfig, cost);
         
         if (context.Consumer != null)
             await SaveCost(context.Consumer.Id, context.Consumer.CostLimitConfig, cost);

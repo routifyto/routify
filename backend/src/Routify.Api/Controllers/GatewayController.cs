@@ -105,7 +105,8 @@ public class GatewayController(
                         Salt = apiKey.Salt,
                         Prefix = apiKey.Prefix,
                         Algorithm = apiKey.Algorithm,
-                        ExpiresAt = apiKey.ExpiresAt
+                        ExpiresAt = apiKey.ExpiresAt,
+                        CostLimitConfig = apiKey.CostLimitConfig
                     })
                     .ToList(),
                 Consumers = allConsumers

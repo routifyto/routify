@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,12 +18,21 @@ import { Spinner } from '@/components/ui/spinner';
 import { Textarea } from '@/components/ui/textarea';
 import { ApiKeyInput, ApiKeyOutput } from '@/types/api-keys';
 import { ApiKeyExpirationCalendar } from '@/components/api-keys/api-key-expiration-calendar';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   name: z.string(),
   description: z.string().optional().nullable(),
   expiresAt: z.date().optional().nullable(),
   canUseGateway: z.boolean(),
+  costLimitConfig: z
+    .object({
+      enabled: z.boolean(),
+      dailyLimit: z.number().int().min(1).nullable().optional(),
+      monthlyLimit: z.number().int().min(1).nullable().optional(),
+    })
+    .optional()
+    .nullable(),
 });
 
 interface ApiKeyProps {
@@ -48,6 +58,8 @@ export function ApiKeyForm({
       canUseGateway: true,
     },
   });
+
+  const isCostLimitEnabled = form.watch('costLimitConfig.enabled');
 
   return (
     <Form {...form}>
@@ -107,6 +119,80 @@ export function ApiKeyForm({
               </FormItem>
             )}
           />
+        </div>
+        <div className="flex flex-col gap-3 rounded-xl border bg-card p-4 text-card-foreground shadow">
+          <FormField
+            control={form.control}
+            name="costLimitConfig.enabled"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between">
+                <div className="space-y-0.5">
+                  <FormLabel>Enable cost limits</FormLabel>
+                  <FormDescription>
+                    Limit the cost of requests to this API Key.
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          {isCostLimitEnabled && (
+            <React.Fragment>
+              <FormField
+                control={form.control}
+                name="costLimitConfig.dailyLimit"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Daily limit ($)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder=""
+                        value={field.value ?? ''}
+                        onChange={(event) => {
+                          const number = parseFloat(event.target.value);
+                          if (isNaN(number)) {
+                            field.onChange(null);
+                          } else {
+                            field.onChange(number);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="costLimitConfig.monthlyLimit"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Monthly limit ($)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder=""
+                        value={field.value ?? ''}
+                        onChange={(event) => {
+                          const number = parseFloat(event.target.value);
+                          if (isNaN(number)) {
+                            field.onChange(null);
+                          } else {
+                            field.onChange(number);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </React.Fragment>
+          )}
         </div>
         <div className="flex flex-col gap-2 pb-2">
           <div className="flex flex-row items-center justify-end gap-2">

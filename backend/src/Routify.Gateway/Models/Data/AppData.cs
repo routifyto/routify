@@ -65,7 +65,8 @@ internal record AppData
                 Salt = apiKey.Salt,
                 Prefix = apiKey.Prefix,
                 Algorithm = apiKey.Algorithm,
-                ExpiresAt = apiKey.ExpiresAt
+                ExpiresAt = apiKey.ExpiresAt,
+                CostLimitConfig = apiKey.CostLimitConfig
             });
 
         Consumers = new Dictionary<string, ConsumerData>();

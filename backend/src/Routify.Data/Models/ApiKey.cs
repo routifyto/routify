@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Routify.Core.Utils;
+using Routify.Data.Common;
 using Routify.Data.Enums;
 
 namespace Routify.Data.Models;
@@ -18,6 +20,8 @@ public record ApiKey
     public string Suffix { get; set; } = null!;
     public ApiKeyHashAlgorithm Algorithm { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    
+    public CostLimitConfig? CostLimitConfig { get; set; }
     
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
@@ -86,6 +90,13 @@ public record ApiKey
             
             entity.Property(e => e.ExpiresAt)
                 .HasColumnName("expires_at");
+            
+            entity.Property(e => e.CostLimitConfig)
+                .HasColumnName("cost_limit_config")
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => RoutifyJsonSerializer.Serialize(v),
+                    v => RoutifyJsonSerializer.Deserialize<CostLimitConfig>(v) ?? new CostLimitConfig());
             
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at")
