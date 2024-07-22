@@ -75,7 +75,8 @@ internal record AppData
             Consumers[consumerOutput.Id] = new ConsumerData
             {
                 Id = consumerOutput.Id,
-                Alias = consumerOutput.Alias
+                Alias = consumerOutput.Alias,
+                CostLimitConfig = consumerOutput.CostLimitConfig
             };
 
             if (!string.IsNullOrEmpty(consumerOutput.Alias))

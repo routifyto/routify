@@ -49,13 +49,8 @@ internal class CompletionHandler(
             if (input == null)
                 throw new GatewayException(HttpStatusCode.BadRequest);
 
-            var isCostLimitEnabled = context.Route.CostLimitConfig?.Enabled == true;
-            if (isCostLimitEnabled && context.Route.CostLimitConfig != null)
-            {
-                var hasReachedCostLimit = await costService.HasReachedCostLimit(context.Route.Id, context.Route.CostLimitConfig);
-                if (hasReachedCostLimit)
-                    throw new GatewayException(HttpStatusCode.TooManyRequests);
-            }
+            if (await costService.HasReachedCostLimit(context))
+                throw new GatewayException(HttpStatusCode.TooManyRequests);
             
             var routeProviderSelector = new RouteProviderSelector(context.Route);
             var isDone = false;
@@ -123,10 +118,10 @@ internal class CompletionHandler(
                 await context.HttpContext.Response.WriteAsync(responseBody ?? string.Empty, cancellationToken);
                 isDone = true;
 
-                if (isCostLimitEnabled && log.CacheStatus != CacheStatus.Hit)
+                if (log.CacheStatus != CacheStatus.Hit)
                 {
                     var totalCost = completionResponse.InputCost + completionResponse.OutputCost;
-                    await serviceProvider.GetRequiredService<CostService>().SaveCost(context.Route.Id, totalCost);
+                    await costService.SaveCost(context, totalCost);
                 }
             }
 

@@ -113,7 +113,8 @@ public class GatewayController(
                     .Select(consumer => new GatewayConsumerOutput
                     {
                         Id = consumer.Id,
-                        Alias = consumer.Alias
+                        Alias = consumer.Alias,
+                        CostLimitConfig = consumer.CostLimitConfig
                     })
                     .ToList()
             })

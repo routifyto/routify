@@ -1,3 +1,5 @@
+using Routify.Data.Common;
+
 namespace Routify.Api.Models.Consumers;
 
 public record ConsumerOutput
@@ -6,4 +8,5 @@ public record ConsumerOutput
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public string? Alias { get; set; }
+    public CostLimitConfig? CostLimitConfig { get; set; }
 }

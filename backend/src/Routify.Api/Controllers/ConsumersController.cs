@@ -162,6 +162,7 @@ public class ConsumersController(
             Name = input.Name,
             Description = input.Description,
             Alias = input.Alias,
+            CostLimitConfig = input.CostLimitConfig,
             CreatedAt = DateTime.UtcNow,
             CreatedBy = CurrentUserId,
             VersionId = RoutifyId.Generate(IdType.Version),
@@ -229,6 +230,7 @@ public class ConsumersController(
         consumer.Name = input.Name;
         consumer.Description = input.Description;
         consumer.Alias = input.Alias;
+        consumer.CostLimitConfig = input.CostLimitConfig;
         consumer.UpdatedAt = DateTime.UtcNow;
         consumer.UpdatedBy = CurrentUserId;
         consumer.VersionId = RoutifyId.Generate(IdType.Version);
@@ -308,7 +310,8 @@ public class ConsumersController(
             Id = consumer.Id,
             Name = consumer.Name,
             Description = consumer.Description,
-            Alias = consumer.Alias
+            Alias = consumer.Alias,
+            CostLimitConfig = consumer.CostLimitConfig,
         };
     }
     
