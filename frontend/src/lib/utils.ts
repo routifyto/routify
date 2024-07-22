@@ -15,9 +15,9 @@ export function hashCode(str: string) {
   return hash;
 }
 
-export function formatJson(json?: string | null) {
+export function formatJson(json?: string | null): string {
   if (!json) {
-    return null;
+    return '';
   }
 
   try {
