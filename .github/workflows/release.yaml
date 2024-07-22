@@ -72,17 +72,6 @@ jobs:
           ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:latest
           ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
         labels: ${{ steps.meta.outputs.labels }}
-
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: Release ${{ steps.meta.outputs.version }}
-        body: |
-          Release of Routify version ${{ steps.meta.outputs.version }}
-          
-          Docker images:
-          - API: ${{ env.REGISTRY }}/${{ env.API_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-          - Gateway: ${{ env.REGISTRY }}/${{ env.GATEWAY_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-          - Admin: ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
