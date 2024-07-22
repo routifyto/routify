@@ -43,7 +43,7 @@ jobs:
     - name: Build and push API image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/src/Routify.Api
+        context: ./backend
         file: ./backend/src/Routify.Api/Dockerfile
         push: true
         tags: |
@@ -54,7 +54,7 @@ jobs:
     - name: Build and push Gateway image
       uses: docker/build-push-action@v5
       with:
-        context: ./backend/src/Routify.Gateway
+        context: ./backend
         file: ./backend/src/Routify.Gateway/Dockerfile
         push: true
         tags: |
@@ -65,8 +65,8 @@ jobs:
     - name: Build and push Admin image
       uses: docker/build-push-action@v5
       with:
-        context: ./admin
-        file: ./admin/Dockerfile
+        context: ./frontend
+        file: ./frontend/Dockerfile
         push: true
         tags: |
           ${{ env.REGISTRY }}/${{ env.ADMIN_IMAGE_NAME }}:latest
