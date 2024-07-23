@@ -74,10 +74,12 @@ internal class OpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = new OpenAiCompletionStopInput
-            {
-                StringValue = input.Stop
-            },
+            Stop = input.Stop != null 
+                ? new OpenAiCompletionStopInput
+                {
+                    ListValue = input.Stop
+                } 
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,

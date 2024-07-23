@@ -19,12 +19,15 @@ internal class TogetherAiCompletionInputMapper
         {
             TogetherAiCompletionInput togetherAiCompletionInput => togetherAiCompletionInput,
             OpenAiCompletionInput openAiCompletionInput => MapOpenAiCompletionInput(openAiCompletionInput),
-            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(azureOpenAiCompletionInput),
+            AzureOpenAiCompletionInput azureOpenAiCompletionInput => MapAzureOpenAiCompletionInput(
+                azureOpenAiCompletionInput),
             AnthropicCompletionInput anthropicCompletionInput => MapAnthropicCompletionInput(anthropicCompletionInput),
             MistralCompletionInput mistralAiCompletionInput => MapMistralAiCompletionInput(mistralAiCompletionInput),
             GroqCompletionInput groqCompletionInput => MapGroqCompletionInput(groqCompletionInput),
-            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(cloudflareCompletionInput),
-            PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(perplexityCompletionInput),
+            CloudflareCompletionInput cloudflareCompletionInput => MapCloudflareCompletionInput(
+                cloudflareCompletionInput),
+            PerplexityCompletionInput perplexityCompletionInput => MapPerplexityCompletionInput(
+                perplexityCompletionInput),
             _ => throw new NotSupportedException($"Input type {input.GetType().Name} is not supported.")
         };
     }
@@ -32,12 +35,28 @@ internal class TogetherAiCompletionInputMapper
     private static TogetherAiCompletionInput MapOpenAiCompletionInput(
         OpenAiCompletionInput input)
     {
+        List<string>? stop = null;
+        if (input.Stop != null)
+        {
+            if (input.Stop.StringValue != null)
+            {
+                stop ??= [];
+                stop.Add(input.Stop.StringValue);
+            }
+            
+            if (input.Stop.ListValue != null)
+            {
+                stop ??= [];
+                stop.AddRange(input.Stop.ListValue);
+            }
+        }
+        
         return new TogetherAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop?.StringValue,
+            Stop = stop,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -53,16 +72,32 @@ internal class TogetherAiCompletionInputMapper
                 .ToList()
         };
     }
-    
+
     private static TogetherAiCompletionInput MapAzureOpenAiCompletionInput(
         AzureOpenAiCompletionInput input)
     {
+        List<string>? stop = null;
+        if (input.Stop != null)
+        {
+            if (input.Stop.StringValue != null)
+            {
+                stop ??= [];
+                stop.Add(input.Stop.StringValue);
+            }
+            
+            if (input.Stop.ListValue != null)
+            {
+                stop ??= [];
+                stop.AddRange(input.Stop.ListValue);
+            }
+        }
+        
         return new TogetherAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop?.StringValue,
+            Stop = stop,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -77,7 +112,7 @@ internal class TogetherAiCompletionInputMapper
                 .ToList()
         };
     }
-    
+
     private static TogetherAiCompletionInput MapAnthropicCompletionInput(
         AnthropicCompletionInput input)
     {
@@ -99,7 +134,7 @@ internal class TogetherAiCompletionInputMapper
                 Role = "system"
             });
         }
-        
+
         return new TogetherAiCompletionInput
         {
             Model = input.Model,
@@ -109,7 +144,7 @@ internal class TogetherAiCompletionInputMapper
             Messages = messages
         };
     }
-    
+
     private static TogetherAiCompletionInput MapMistralAiCompletionInput(
         MistralCompletionInput input)
     {
@@ -129,7 +164,7 @@ internal class TogetherAiCompletionInputMapper
                 .ToList()
         };
     }
-    
+
     private static TogetherAiCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
     {
@@ -138,7 +173,9 @@ internal class TogetherAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop != null
+                ? [input.Stop]
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -153,7 +190,7 @@ internal class TogetherAiCompletionInputMapper
                 .ToList()
         };
     }
-    
+
     private static TogetherAiCompletionInput MapCloudflareCompletionInput(
         CloudflareCompletionInput input)
     {
@@ -162,7 +199,9 @@ internal class TogetherAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop != null
+                ? [input.Stop]
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -177,7 +216,7 @@ internal class TogetherAiCompletionInputMapper
                 .ToList()
         };
     }
-    
+
     private static TogetherAiCompletionInput MapPerplexityCompletionInput(
         PerplexityCompletionInput input)
     {

@@ -75,7 +75,7 @@ internal class AzureOpenAiCompletionInputMapper
             Stop = input.Stop != null 
                 ? new AzureOpenAiCompletionStopInput
                 {
-                    StringValue = input.Stop,
+                    ListValue = input.Stop,
                 } 
                 : null,
             MaxTokens = input.MaxTokens,
