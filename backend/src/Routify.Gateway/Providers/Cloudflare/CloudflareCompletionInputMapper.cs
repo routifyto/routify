@@ -67,7 +67,7 @@ internal class CloudflareCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop?.StringValue,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,

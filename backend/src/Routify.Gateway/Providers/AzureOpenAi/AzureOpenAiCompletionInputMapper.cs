@@ -37,7 +37,13 @@ internal class AzureOpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop?.StringValue,
+            Stop = input.Stop != null 
+                ? new AzureOpenAiCompletionStopInput
+                {
+                    StringValue = input.Stop.StringValue,
+                    ListValue = input.Stop.ListValue
+                } 
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -66,7 +72,12 @@ internal class AzureOpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop != null 
+                ? new AzureOpenAiCompletionStopInput
+                {
+                    StringValue = input.Stop,
+                } 
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -142,7 +153,12 @@ internal class AzureOpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop != null 
+                ? new AzureOpenAiCompletionStopInput
+                {
+                    StringValue = input.Stop,
+                } 
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -168,7 +184,12 @@ internal class AzureOpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop != null 
+                ? new AzureOpenAiCompletionStopInput
+                {
+                    StringValue = input.Stop,
+                } 
+                : null,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,

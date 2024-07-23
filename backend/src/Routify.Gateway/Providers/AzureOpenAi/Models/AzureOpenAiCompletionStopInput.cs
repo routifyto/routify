@@ -1,30 +1,30 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Providers.OpenAi.Models;
+namespace Routify.Gateway.Providers.AzureOpenAi.Models;
 
 [JsonConverter(typeof(Converter))]
-internal record OpenAiCompletionStopInput
+internal record AzureOpenAiCompletionStopInput
 {
     public string? StringValue { get; set; }
     public List<string>? ListValue { get; set; }
     
-    internal class Converter : JsonConverter<OpenAiCompletionStopInput>
+    internal class Converter : JsonConverter<AzureOpenAiCompletionStopInput>
     {
-        public override OpenAiCompletionStopInput Read(
+        public override AzureOpenAiCompletionStopInput Read(
             ref Utf8JsonReader reader, 
             Type typeToConvert, 
             JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.String)
             {
-                return new OpenAiCompletionStopInput { StringValue = reader.GetString() };
+                return new AzureOpenAiCompletionStopInput { StringValue = reader.GetString() };
             }
 
             if (reader.TokenType == JsonTokenType.StartArray)
             {
                 var list = JsonSerializer.Deserialize<List<string>>(ref reader, options);
-                return new OpenAiCompletionStopInput { ListValue = list };
+                return new AzureOpenAiCompletionStopInput { ListValue = list };
             }
 
             throw new JsonException();
@@ -32,7 +32,7 @@ internal record OpenAiCompletionStopInput
 
         public override void Write(
             Utf8JsonWriter writer, 
-            OpenAiCompletionStopInput value, 
+            AzureOpenAiCompletionStopInput value, 
             JsonSerializerOptions options)
         {
             if (value.StringValue != null)

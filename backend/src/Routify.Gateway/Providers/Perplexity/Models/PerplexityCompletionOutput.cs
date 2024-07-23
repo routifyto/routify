@@ -24,7 +24,7 @@ internal record PerplexityCompletionOutput : ICompletionOutput
     public string? ServiceTier { get; set; }
     
     [JsonPropertyName("system_fingerprint")]
-    public string SystemFingerprint { get; set; } = null!;
+    public string? SystemFingerprint { get; set; }
     
     [JsonPropertyName("usage")]
     public PerplexityCompletionUsageOutput Usage { get; set; } = null!;
