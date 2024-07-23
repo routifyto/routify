@@ -37,17 +37,18 @@ internal class CloudflareCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop?.StringValue,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
             Temperature = input.Temperature,
             Messages = input
                 .Messages
+                .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
                 .Select(message => new CloudflareCompletionMessageInput
                 {
                     Name = message.Name,
-                    Content = message.Content,
+                    Content = message.Content.StringValue!,
                     Role = message.Role
                 })
                 .ToList(),

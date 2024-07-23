@@ -40,9 +40,10 @@ internal class MistralCompletionInputMapper
             Temperature = input.Temperature,
             Messages = input
                 .Messages
+                .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
                 .Select(message => new MistralCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = message.Content.StringValue!,
                     Role = message.Role
                 })
                 .ToList()

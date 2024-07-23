@@ -37,7 +37,7 @@ internal class AzureOpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop?.StringValue,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -48,9 +48,10 @@ internal class AzureOpenAiCompletionInputMapper
             TopLogprobs = input.TopLogprobs,
             Messages = input
                 .Messages
+                .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
                 .Select(message => new AzureOpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = message.Content.StringValue!,
                     Role = message.Role
                 })
                 .ToList()

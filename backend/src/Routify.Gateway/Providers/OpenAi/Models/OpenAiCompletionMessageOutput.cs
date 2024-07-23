@@ -9,4 +9,7 @@ internal record OpenAiCompletionMessageOutput
     
     [JsonPropertyName("content")]
     public string? Content { get; set; }
+    
+    [JsonPropertyName("tool_calls")]
+    public List<OpenAiCompletionMessageToolCallOutput>? ToolCalls { get; set; }
 }

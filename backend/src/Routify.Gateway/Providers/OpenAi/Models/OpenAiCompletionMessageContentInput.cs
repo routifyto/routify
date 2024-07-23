@@ -1,24 +1,24 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Routify.Gateway.Providers.Anthropic.Models;
+namespace Routify.Gateway.Providers.OpenAi.Models;
 
 [JsonConverter(typeof(Converter))]
-internal record AnthropicCompletionMessageContentInput
+internal record OpenAiCompletionMessageContentInput
 {
     public string? StringValue { get; set; }
-    public List<AnthropicCompletionMessageContentBlockInput>? ListValue { get; set; }
+    public List<OpenAiCompletionMessageContentPartInput>? ListValue { get; set; }
     
-    internal class Converter : JsonConverter<AnthropicCompletionMessageContentInput>
+    internal class Converter : JsonConverter<OpenAiCompletionMessageContentInput>
     {
-        public override AnthropicCompletionMessageContentInput? Read(
+        public override OpenAiCompletionMessageContentInput? Read(
             ref Utf8JsonReader reader, 
             Type typeToConvert,
             JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.String)
             {
-                return new AnthropicCompletionMessageContentInput
+                return new OpenAiCompletionMessageContentInput
                 {
                     StringValue = reader.GetString()
                 };
@@ -26,9 +26,9 @@ internal record AnthropicCompletionMessageContentInput
 
             if (reader.TokenType == JsonTokenType.StartArray)
             {
-                return new AnthropicCompletionMessageContentInput
+                return new OpenAiCompletionMessageContentInput
                 {
-                    ListValue = JsonSerializer.Deserialize<List<AnthropicCompletionMessageContentBlockInput>>(ref reader, options)
+                    ListValue = JsonSerializer.Deserialize<List<OpenAiCompletionMessageContentPartInput>>(ref reader, options)
                 };
             }
         
@@ -37,7 +37,7 @@ internal record AnthropicCompletionMessageContentInput
 
         public override void Write(
             Utf8JsonWriter writer, 
-            AnthropicCompletionMessageContentInput value, 
+            OpenAiCompletionMessageContentInput value, 
             JsonSerializerOptions options)
         {
             if (value.StringValue != null)

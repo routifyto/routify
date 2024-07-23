@@ -184,7 +184,10 @@ internal class OpenAiCompletionProvider(
         {
             openAiInput.Messages.Insert(0, new OpenAiCompletionMessageInput
             {
-                Content = systemPrompt,
+                Content = new OpenAiCompletionMessageContentInput
+                {
+                    StringValue = systemPrompt
+                },
                 Role = "system"
             });
         }

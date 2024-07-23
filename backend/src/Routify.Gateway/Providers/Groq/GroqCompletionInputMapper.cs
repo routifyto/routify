@@ -37,7 +37,7 @@ internal class GroqCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = input.Stop?.StringValue,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -46,9 +46,10 @@ internal class GroqCompletionInputMapper
             User = input.User,
             Messages = input
                 .Messages
+                .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
                 .Select(message => new GroqCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = message.Content.StringValue!,
                     Role = message.Role
                 })
                 .ToList()

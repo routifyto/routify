@@ -55,7 +55,7 @@ internal class AnthropicCompletionInputMapper
                 {
                     Content = new AnthropicCompletionMessageContentInput
                     {
-                        StringValue = message.Content,
+                        StringValue = message.Content.StringValue,
                     },
                     Role = message.Role
                 })

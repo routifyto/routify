@@ -8,9 +8,6 @@ internal record OpenAiCompletionOutput : ICompletionOutput
     [JsonPropertyName("id")]
     public string Id { get; set; } = null!;
     
-    [JsonPropertyName("object")]
-    public string Object { get; set; } = null!;
-    
     [JsonPropertyName("choices")]
     public List<OpenAiCompletionChoiceOutput> Choices { get; set; } = null!;
     
@@ -24,7 +21,10 @@ internal record OpenAiCompletionOutput : ICompletionOutput
     public string? ServiceTier { get; set; }
     
     [JsonPropertyName("system_fingerprint")]
-    public string SystemFingerprint { get; set; } = null!;
+    public string? SystemFingerprint { get; set; }
+
+    [JsonPropertyName("object")]
+    public string Object { get; set; } = null!;
     
     [JsonPropertyName("usage")]
     public OpenAiCompletionUsageOutput Usage { get; set; } = null!;

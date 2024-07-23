@@ -37,7 +37,10 @@ internal class OpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = new OpenAiCompletionStopInput
+            {
+                StringValue = input.Stop
+            },
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -50,7 +53,10 @@ internal class OpenAiCompletionInputMapper
                 .Messages
                 .Select(message => new OpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new OpenAiCompletionMessageContentInput
+                    {
+                        StringValue = message.Content
+                    },
                     Role = message.Role
                 })
                 .ToList()
@@ -65,7 +71,10 @@ internal class OpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = new OpenAiCompletionStopInput
+            {
+                StringValue = input.Stop
+            },
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -74,7 +83,10 @@ internal class OpenAiCompletionInputMapper
                 .Messages
                 .Select(message => new OpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new OpenAiCompletionMessageContentInput
+                    {
+                        StringValue = message.Content
+                    },
                     Role = message.Role
                 })
                 .ToList()
@@ -89,7 +101,10 @@ internal class OpenAiCompletionInputMapper
             .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
             .Select(message => new OpenAiCompletionMessageInput
             {
-                Content = message.Content.StringValue!,
+                Content = new OpenAiCompletionMessageContentInput
+                {
+                    StringValue = message.Content.StringValue
+                },
                 Role = message.Role
             })
             .ToList();
@@ -98,7 +113,10 @@ internal class OpenAiCompletionInputMapper
         {
             messages.Insert(0, new OpenAiCompletionMessageInput
             {
-                Content = input.System,
+                Content = new OpenAiCompletionMessageContentInput
+                {
+                    StringValue = input.System
+                },
                 Role = "system"
             });
         }
@@ -126,7 +144,10 @@ internal class OpenAiCompletionInputMapper
                 .Messages
                 .Select(message => new OpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new OpenAiCompletionMessageContentInput
+                    {
+                        StringValue = message.Content
+                    },
                     Role = message.Role
                 })
                 .ToList()
@@ -141,7 +162,10 @@ internal class OpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = new OpenAiCompletionStopInput
+            {
+                StringValue = input.Stop
+            },
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -152,7 +176,10 @@ internal class OpenAiCompletionInputMapper
                 .Messages
                 .Select(message => new OpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new OpenAiCompletionMessageContentInput
+                    {
+                        StringValue = message.Content
+                    },
                     Role = message.Role
                 })
                 .ToList()
@@ -167,7 +194,10 @@ internal class OpenAiCompletionInputMapper
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop,
+            Stop = new OpenAiCompletionStopInput
+            {
+                StringValue = input.Stop
+            },
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
@@ -180,7 +210,10 @@ internal class OpenAiCompletionInputMapper
                 .Messages
                 .Select(message => new OpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new OpenAiCompletionMessageContentInput
+                    {
+                        StringValue = message.Content
+                    },
                     Role = message.Role
                 })
                 .ToList()
@@ -202,7 +235,10 @@ internal class OpenAiCompletionInputMapper
                 .Messages
                 .Select(message => new OpenAiCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new OpenAiCompletionMessageContentInput
+                    {
+                        StringValue = message.Content
+                    },
                     Role = message.Role
                 })
                 .ToList()

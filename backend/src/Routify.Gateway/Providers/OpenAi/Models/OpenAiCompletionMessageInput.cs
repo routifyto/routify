@@ -8,8 +8,11 @@ internal class OpenAiCompletionMessageInput
     public string Role { get; set; } = null!;
     
     [JsonPropertyName("content")]
-    public string Content { get; set; } = null!;
+    public OpenAiCompletionMessageContentInput Content { get; set; } = null!;
     
     [JsonPropertyName("name")]
     public string? Name { get; set; }
+    
+    [JsonPropertyName("tool_call_id")]
+    public string? ToolCallId { get; set; }
 }
