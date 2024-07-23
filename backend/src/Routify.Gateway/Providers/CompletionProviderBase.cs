@@ -46,7 +46,7 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
                 Provider = request.AppProvider.Provider,
                 AppProviderId = request.AppProvider.Id,
                 RouteProviderId = request.RouteProvider.Id,
-                RequestUrl = requestUrl,
+                RequestUrl = response.RequestUrl,
                 RequestMethod = "POST",
                 RequestBody = requestJson,
                 StatusCode = completionResponse.StatusCode,
@@ -104,6 +104,7 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
         {
             StatusCode = (int)response.StatusCode,
             Body = responseBody,
+            RequestUrl = response.RequestMessage?.RequestUri?.ToString() ?? requestUrl
         };
         
         if (isCacheEnabled)
@@ -133,5 +134,6 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
     {
         public int StatusCode { get; init; }
         public string Body { get; init; } = null!;
+        public string RequestUrl { get; init; } = null!;
     }
 }
