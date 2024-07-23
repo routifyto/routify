@@ -56,6 +56,9 @@ export function ApiKeyForm({
       description: '',
       expiresAt: null,
       canUseGateway: true,
+      costLimitConfig: {
+        enabled: false,
+      },
     },
   });
 
