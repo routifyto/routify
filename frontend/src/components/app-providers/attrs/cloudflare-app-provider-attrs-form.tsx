@@ -9,6 +9,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
+import { SecretInput } from '@/components/ui/secret-input';
 
 export function CloudflareAppProviderAttrsForm() {
   const form = useFormContext<AppProviderInput>();
@@ -35,6 +37,17 @@ export function CloudflareAppProviderAttrsForm() {
             <FormLabel>API Token</FormLabel>
             <FormControl>
               <Input placeholder="API Token" {...field} />
+              <SecretInput
+                placeholder="API Token"
+                {...field}
+                onCopy={() => {
+                  navigator.clipboard.writeText(field.value).then(() => {
+                    toast({
+                      description: 'API Token copied to clipboard',
+                    });
+                  });
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

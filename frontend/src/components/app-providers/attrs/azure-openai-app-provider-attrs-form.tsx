@@ -9,6 +9,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/components/ui/use-toast';
+import { SecretInput } from '@/components/ui/secret-input';
 
 export function AzureOpenaiAppProviderAttrsForm() {
   const form = useFormContext<AppProviderInput>();
@@ -34,7 +36,17 @@ export function AzureOpenaiAppProviderAttrsForm() {
           <FormItem className="flex-1">
             <FormLabel>API Key</FormLabel>
             <FormControl>
-              <Input placeholder="API Key" {...field} />
+              <SecretInput
+                placeholder="API Key"
+                {...field}
+                onCopy={() => {
+                  navigator.clipboard.writeText(field.value).then(() => {
+                    toast({
+                      description: 'API Key copied to clipboard',
+                    });
+                  });
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
