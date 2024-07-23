@@ -1,12 +1,14 @@
 using System.Text.Json.Serialization;
+using Routify.Gateway.Providers.Anthropic.Converters;
 
 namespace Routify.Gateway.Providers.Anthropic.Models;
 
-internal class AnthropicCompletionMessageInput
+internal record AnthropicCompletionMessageInput
 {
     [JsonPropertyName("role")]
     public string Role { get; set; } = null!;
     
     [JsonPropertyName("content")]
-    public string Content { get; set; } = null!;
+    [JsonConverter(typeof(AnthropicMessageContentConverter))]
+    public AnthropicCompletionMessageContentInput Content { get; set; } = null!;
 }

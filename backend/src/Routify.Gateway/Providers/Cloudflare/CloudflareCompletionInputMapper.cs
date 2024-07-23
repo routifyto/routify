@@ -116,9 +116,10 @@ internal class CloudflareCompletionInputMapper
     {
         var messages = input
             .Messages
+            .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
             .Select(message => new CloudflareCompletionMessageInput
             {
-                Content = message.Content,
+                Content = message.Content.StringValue!,
                 Role = message.Role
             })
             .ToList();

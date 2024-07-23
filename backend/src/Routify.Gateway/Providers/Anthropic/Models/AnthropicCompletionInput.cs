@@ -29,6 +29,12 @@ internal record AnthropicCompletionInput : ICompletionInput
     [JsonPropertyName("temperature")]
     public float? Temperature { get; set; }
     
+    [JsonPropertyName("tool_choice")]
+    public AnthropicCompletionToolChoiceInput? ToolChoice { get; set; }
+    
+    [JsonPropertyName("tools")]
+    public List<AnthropicCompletionToolInput>? Tools { get; set; }
+    
     [JsonPropertyName("top_k")]
     public int? TopK { get; set; }
     

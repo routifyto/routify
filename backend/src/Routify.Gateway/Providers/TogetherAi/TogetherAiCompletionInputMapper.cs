@@ -82,9 +82,10 @@ internal class TogetherAiCompletionInputMapper
     {
         var messages = input
             .Messages
+            .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
             .Select(message => new TogetherAiCompletionMessageInput
             {
-                Content = message.Content,
+                Content = message.Content.StringValue!,
                 Role = message.Role
             })
             .ToList();

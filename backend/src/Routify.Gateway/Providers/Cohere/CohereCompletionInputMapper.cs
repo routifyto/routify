@@ -136,9 +136,10 @@ internal class CohereCompletionInputMapper
         {
             var otherMessages = input.Messages.Take(input.Messages.Count - 1);
             var cohereMessages = otherMessages
+                .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
                 .Select(message => new CohereCompletionMessageInput
                 {
-                    Message = message.Content,
+                    Message = message.Content.StringValue!,
                     Role = MapCohereRole(message.Role)
                 });
             
@@ -162,7 +163,7 @@ internal class CohereCompletionInputMapper
             MaxTokens = input.MaxTokens,
             Temperature = input.Temperature,
             ChatHistory = chatHistory,
-            Message = lastMessage?.Content,
+            Message = lastMessage?.Content.StringValue,
         };
     }
     

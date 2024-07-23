@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Routify.Core.Models;
 
 namespace Routify.Gateway.Providers.Anthropic.Models;
 
@@ -17,5 +18,5 @@ internal record AnthropicCompletionContentOutput
     public string? Name { get; set; }
     
     [JsonPropertyName("input")]
-    public string? Input { get; set; }
+    public JsonObject? Input { get; set; }
 }

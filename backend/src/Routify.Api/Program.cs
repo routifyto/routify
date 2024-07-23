@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Routify.Api.Configs;
 using Routify.Core.Services;
+using Routify.Core.Utils;
 using Routify.Data;
 using Routify.Data.Models;
 
@@ -26,6 +27,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
+        options.JsonSerializerOptions.Converters.Add(new JsonObjectConverter());
     });
 
 builder.Services.AddCors();

@@ -53,7 +53,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),
@@ -85,7 +88,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),
@@ -117,7 +123,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),
@@ -149,7 +158,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),
@@ -181,7 +193,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),
@@ -213,7 +228,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),
@@ -245,7 +263,10 @@ internal class AnthropicCompletionInputMapper
             Messages = otherMessages
                 .Select(message => new AnthropicCompletionMessageInput
                 {
-                    Content = message.Content,
+                    Content = new AnthropicCompletionMessageContentInput
+                    {
+                        StringValue = message.Content,
+                    },
                     Role = message.Role
                 })
                 .ToList(),

@@ -13,7 +13,8 @@ public class RoutifyJsonSerializer
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters =
         {
-            new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)
+            new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper),
+            new JsonObjectConverter()
         }
     };
     

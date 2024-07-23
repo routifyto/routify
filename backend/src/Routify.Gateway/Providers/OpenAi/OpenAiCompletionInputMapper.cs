@@ -86,9 +86,10 @@ internal class OpenAiCompletionInputMapper
     {
         var messages = input
             .Messages
+            .Where(message => !string.IsNullOrWhiteSpace(message.Content.StringValue))
             .Select(message => new OpenAiCompletionMessageInput
             {
-                Content = message.Content,
+                Content = message.Content.StringValue!,
                 Role = message.Role
             })
             .ToList();
