@@ -1,5 +1,3 @@
-'use client';
-
 import { Copy, Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
 

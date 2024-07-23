@@ -19,8 +19,8 @@ export default defineConfig(() => {
       },
     },
     define: {
-      VITE_API_URL: process.env.VITE_API_URL,
-      VITE_GOOGLE_CLIENT_ID: process.env.VITE_GOOGLE_CLIENT_ID,
+      VITE_API_URL: JSON.stringify(process.env.VITE_API_URL),
+      VITE_GOOGLE_CLIENT_ID: JSON.stringify(process.env.VITE_GOOGLE_CLIENT_ID),
     },
   };
 });
