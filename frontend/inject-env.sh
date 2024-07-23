@@ -6,7 +6,7 @@ ENV_FILE="/usr/share/nginx/html/.env"
 # Create or clear the .env file
 > $ENV_FILE
 
-# Loop through environment variables prefixed with MY_APP_
+# Loop through environment variables prefixed with VITE_
 for i in $(env | grep VITE_)
 do
     key=$(echo $i | cut -d '=' -f 1)
