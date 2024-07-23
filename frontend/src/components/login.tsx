@@ -28,7 +28,7 @@ export function Login() {
         <h1 className="font-neotrax text-6xl text-white">routify</h1>
       </div>
       <div className="col-span-3 flex items-center justify-center py-12">
-        <div className="mx-auto grid w-128 gap-6">
+        <div className="mx-auto grid w-96 gap-6">
           <div className="grid gap-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
               Login to Routify
