@@ -87,6 +87,15 @@ export function RouteForm({
       providers: [],
       isLoadBalanceEnabled: true,
       isFailoverEnabled: false,
+      cacheConfig: {
+        enabled: false,
+        expiration: 60,
+      },
+      costLimitConfig: {
+        enabled: false,
+        dailyLimit: null,
+        monthlyLimit: null,
+      },
     },
   });
 
