@@ -9,4 +9,10 @@ internal class CohereCompletionMessageInput
     
     [JsonPropertyName("message")]
     public string Message { get; set; } = null!;
+    
+    [JsonPropertyName("tool_calls")]
+    public List<CohereCompletionMessageToolCallInput>? ToolCalls { get; set; }
+    
+    [JsonPropertyName("tool_results")]
+    public List<CohereCompletionMessageToolResultInput>? ToolResults { get; set; }
 }

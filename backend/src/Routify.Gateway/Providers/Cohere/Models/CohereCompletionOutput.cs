@@ -29,6 +29,9 @@ internal record CohereCompletionOutput : ICompletionOutput
     [JsonPropertyName("finish_reason")]
     public string? FinishReason { get; set; }
     
+    [JsonPropertyName("tool_calls")]
+    public List<CohereCompletionToolCallOutput>? ToolCalls { get; set; }
+    
     [JsonPropertyName("chat_history")]
     public List<CohereCompletionMessageOutput>? ChatHistory { get; set; }
     

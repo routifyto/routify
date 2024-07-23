@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Routify.Core.Models;
 using Routify.Gateway.Abstractions;
 
 namespace Routify.Gateway.Providers.Cohere.Models;
@@ -33,7 +34,7 @@ internal record CohereCompletionInput : ICompletionInput
     public bool? SearchQueriesOnly { get; set; }
     
     [JsonPropertyName("documents")]
-    public List<Dictionary<string, string>>? Documents { get; set; }
+    public List<JsonObject>? Documents { get; set; }
     
     [JsonPropertyName("citation_quality")]
     public string? CitationQuality { get; set; }
@@ -65,6 +66,15 @@ internal record CohereCompletionInput : ICompletionInput
     [JsonPropertyName("presence_penalty")]
     public float? PresencePenalty { get; set; }
     
+    [JsonPropertyName("tools")]
+    public List<CohereCompletionToolInput>? Tools { get; set; }
+    
+    [JsonPropertyName("tool_results")]
+    public List<JsonObject>? ToolResults { get; set; }
+    
     [JsonPropertyName("force_single_step")]
     public bool? ForceSingleStep { get; set; }
+    
+    [JsonPropertyName("response_format")]
+    public CohereCompletionResponseFormatInput? ResponseFormat { get; set; }
 }

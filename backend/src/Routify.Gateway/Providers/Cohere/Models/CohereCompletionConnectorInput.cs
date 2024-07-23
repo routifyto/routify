@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Routify.Core.Models;
 
 namespace Routify.Gateway.Providers.Cohere.Models;
 
@@ -14,5 +15,5 @@ internal record CohereCompletionConnectorInput
     public bool? ContinueOnFailure { get; set; }
 
     [JsonPropertyName("options")] 
-    public Dictionary<string, object?>? Options { get; set; }
+    public JsonObject? Options { get; set; }
 }
