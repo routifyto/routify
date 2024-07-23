@@ -11,6 +11,9 @@ internal record MistralCompletionInput : ICompletionInput
     [JsonPropertyName("messages")]
     public List<MistralCompletionMessageInput> Messages { get; set; } = null!;
     
+    [JsonPropertyName("response_format")]
+    public MistralCompletionResponseFormatInput? ResponseFormat { get; set; }
+    
     [JsonPropertyName("temperature")]
     public float? Temperature { get; set; }
     
@@ -25,6 +28,12 @@ internal record MistralCompletionInput : ICompletionInput
     
     [JsonPropertyName("safe_prompt")]
     public bool? SafePrompt { get; set; }
+    
+    [JsonPropertyName("tools")]
+    public List<MistralCompletionToolInput>? Tools { get; set; }
+    
+    [JsonPropertyName("tool_choice")]
+    public string? ToolChoice { get; set; }
     
     [JsonPropertyName("random_seed")]
     public long? RandomSeed { get; set; }

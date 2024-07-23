@@ -12,4 +12,7 @@ internal class MistralCompletionMessageInput
     
     [JsonPropertyName("prefix")]
     public string? Prefix { get; set; }
+    
+    [JsonPropertyName("tool_call_id")]
+    public string? ToolCallId { get; set; }
 }

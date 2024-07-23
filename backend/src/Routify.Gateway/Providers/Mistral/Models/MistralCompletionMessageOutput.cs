@@ -9,4 +9,7 @@ internal record MistralCompletionMessageOutput
     
     [JsonPropertyName("content")]
     public string? Content { get; set; }
+    
+    [JsonPropertyName("tool_calls")]
+    public List<MistralCompletionMessageToolCallOutput>? ToolCalls { get; set; }
 }
