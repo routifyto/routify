@@ -25,14 +25,8 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Add your nginx.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the shell script
-COPY inject-env.sh /docker-entrypoint.d/
-
-# Ensure the script is executable
-RUN chmod +x /docker-entrypoint.d/inject-env.sh
-
-# Use the default nginx entrypoint
-ENTRYPOINT ["/docker-entrypoint.d/inject-env.sh"]
+COPY env.sh /docker-entrypoint.d/env.sh
+RUN chmod +x /docker-entrypoint.d/env.sh
 
 # Expose port 80
 EXPOSE 80
