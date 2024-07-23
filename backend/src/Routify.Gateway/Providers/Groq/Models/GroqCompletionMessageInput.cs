@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Routify.Gateway.Providers.Groq.Models;
 
-internal class GroqCompletionMessageInput
+internal record GroqCompletionMessageInput
 {
     [JsonPropertyName("role")]
     public string Role { get; set; } = null!;
@@ -12,4 +12,7 @@ internal class GroqCompletionMessageInput
     
     [JsonPropertyName("name")]
     public string? Name { get; set; }
+    
+    [JsonPropertyName("tool_calls")]
+    public List<GroqCompletionMessageToolCallInput>? ToolCalls { get; set; }
 }

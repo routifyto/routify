@@ -12,4 +12,13 @@ internal record GroqCompletionUsageOutput
     
     [JsonPropertyName("total_tokens")]
     public int TotalTokens { get; set; }
+    
+    [JsonPropertyName("prompt_time")]
+    public decimal PromptTime { get; set; }
+    
+    [JsonPropertyName("completion_time")]
+    public decimal CompletionTime { get; set; }
+    
+    [JsonPropertyName("total_time")]
+    public decimal TotalTime { get; set; }
 }

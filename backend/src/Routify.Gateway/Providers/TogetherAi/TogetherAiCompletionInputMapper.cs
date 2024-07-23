@@ -168,14 +168,28 @@ internal class TogetherAiCompletionInputMapper
     private static TogetherAiCompletionInput MapGroqCompletionInput(
         GroqCompletionInput input)
     {
+        List<string>? stop = null;
+        if (input.Stop != null)
+        {
+            if (input.Stop.StringValue != null)
+            {
+                stop ??= [];
+                stop.Add(input.Stop.StringValue);
+            }
+            
+            if (input.Stop.ListValue != null)
+            {
+                stop ??= [];
+                stop.AddRange(input.Stop.ListValue);
+            }
+        }
+        
         return new TogetherAiCompletionInput
         {
             Model = input.Model,
             TopP = input.TopP,
             N = input.N,
-            Stop = input.Stop != null
-                ? [input.Stop]
-                : null,
+            Stop = stop,
             MaxTokens = input.MaxTokens,
             PresencePenalty = input.PresencePenalty,
             FrequencyPenalty = input.FrequencyPenalty,
