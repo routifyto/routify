@@ -22,6 +22,14 @@ internal class OpenAiCompletionProvider(
             }
         },
         {
+            "gpt-4o-mini", new CompletionModel
+            {
+                Id = "gpt-4o-mini",
+                InputCost = 15m,
+                OutputCost = 60m
+            }
+        },
+        {
             "gpt-4o-2024-05-13", new CompletionModel
             {
                 Id = "gpt-4o-2024-05-13",

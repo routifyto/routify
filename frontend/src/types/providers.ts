@@ -28,6 +28,13 @@ export const providers: Provider[] = [
         contextWindow: 128000,
       },
       {
+        id: 'gpt-4o-mini',
+        name: 'gpt-4o-mini',
+        description:
+          'Our affordable and intelligent small model for fast, lightweight tasks. GPT-4o mini is cheaper and more capable than GPT-3.5 Turbo. Currently points to gpt-4o-mini-2024-07-18.',
+        contextWindow: 128000,
+      },
+      {
         id: 'gpt-4-turbo',
         name: 'gpt-4-turbo',
         description:
