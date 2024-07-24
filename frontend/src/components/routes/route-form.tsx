@@ -25,9 +25,9 @@ import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   name: z.string(),
-  path: z.string().regex(/^[a-z0-9-_]+$/, {
+  path: z.string().regex(/^[a-z0-9-_/]+$/, {
     message:
-      'Only lowercase alphanumeric characters, hyphens, and underscores are allowed. No spaces or other characters.',
+      'Only lowercase alphanumeric characters, hyphens, underscores, and slashes are allowed. No spaces or other characters.',
   }),
   description: z.string().optional(),
   attrs: z.record(z.string(), z.string()),
