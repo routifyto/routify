@@ -53,6 +53,9 @@ export function ConsumerForm({
       name: '',
       description: '',
       alias: '',
+      costLimitConfig: {
+        enabled: false,
+      },
     },
   });
 
