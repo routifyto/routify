@@ -15,6 +15,12 @@ internal static class HttpRequestExtensions
         return await reader.ReadToEndAsync(cancellationToken);
     }
     
+    public static string? GetAppId(
+        this HttpRequest request)
+    {
+        return request.Headers.TryGetValue("routify-app", out var values) ? values.FirstOrDefault() : null;
+    }
+    
     public static string? GetConsumer(
         this HttpRequest request)
     {

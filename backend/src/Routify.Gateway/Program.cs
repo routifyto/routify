@@ -75,15 +75,21 @@ builder.Services.AddSingleton<IDatabase>(_ =>
 
 var app = builder.Build();
 
-app.MapPost("/{appId}/{*path}", async (
+app.MapPost("{*path}", async (
     IServiceProvider serviceProvider,
     Repository repository,
-    string appId,
     string path,
     HttpContext httpContext,
     CacheService cacheService,
     CancellationToken cancellationToken) =>
 {
+    var appId = httpContext.Request.GetAppId();
+    if (string.IsNullOrWhiteSpace(appId))
+    {
+        httpContext.Response.StatusCode = 400;
+        return;
+    }
+    
     var appData = repository.GetApp(appId);
     var routeData = appData?.GetRoute(path);
     if (appData == null || routeData == null)
