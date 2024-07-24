@@ -13,6 +13,7 @@ public record CompletionOutgoingLog
     public string Provider { get; set; } = null!;
     public string AppProviderId { get; set; } = null!;
     public string RouteProviderId { get; set; } = null!;
+    public int RetryCount { get; set; }
 
     public string? RequestUrl { get; set; }
     public string? RequestMethod { get; set; }
@@ -68,6 +69,9 @@ public record CompletionOutgoingLog
                 .HasColumnName("route_provider_id")
                 .IsRequired()
                 .HasMaxLength(30);
+            
+            entity.Property(e => e.RetryCount)
+                .HasColumnName("retry_count");
 
             entity.Property(e => e.RequestUrl)
                 .HasColumnName("request_url");

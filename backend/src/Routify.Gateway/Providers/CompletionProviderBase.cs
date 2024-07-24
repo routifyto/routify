@@ -47,6 +47,7 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
                 AppProviderId = request.AppProvider.Id,
                 RouteProviderId = request.RouteProvider.Id,
                 RequestUrl = response.RequestUrl,
+                RetryCount = 1,
                 RequestMethod = "POST",
                 RequestBody = requestJson,
                 StatusCode = completionResponse.StatusCode,

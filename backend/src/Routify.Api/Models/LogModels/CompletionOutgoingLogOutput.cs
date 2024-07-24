@@ -7,6 +7,7 @@ public class CompletionOutgoingLogOutput
     public string Provider { get; set; } = null!;
     public string AppProviderId { get; set; } = null!;
     public string RouteProviderId { get; set; } = null!;
+    public int RetryCount { get; set; }
     
     public string? RequestUrl { get; set; }
     public string? RequestMethod { get; set; }

@@ -224,6 +224,7 @@ public class LogsController(
                 Provider = log.Provider,
                 AppProviderId = log.AppProviderId,
                 RouteProviderId = log.RouteProviderId,
+                RetryCount = log.RetryCount,
                 RequestUrl = log.RequestUrl,
                 RequestMethod = log.RequestMethod,
                 RequestHeaders = log.RequestHeaders,

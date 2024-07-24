@@ -505,6 +505,10 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("response_headers");
 
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
                     b.Property<string>("RouteId")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -751,6 +755,10 @@ namespace Routify.Migrations.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("route_id");
+
+                    b.Property<int?>("Timeout")
+                        .HasColumnType("integer")
+                        .HasColumnName("timeout");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

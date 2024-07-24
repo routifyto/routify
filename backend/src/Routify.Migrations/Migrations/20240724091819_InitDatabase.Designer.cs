@@ -12,8 +12,8 @@ using Routify.Data;
 namespace Routify.Migrations.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240722183026_AddCostLimitConfigInConsumersTable")]
-    partial class AddCostLimitConfigInConsumersTable
+    [Migration("20240724091819_InitDatabase")]
+    partial class InitDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,10 @@ namespace Routify.Migrations.Migrations
                     b.Property<bool>("CanUseGateway")
                         .HasColumnType("boolean")
                         .HasColumnName("can_use_gateway");
+
+                    b.Property<string>("CostLimitConfig")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("cost_limit_config");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -504,6 +508,10 @@ namespace Routify.Migrations.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("response_headers");
 
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
                     b.Property<string>("RouteId")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -750,6 +758,10 @@ namespace Routify.Migrations.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("route_id");
+
+                    b.Property<int?>("Timeout")
+                        .HasColumnType("integer")
+                        .HasColumnName("timeout");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

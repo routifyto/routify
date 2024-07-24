@@ -13,6 +13,7 @@ public record RouteProvider
     public string AppProviderId { get; set; } = null!;
     public int Index { get; set; }
     public string? Model { get; set; }
+    public int? Timeout { get; set; }
     public Dictionary<string, string> Attrs { get; set; } = [];
     public RetryConfig? RetryConfig { get; set; }
     public int Weight { get; set; } = 1;
@@ -77,6 +78,9 @@ public record RouteProvider
                 .HasConversion(
                     v => RoutifyJsonSerializer.Serialize(v),
                     v => RoutifyJsonSerializer.Deserialize<RetryConfig>(v));
+
+            entity.Property(e => e.Timeout)
+                .HasColumnName("timeout");
 
             entity.Property(e => e.Weight)
                 .HasColumnName("weight")
