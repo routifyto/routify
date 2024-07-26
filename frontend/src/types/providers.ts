@@ -257,6 +257,27 @@ export const providers: Provider[] = [
     logo: '/providers/together-ai.png',
     models: [
       {
+        id: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+        name: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+        description:
+          'Llama 3.1 is an auto-regressive language model that uses an optimized transformer architecture. The tuned versions use supervised fine-tuning (SFT) and reinforcement learning with human feedback (RLHF) to align with human preferences for helpfulness and safety.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+        name: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+        description:
+          'Llama 3.1 is an auto-regressive language model that uses an optimized transformer architecture. The tuned versions use supervised fine-tuning (SFT) and reinforcement learning with human feedback (RLHF) to align with human preferences for helpfulness and safety.',
+        contextWindow: 128000,
+      },
+      {
+        id: 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+        name: 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+        description:
+          'Llama 3.1 is an auto-regressive language model that uses an optimized transformer architecture. The tuned versions use supervised fine-tuning (SFT) and reinforcement learning with human feedback (RLHF) to align with human preferences for helpfulness and safety.',
+        contextWindow: 128000,
+      },
+      {
         id: 'Qwen/Qwen2-72B-Instruct',
         name: 'Qwen/Qwen2-72B-Instruct',
         description:

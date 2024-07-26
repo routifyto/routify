@@ -14,6 +14,30 @@ internal class TogetherAiCompletionProvider(
     private static readonly Dictionary<string, CompletionModel> _models = new()
     {
         {
+            "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo", new CompletionModel
+            {
+                Id = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+                InputCost = 18m,
+                OutputCost = 18m
+            }
+        },
+        {
+            "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo", new CompletionModel
+            {
+                Id = "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+                InputCost = 88m,
+                OutputCost = 88m
+            }
+        },
+        {
+            "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo", new CompletionModel
+            {
+                Id = "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+                InputCost = 500m,
+                OutputCost = 500m
+            }
+        },
+        {
             "Qwen/Qwen2-72B-Instruct", new CompletionModel
             {
                 Id = "Qwen/Qwen2-72B-Instruct",

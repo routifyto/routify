@@ -5,7 +5,7 @@ namespace Routify.Core.Utils;
 
 public class RoutifyJsonSerializer
 {
-    private static readonly JsonSerializerOptions Options = new()
+    private static readonly JsonSerializerOptions _options = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -20,11 +20,11 @@ public class RoutifyJsonSerializer
     
     public static string Serialize<TValue>(TValue value)
     {
-        return JsonSerializer.Serialize(value, Options);
+        return JsonSerializer.Serialize(value, _options);
     }
     
     public static TValue? Deserialize<TValue>(string json)
     {
-        return JsonSerializer.Deserialize<TValue>(json, Options);
+        return JsonSerializer.Deserialize<TValue>(json, _options);
     }
 }
