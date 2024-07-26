@@ -1,7 +1,6 @@
 import React from 'react';
 import { MetricsOutput } from '@/types/analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { providers } from '@/types/providers';
 import {
   Table,
   TableBody,
@@ -13,18 +12,17 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCost } from '@/lib/utils';
 
-export function AnalyticsProvidersSkeleton() {
+export function AnalyticsConsumersSkeleton() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Providers</CardTitle>
+        <CardTitle>Models</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead></TableHead>
-              <TableHead>Provider</TableHead>
+              <TableHead>Consumer</TableHead>
               <TableHead className="text-right">Total requests</TableHead>
               <TableHead className="text-right">Total tokens</TableHead>
               <TableHead className="text-right">Total cost</TableHead>
@@ -34,7 +32,7 @@ export function AnalyticsProvidersSkeleton() {
           <TableBody>
             {Array.from({ length: 3 }).map((_, index) => (
               <TableRow key={index}>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={5}>
                   <Skeleton className="h-8 w-full" />
                 </TableCell>
               </TableRow>
@@ -46,23 +44,22 @@ export function AnalyticsProvidersSkeleton() {
   );
 }
 
-interface AnalyticsProvidersProps {
-  providersMetrics: MetricsOutput[];
+interface AnalyticsLConsumersProps {
+  consumersMetrics: MetricsOutput[];
 }
 
-export function AnalyticsProviders({
-  providersMetrics,
-}: AnalyticsProvidersProps) {
+export function AnalyticsConsumers({
+  consumersMetrics,
+}: AnalyticsLConsumersProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Providers</CardTitle>
+        <CardTitle>Consumers</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead></TableHead>
               <TableHead>Provider</TableHead>
               <TableHead className="text-right">Total requests</TableHead>
               <TableHead className="text-right">Total tokens</TableHead>
@@ -71,35 +68,21 @@ export function AnalyticsProviders({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {providersMetrics.map((providerMetrics) => {
-              const provider = providers.find(
-                (p) => p.id === providerMetrics.id,
-              );
-              if (!provider) {
-                return null;
-              }
-
+            {consumersMetrics.map((consumerMetrics) => {
               return (
-                <TableRow key={provider.id}>
-                  <TableCell className="w-14">
-                    <img
-                      src={provider.logo}
-                      className="h-10 w-10 rounded p-0.5 shadow"
-                      alt={provider.name}
-                    />
-                  </TableCell>
-                  <TableCell>{provider.name}</TableCell>
+                <TableRow key={consumerMetrics.id}>
+                  <TableCell>{consumerMetrics.name}</TableCell>
                   <TableCell className="text-right">
-                    {providerMetrics.totalRequests.toLocaleString()}
+                    {consumerMetrics.totalRequests.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    {providerMetrics.totalTokens.toLocaleString()}
+                    {consumerMetrics.totalTokens.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatCost(providerMetrics.totalCost)}
+                    {formatCost(consumerMetrics.totalCost)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {providerMetrics.averageDuration.toFixed(2)}ms
+                    {consumerMetrics.averageDuration.toFixed(2)}ms
                   </TableCell>
                 </TableRow>
               );

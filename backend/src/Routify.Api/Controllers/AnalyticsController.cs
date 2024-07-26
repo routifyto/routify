@@ -187,6 +187,18 @@ public class AnalyticsController(
             })
             .ToListAsync(cancellationToken);
         
+        var providerMetrics = providerAggregation
+            .Select(x => new MetricsOutput
+            {
+                Id = x.Provider ?? "Unknown",
+                Name = x.Provider ?? "Unknown",
+                TotalRequests = x.TotalRequests,
+                TotalTokens = x.TotalTokens,
+                TotalCost = x.TotalCost,
+                AverageDuration = x.AverageDuration
+            })
+            .ToList();
+        
         var modelAggregations = await databaseContext
             .CompletionLogs
             .Where(log => log.AppId == appId && log.StartedAt >= from && log.StartedAt <= to)
@@ -200,29 +212,71 @@ public class AnalyticsController(
                 AverageDuration = group.Average(log => log.Duration)
             })
             .ToListAsync(cancellationToken);
+        
+        var modelMetrics = modelAggregations
+            .Select(x => new MetricsOutput
+            {
+                Id = x.Model ?? "Unknown",
+                Name = x.Model ?? "Unknown",
+                TotalRequests = x.TotalRequests,
+                TotalTokens = x.TotalTokens,
+                TotalCost = x.TotalCost,
+                AverageDuration = x.AverageDuration
+            })
+            .ToList();
+        
+        var consumerAggregations = await databaseContext
+            .CompletionLogs
+            .Where(log => log.AppId == appId && log.StartedAt >= from && log.StartedAt <= to)
+            .GroupBy(log => log.ConsumerId)
+            .Select(group => new
+            {
+                ConsumerId = group.Key,
+                TotalRequests = group.Count(),
+                TotalTokens = group.Sum(log => log.InputTokens + log.OutputTokens),
+                TotalCost = group.Sum(log => log.InputCost + log.OutputCost),
+                AverageDuration = group.Average(log => log.Duration)
+            })
+            .ToListAsync(cancellationToken);
+        
+        var consumerIds = consumerAggregations
+            .Where(x => !string.IsNullOrEmpty(x.ConsumerId))
+            .Select(x => x.ConsumerId!)
+            .ToList();
+
+        var consumerMetrics = new List<MetricsOutput>();
+        if (consumerIds.Count > 0)
+        {
+            var consumers = await databaseContext
+                .Consumers
+                .Where(x => consumerIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+            foreach (var consumerAggregation in consumerAggregations)
+            {
+                if (string.IsNullOrEmpty(consumerAggregation.ConsumerId))
+                    continue;
+
+                if (!consumers.TryGetValue(consumerAggregation.ConsumerId, out var consumer))
+                    continue;
+
+                consumerMetrics.Add(new MetricsOutput
+                {
+                    Id = consumer.Id,
+                    Name = consumer.Name,
+                    TotalRequests = consumerAggregation.TotalRequests,
+                    TotalTokens = consumerAggregation.TotalTokens,
+                    TotalCost = consumerAggregation.TotalCost,
+                    AverageDuration = consumerAggregation.AverageDuration
+                });
+            }
+        }
 
         var analyticsLists = new AnalyticsListsOutput
         {
-            Providers = providerAggregation
-                .Select(x => new MetricsOutput
-                {
-                    Id = x.Provider ?? "Unknown",
-                    TotalRequests = x.TotalRequests,
-                    TotalTokens = x.TotalTokens,
-                    TotalCost = x.TotalCost,
-                    AverageDuration = x.AverageDuration
-                })
-                .ToList(),
-            Models = modelAggregations
-                .Select(x => new MetricsOutput
-                {
-                    Id = x.Model ?? "Unknown",
-                    TotalRequests = x.TotalRequests,
-                    TotalTokens = x.TotalTokens,
-                    TotalCost = x.TotalCost,
-                    AverageDuration = x.AverageDuration
-                })
-                .ToList()
+            Providers = providerMetrics,
+            Models = modelMetrics,
+            Consumers = consumerMetrics
         };
         
         return Ok(analyticsLists);

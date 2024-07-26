@@ -25,6 +25,10 @@ import {
   AnalyticsModels,
   AnalyticsModelsSkeleton,
 } from '@/components/analytics/analytics-models';
+import {
+  AnalyticsConsumers,
+  AnalyticsConsumersSkeleton,
+} from '@/components/analytics/analytics-consumers';
 
 export function AnalyticsDashboard() {
   const app = useApp();
@@ -97,6 +101,13 @@ export function AnalyticsDashboard() {
         <AnalyticsModelsSkeleton />
       ) : (
         listsData && <AnalyticsModels modelsMetrics={listsData.models} />
+      )}
+      {isLoadingLists ? (
+        <AnalyticsConsumersSkeleton />
+      ) : (
+        listsData && (
+          <AnalyticsConsumers consumersMetrics={listsData.consumers} />
+        )
       )}
     </div>
   );

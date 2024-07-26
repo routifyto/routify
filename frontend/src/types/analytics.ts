@@ -16,6 +16,7 @@ export type AnalyticsHistogramOutput = {
 export type AnalyticsListsOutput = {
   providers: MetricsOutput[];
   models: MetricsOutput[];
+  consumers: MetricsOutput[];
 };
 
 export type DateTimeHistogramOutput = {
@@ -25,6 +26,7 @@ export type DateTimeHistogramOutput = {
 
 export type MetricsOutput = {
   id: string;
+  name: string;
   totalRequests: number;
   totalTokens: number;
   totalCost: number;
