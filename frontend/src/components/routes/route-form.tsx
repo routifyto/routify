@@ -22,6 +22,12 @@ import { Plus } from 'lucide-react';
 import { AppProvidersDialog } from '@/components/app-providers/app-providers-dialog';
 import { ProviderSelect } from '@/components/providers/provider-select';
 import { Switch } from '@/components/ui/switch';
+import { RoutePathHelp } from '@/components/routes/help/route-path-help';
+import { RouteFailoverHelp } from '@/components/routes/help/route-failover-help';
+import { RouteLoadBalanceHelp } from '@/components/routes/help/route-load-balance-help';
+import { RouteCacheHelp } from '@/components/routes/help/route-cache-help';
+import { RouteCostLimitHelp } from '@/components/routes/help/route-cost-limit-help';
+import { RouteSchemaHelp } from '@/components/routes/help/route-schema-help';
 
 const formSchema = z.object({
   name: z.string(),
@@ -154,6 +160,11 @@ export function RouteForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Path *</FormLabel>
+                  <FormDescription className="flex flex-row items-center gap-2">
+                    Define the path for the route. This is the URL path that the
+                    route will be accessible at
+                    <RoutePathHelp />
+                  </FormDescription>
                   <FormControl>
                     <div className="flex w-full flex-row gap-1 border-b border-b-gray-200 font-mono text-lg font-bold">
                       <span className="text-muted-foreground">/</span>
@@ -175,6 +186,11 @@ export function RouteForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Schema *</FormLabel>
+                  <FormDescription className="flex flex-row items-center gap-2">
+                    Which provider schema to use for this route. This will
+                    determine the structure of the request and response
+                    <RouteSchemaHelp />
+                  </FormDescription>
                   <FormControl>
                     <ProviderSelect
                       value={field.value}
@@ -194,9 +210,10 @@ export function RouteForm({
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel>Enable failover</FormLabel>
-                    <FormDescription>
+                    <FormDescription className="flex flex-row items-center gap-2">
                       Route requests to a backup provider if the primary
-                      provider fails.
+                      provider fails
+                      <RouteFailoverHelp />
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -217,8 +234,9 @@ export function RouteForm({
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel>Enable load balancing</FormLabel>
-                    <FormDescription>
-                      Distribute requests across multiple providers.
+                    <FormDescription className="flex flex-row items-center gap-2">
+                      Distribute requests across multiple providers
+                      <RouteLoadBalanceHelp />
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -239,8 +257,9 @@ export function RouteForm({
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel>Enable caching</FormLabel>
-                    <FormDescription>
-                      Cache responses to reduce latency.
+                    <FormDescription className="flex flex-row items-center gap-2">
+                      Cache responses to reduce latency
+                      <RouteCacheHelp />
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -286,8 +305,9 @@ export function RouteForm({
                 <FormItem className="flex flex-row items-center justify-between">
                   <div className="space-y-0.5">
                     <FormLabel>Enable cost limits</FormLabel>
-                    <FormDescription>
-                      Limit the cost of requests to this route.
+                    <FormDescription className="flex flex-row items-center gap-2">
+                      Limit the cost of requests to this route
+                      <RouteCostLimitHelp />
                     </FormDescription>
                   </div>
                   <FormControl>
