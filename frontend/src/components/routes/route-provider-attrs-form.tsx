@@ -7,6 +7,7 @@ import { AnthropicRouteProviderAttrsForm } from '@/components/routes/attrs/anthr
 import { MistralRouteProviderAttrsForm } from '@/components/routes/attrs/mistral-route-provider-attrs-form';
 import { CohereRouteProviderAttrsForm } from '@/components/routes/attrs/cohere-route-provider-attrs-form';
 import { CloudflareRouteProviderAttrsForm } from '@/components/routes/attrs/cloudflare-route-provider-attrs-form';
+import { AzureOpenAiRouteProviderAttrsForm } from '@/components/routes/attrs/azure-openai-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -27,6 +28,9 @@ export function RouteProviderAttrsForm({
     .with('cohere', () => <CohereRouteProviderAttrsForm index={index} />)
     .with('cloudflare', () => (
       <CloudflareRouteProviderAttrsForm index={index} />
+    ))
+    .with('azure-openai', () => (
+      <AzureOpenAiRouteProviderAttrsForm index={index} />
     ))
     .otherwise(() => null);
 }
