@@ -8,6 +8,7 @@ import { MistralRouteProviderAttrsForm } from '@/components/routes/attrs/mistral
 import { CohereRouteProviderAttrsForm } from '@/components/routes/attrs/cohere-route-provider-attrs-form';
 import { CloudflareRouteProviderAttrsForm } from '@/components/routes/attrs/cloudflare-route-provider-attrs-form';
 import { AzureOpenAiRouteProviderAttrsForm } from '@/components/routes/attrs/azure-openai-route-provider-attrs-form';
+import { PerplexityRouteProviderAttrsForm } from '@/components/routes/attrs/perplexity-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -31,6 +32,9 @@ export function RouteProviderAttrsForm({
     ))
     .with('azure-openai', () => (
       <AzureOpenAiRouteProviderAttrsForm index={index} />
+    ))
+    .with('perplexity', () => (
+      <PerplexityRouteProviderAttrsForm index={index} />
     ))
     .otherwise(() => null);
 }
