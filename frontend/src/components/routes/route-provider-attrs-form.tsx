@@ -4,6 +4,7 @@ import { match } from 'ts-pattern';
 import { OpenAiRouteProviderAttrsForm } from '@/components/routes/attrs/openai-route-provider-attrs-form';
 import { TogetherAiRouteProviderAttrsForm } from '@/components/routes/attrs/together-ai-route-provider-attrs-form';
 import { AnthropicRouteProviderAttrsForm } from '@/components/routes/attrs/anthropic-route-provider-attrs-form';
+import { MistralRouteProviderAttrsForm } from '@/components/routes/attrs/mistral-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -20,5 +21,6 @@ export function RouteProviderAttrsForm({
       <TogetherAiRouteProviderAttrsForm index={index} />
     ))
     .with('anthropic', () => <AnthropicRouteProviderAttrsForm index={index} />)
+    .with('mistral', () => <MistralRouteProviderAttrsForm index={index} />)
     .otherwise(() => null);
 }

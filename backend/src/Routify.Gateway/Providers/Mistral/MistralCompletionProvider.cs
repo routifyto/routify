@@ -135,6 +135,20 @@ internal class MistralCompletionProvider(
             mistralAiInput.MaxTokens = maxTokens;
         }
         
+        if (request.RouteProvider.Attrs.TryGetValue("topP", out var topPString) 
+            && !string.IsNullOrWhiteSpace(topPString) 
+            && float.TryParse(topPString, out var topP))
+        {
+            mistralAiInput.TopP = topP;
+        }
+        
+        if (request.RouteProvider.Attrs.TryGetValue("safePrompt", out var safePromptString) 
+            && !string.IsNullOrWhiteSpace(safePromptString) 
+            && bool.TryParse(safePromptString, out var safePrompt))
+        {
+            mistralAiInput.SafePrompt = safePrompt;
+        }
+        
         return mistralAiInput;
     }
     
