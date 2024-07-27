@@ -5,6 +5,7 @@ import { OpenAiRouteProviderAttrsForm } from '@/components/routes/attrs/openai-r
 import { TogetherAiRouteProviderAttrsForm } from '@/components/routes/attrs/together-ai-route-provider-attrs-form';
 import { AnthropicRouteProviderAttrsForm } from '@/components/routes/attrs/anthropic-route-provider-attrs-form';
 import { MistralRouteProviderAttrsForm } from '@/components/routes/attrs/mistral-route-provider-attrs-form';
+import { CohereRouteProviderAttrsForm } from '@/components/routes/attrs/cohere-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -22,5 +23,6 @@ export function RouteProviderAttrsForm({
     ))
     .with('anthropic', () => <AnthropicRouteProviderAttrsForm index={index} />)
     .with('mistral', () => <MistralRouteProviderAttrsForm index={index} />)
+    .with('cohere', () => <CohereRouteProviderAttrsForm index={index} />)
     .otherwise(() => null);
 }
