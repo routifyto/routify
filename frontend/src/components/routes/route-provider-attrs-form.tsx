@@ -9,6 +9,7 @@ import { CohereRouteProviderAttrsForm } from '@/components/routes/attrs/cohere-r
 import { CloudflareRouteProviderAttrsForm } from '@/components/routes/attrs/cloudflare-route-provider-attrs-form';
 import { AzureOpenAiRouteProviderAttrsForm } from '@/components/routes/attrs/azure-openai-route-provider-attrs-form';
 import { PerplexityRouteProviderAttrsForm } from '@/components/routes/attrs/perplexity-route-provider-attrs-form';
+import { GroqRouteProviderAttrsForm } from '@/components/routes/attrs/groq-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -36,5 +37,6 @@ export function RouteProviderAttrsForm({
     .with('perplexity', () => (
       <PerplexityRouteProviderAttrsForm index={index} />
     ))
+    .with('groq', () => <GroqRouteProviderAttrsForm index={index} />)
     .otherwise(() => null);
 }
