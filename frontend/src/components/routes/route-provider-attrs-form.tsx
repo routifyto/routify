@@ -6,6 +6,7 @@ import { TogetherAiRouteProviderAttrsForm } from '@/components/routes/attrs/toge
 import { AnthropicRouteProviderAttrsForm } from '@/components/routes/attrs/anthropic-route-provider-attrs-form';
 import { MistralRouteProviderAttrsForm } from '@/components/routes/attrs/mistral-route-provider-attrs-form';
 import { CohereRouteProviderAttrsForm } from '@/components/routes/attrs/cohere-route-provider-attrs-form';
+import { CloudflareRouteProviderAttrsForm } from '@/components/routes/attrs/cloudflare-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -24,5 +25,8 @@ export function RouteProviderAttrsForm({
     .with('anthropic', () => <AnthropicRouteProviderAttrsForm index={index} />)
     .with('mistral', () => <MistralRouteProviderAttrsForm index={index} />)
     .with('cohere', () => <CohereRouteProviderAttrsForm index={index} />)
+    .with('cloudflare', () => (
+      <CloudflareRouteProviderAttrsForm index={index} />
+    ))
     .otherwise(() => null);
 }

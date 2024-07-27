@@ -23,7 +23,17 @@ export function CloudflareAppProviderAttrsForm() {
           <FormItem className="flex-1">
             <FormLabel>Account ID</FormLabel>
             <FormControl>
-              <Input placeholder="Account ID" {...field} />
+              <Input
+                placeholder="Account ID"
+                value={field.value ?? ''}
+                onChange={(event) => {
+                  if (event.target.value === '') {
+                    field.onChange(null);
+                  } else {
+                    field.onChange(event.target.value);
+                  }
+                }}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -36,7 +46,6 @@ export function CloudflareAppProviderAttrsForm() {
           <FormItem className="flex-1">
             <FormLabel>API Token</FormLabel>
             <FormControl>
-              <Input placeholder="API Token" {...field} />
               <SecretInput
                 placeholder="API Token"
                 {...field}

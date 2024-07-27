@@ -27,7 +27,7 @@ const formSchema = z.object({
   }),
   provider: z.string(),
   description: z.string().optional(),
-  attrs: z.record(z.string(), z.string()),
+  attrs: z.record(z.string(), z.string().nullable().optional()),
 });
 
 interface AppProviderProps {
