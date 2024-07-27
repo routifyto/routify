@@ -17,11 +17,20 @@ Routify streamlines requests to 150+ open & closed source models with a unified 
 - **Load balancing**: Routify can load balance requests across multiple providers.
 - **Failover**: Routify can automatically failover to a different provider if the primary provider is down.
 
+## How it works
+
+Routify uses routes which allow you to have different behavior and logic for different use cases. Each route is defined by a path and can have one or more providers to proxy the requests.
+
+For example, you can have a route that matches `/openai` to proxy requests to the OpenAI API and another route that matches `/anthropic` to proxy requests to the Anthropic API.
+
+Each route has a schema that defines which provider schema to use for the route. This will determine the structure of the request and response objects. You can use the OpenAI schema for input and output but have the request proxied to the Anthropic API or any other provider. This allows you to switch providers without changing your application code.
+
+Also you can override request parameters, such as `system prompt`, `temperature`, `max_tokens`, `top_p`, etc. for each provider, through the user interface, on runtime.
+
 ## Upcoming features
 
 - 🔲 Streaming response for chat completion
 - 🔲 Automatic and configurable retries
-- 🔲 Timeouts
 - 🔲 Filtering and sorting of logs
 
 ## Test with Routify cloud
