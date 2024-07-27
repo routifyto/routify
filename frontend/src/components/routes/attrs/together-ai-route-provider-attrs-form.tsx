@@ -11,13 +11,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-interface OpenAiRouteProviderAttrsFormProps {
+interface TogetherAiRouteProviderAttrsFormProps {
   index: number;
 }
 
-export function OpenAiRouteProviderAttrsForm({
+export function TogetherAiRouteProviderAttrsForm({
   index,
-}: OpenAiRouteProviderAttrsFormProps) {
+}: TogetherAiRouteProviderAttrsFormProps) {
   const form = useFormContext<CreateRouteInput>();
   return (
     <div className="flex flex-col gap-4">
