@@ -40,6 +40,7 @@ internal record AppData
                         Model = provider.Model,
                         Attrs = provider.Attrs,
                         Weight = Math.Max(provider.Weight, 1),
+                        Timeout = provider.Timeout,
                     })
                     .ToList(),
                 CacheConfig = route.CacheConfig,

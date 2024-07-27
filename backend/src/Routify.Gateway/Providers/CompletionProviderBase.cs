@@ -97,6 +97,9 @@ internal abstract class CompletionProviderBase<TInput, TOutput>
         }
         
         var httpClient = PrepareHttpClient(request);
+        if (request.RouteProvider.Timeout.HasValue)
+            httpClient.Timeout = TimeSpan.FromMilliseconds(request.RouteProvider.Timeout.Value);
+        
         var requestContent = new StringContent(requestJson, Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync(requestUrl, requestContent, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);

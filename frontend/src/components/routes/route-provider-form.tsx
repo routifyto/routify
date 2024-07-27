@@ -82,29 +82,56 @@ export function RouteProviderForm({ index, onRemove }: RouteProviderFormProps) {
           <Trash className="h-4 w-4" />
         </Button>
       </div>
-      <FormField
-        control={form.control}
-        name={`providers.${index}.weight`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Weight</FormLabel>
-            <FormControl>
-              <Input
-                placeholder=""
-                value={field.value ?? ''}
-                onChange={(event) => {
-                  const number = parseInt(event.target.value, 10);
-                  if (isNaN(number)) {
-                    return;
-                  }
-                  field.onChange(number);
-                }}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid grid-cols-2 gap-2">
+        <FormField
+          control={form.control}
+          name={`providers.${index}.weight`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Weight</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder=""
+                  value={field.value ?? ''}
+                  onChange={(event) => {
+                    const number = parseInt(event.target.value, 10);
+                    if (isNaN(number)) {
+                      return;
+                    }
+                    field.onChange(number);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name={`providers.${index}.timeout`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Timeout (ms)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder=""
+                  value={field.value ?? ''}
+                  onChange={(event) => {
+                    const number = parseInt(event.target.value, 10);
+                    if (event.target.value == '' || isNaN(number)) {
+                      field.onChange(null);
+                    } else {
+                      field.onChange(number);
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
       <FormField
         control={form.control}
         name={`providers.${index}.model`}

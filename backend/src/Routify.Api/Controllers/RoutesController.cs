@@ -190,6 +190,7 @@ public class RoutesController(
                 Model = routeProviderInput.Model,
                 Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>(),
                 Weight = routeProviderInput.Weight,
+                Timeout = routeProviderInput.Timeout,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = CurrentUserId,
                 VersionId = RoutifyId.Generate(IdType.Version)
@@ -294,6 +295,7 @@ public class RoutesController(
                     Model = routeProviderInput.Model,
                     Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>(),
                     Weight = routeProviderInput.Weight,
+                    Timeout = routeProviderInput.Timeout,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = CurrentUserId,
                     VersionId = RoutifyId.Generate(IdType.Version)
@@ -312,6 +314,7 @@ public class RoutesController(
                 routeProvider.Model = routeProviderInput.Model;
                 routeProvider.Attrs = routeProviderInput.Attrs ?? new Dictionary<string, string>();
                 routeProvider.Weight = routeProviderInput.Weight;
+                routeProvider.Timeout = routeProviderInput.Timeout;
                 routeProvider.UpdatedAt = DateTime.UtcNow;
                 routeProvider.UpdatedBy = CurrentUserId;
                 routeProvider.VersionId = RoutifyId.Generate(IdType.Version);
@@ -402,7 +405,8 @@ public class RoutesController(
                     AppProviderId = x.AppProviderId,
                     Model = x.Model,
                     Attrs = x.Attrs,
-                    Weight = x.Weight
+                    Weight = x.Weight,
+                    Timeout = x.Timeout
                 })
                 .ToList(),
             CacheConfig = route.CacheConfig,

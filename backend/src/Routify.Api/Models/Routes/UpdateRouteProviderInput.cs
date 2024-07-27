@@ -7,4 +7,5 @@ public record UpdateRouteProviderInput
     public string? Model { get; set; }
     public Dictionary<string, string>? Attrs { get; set; }
     public int Weight { get; set; }
+    public int? Timeout { get; set; }
 }

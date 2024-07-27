@@ -21,6 +21,7 @@ export type RouteProviderOutput = {
   appProviderId: string;
   model?: string | null;
   weight: number;
+  timeout?: number | null;
 };
 
 export type CreateRouteInput = {
@@ -56,4 +57,5 @@ export type RouteProviderInput = {
   model?: string | null;
   attrs?: Record<string, string> | null;
   weight: number;
+  timeout?: number | null;
 };

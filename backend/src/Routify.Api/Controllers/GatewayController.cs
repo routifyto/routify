@@ -79,7 +79,8 @@ public class GatewayController(
                                 Index = routeProvider.Index,
                                 Model = routeProvider.Model,
                                 Attrs = routeProvider.Attrs,
-                                Weight = routeProvider.Weight
+                                Weight = routeProvider.Weight,
+                                Timeout = routeProvider.Timeout
                             })
                             .ToList(),
                         CacheConfig = route.CacheConfig,
