@@ -3,6 +3,7 @@ import { match } from 'ts-pattern';
 
 import { OpenAiRouteProviderAttrsForm } from '@/components/routes/attrs/openai-route-provider-attrs-form';
 import { TogetherAiRouteProviderAttrsForm } from '@/components/routes/attrs/together-ai-route-provider-attrs-form';
+import { AnthropicRouteProviderAttrsForm } from '@/components/routes/attrs/anthropic-route-provider-attrs-form';
 
 interface RouteProviderAttrsFormProps {
   provider: string;
@@ -18,5 +19,6 @@ export function RouteProviderAttrsForm({
     .with('together-ai', () => (
       <TogetherAiRouteProviderAttrsForm index={index} />
     ))
+    .with('anthropic', () => <AnthropicRouteProviderAttrsForm index={index} />)
     .otherwise(() => null);
 }
