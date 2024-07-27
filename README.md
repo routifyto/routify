@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://static.routify.to/landing/cover.png" alt="Routify"><br>
+
 # Open-source AI Gateway
 #### Route your LLM requests to different LLM providers with no code changes
 
@@ -14,6 +16,13 @@ Routify streamlines requests to 150+ open & closed source models with a unified 
 - **Cost control**: Routify can help you control costs by estimating the cost of each request and applying cost limits.
 - **Load balancing**: Routify can load balance requests across multiple providers.
 - **Failover**: Routify can automatically failover to a different provider if the primary provider is down.
+
+## Upcoming features
+
+- 🔲 Streaming response for chat completion
+- 🔲 Automatic and configurable retries
+- 🔲 Timeouts
+- 🔲 Filtering and sorting of logs
 
 ## Test with Routify cloud
 
