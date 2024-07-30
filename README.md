@@ -16,7 +16,7 @@ Routify streamlines chat completion requests to 150+ open & closed source models
 - **Cost control**: Routify can help you control costs by estimating the cost of each request and applying real-time limits.
 - **Load balancing**: Routify can load balance requests across multiple providers.
 - **Failover**: Routify can automatically failover to a different provider if the primary provider is down.
-- **Multi tenant**: Routify is multi tenant by default, allowing you to use the same deployment for differnt applications or environments.
+- **Multi tenant**: Routify is multi tenant by default, allowing you to use the same deployment for different applications or environments.
 
 ## How it works
 
