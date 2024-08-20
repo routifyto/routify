@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "routify.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "routify.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-3"
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "routify.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "routify.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: ConnectionStrings__Postgres
+              value: "Host={{ include "routify.postgresHost" . }};Port={{ include "routify.postgresPort" . }};Username={{ include "routify.postgresUser" . }};Password={{ include "routify.postgresPassword" . }};Timeout=300;Database={{ include "routify.postgresDatabase" . }}"
+            - name: Redis__ConnectionString
+              value: "{{ include "routify.redisConnectionString" . }}"
+            - name: Jwt__Secret
+              value: "{{ .Values.api.jwt.secret }}"
+            - name: Jwt__Issuer
+              value: "{{ .Values.api.jwt.issuer }}"
+            - name: Jwt__Audience
+              value: "{{ .Values.api.jwt.audience }}"
+            - name: Gateway__Tokens__0
+              value: "{{ .Values.api.gateway.token }}"
+            - name: Encryption__Key
+              value: "{{ .Values.api.encryption.key }}"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: {{ .Values.global.environment | quote }}

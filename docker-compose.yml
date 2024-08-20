@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-routify_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: routify_ai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  migrations:
+    build:
+      context: ./backend
+      dockerfile: src/Routify.Migrations/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Username=${POSTGRES_USER:-routify_user};Password=${POSTGRES_PASSWORD};Timeout=300;Database=routify_ai
+    depends_on:
+      - postgres
+    command: ["dotnet", "Routify.Migrations.dll"]
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: src/Routify.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Username=${POSTGRES_USER:-routify_user};Password=${POSTGRES_PASSWORD};Timeout=300;Database=routify_ai
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Gateway__Tokens__0=${GATEWAY_TOKEN}
+      - Encryption__Key=${ENCRYPTION_KEY}
+    depends_on:
+      - postgres
+      - redis
+      - migrations
+    ports:
+      - "5004:8080"
+
+  gateway:
+    build:
+      context: ./backend
+      dockerfile: src/Routify.Gateway/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+      - Redis__ConnectionString=redis:6379
+      - Api__BaseUrl=http://api:8080
+      - Api__Token=${GATEWAY_TOKEN}
+    depends_on:
+      - api
+    ports:
+      - "5005:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - REACT_APP_API_URL=http://localhost:5004/
+      - ROUTIFY_ENV_VAR_API_URL=http://localhost:5004/
+      - ROUTIFY_ENV_VAR_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:

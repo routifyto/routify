@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "routify.fullname" . }}-migrations
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "routify.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrations
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-4"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "routify.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migrations
+    spec:
+      restartPolicy: OnFailure
+      {{- if .Values.postgresql.enabled }}
+      initContainers:
+        - name: wait-for-postgresql
+          image: busybox
+          command: ['sh', '-c', 'until nc -z {{ include "routify.postgresHost" . }} {{ include "routify.postgresPort" . }}; do echo waiting for postgresql; sleep 2; done;']
+      {{- end }}
+      containers:
+        - name: migrations
+          image: "{{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["dotnet", "Routify.Migrations.dll"]
+          env:
+            - name: ConnectionStrings__Postgres
+              value: "Host={{ include "routify.postgresHost" . }};Port={{ include "routify.postgresPort" . }};Username={{ include "routify.postgresUser" . }};Password={{ include "routify.postgresPassword" . }};Timeout=300;Database={{ include "routify.postgresDatabase" . }}"

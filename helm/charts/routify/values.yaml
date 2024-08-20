@@ -1,0 +1,105 @@
+# Global configurations
+global:
+  environment: Production
+
+# PostgreSQL configurations
+postgresql:
+  enabled: true
+  auth:
+    username: routify_user
+    password: routify_password
+    database: routify_ai
+  service:
+    port: 5432
+
+image:
+  pullPolicy: Always
+
+# Redis configurations
+redis:
+  enabled: true
+  auth:
+    enabled: false
+    password: ""
+  replica:
+    enabled: false
+  master:
+    service:
+      port: 6379
+
+# External database configurations (used if postgresql.enabled is false)
+externalDatabase:
+  host: ""
+  port: 5432
+  user: ""
+  password: ""
+  database: ""
+
+# External Redis configurations (used if redis.enabled is false)
+externalRedis:
+  host: ""
+  port: 6379
+
+# API configurations
+api:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/routifyto/routify/api
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  jwt:
+    secret: ""
+    issuer: ""
+    audience: ""
+  gateway:
+    token: ""
+  encryption:
+    key: ""
+
+# Gateway configurations
+gateway:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/routifyto/routify/gateway
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  api:
+    token: ""
+
+# Frontend configurations
+frontend:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/routifyto/routify/frontend
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 80
+  env:
+    googleClientId: ""
+    apiUrl: ""
+
+# Migrations configurations
+migrations:
+  image:
+    repository: ghcr.io/routifyto/routify/migrations
+    tag: latest
+
+# Ingress configuration
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: public
+  hosts:
+    - host: frontend.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: frontend
+          servicePort: 80
