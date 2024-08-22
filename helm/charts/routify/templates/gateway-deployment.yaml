@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "routify.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "routify.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gateway
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-2"
+spec:
+  replicas: {{ .Values.gateway.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "routify.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: gateway
+  template:
+    metadata:
+      labels:
+        {{- include "routify.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: Api__Token
+              value: "{{ .Values.gateway.api.token }}"
+            - name: Api__BaseUrl
+              value: "http://{{ include "routify.fullname" . }}-api:{{ .Values.api.service.port }}"
+            - name: Redis__ConnectionString
+              value: "{{ include "routify.redisConnectionString" . }}"

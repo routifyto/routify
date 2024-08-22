@@ -60,6 +60,33 @@ curl --request POST \
 - **Postgres** - main database for configurations and logs
 - **Redis** - in memory database for caching and cost limits
 
-## Self host
+## Self-hosting
 
-We are working on the documentation for self hosting or running Routify locally.
+### Docker Compose
+
+To run Routify using Docker Compose, follow these steps:
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/routify.git
+   cd routify
+   ```
+
+2. Run the following command to start all services:
+   ```
+   POSTGRES_PASSWORD=secure_password JWT_SECRET=your_secret JWT_ISSUER=your_issuer JWT_AUDIENCE=your_audience GATEWAY_TOKEN=your_token ENCRYPTION_KEY=your_key GOOGLE_CLIENT_ID=your_client_id docker-compose up
+   ```
+
+   Replace the placeholder values with your actual values.
+
+3. Access the Routify UI at `http://localhost:3000`
+
+For more detailed information about the Docker Compose setup, refer to the `docker-compose.yml` file in the root directory of the project.
+
+### Helm Chart
+
+For Kubernetes deployments, we provide a Helm chart. You can find the Helm chart and its documentation in the [/helm directory](./helm/README.md) of this repository.
+
+## License
+
+Routify is open-source software licensed under the [MIT license](LICENSE).
